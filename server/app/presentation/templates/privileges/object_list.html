@@ -1,16 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}Object Privileges{% endblock %}
+{% block title %}Quyền Đối tượng - User Manager{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1>Object Privileges</h1>
+    <h1>Quyền trên Đối tượng (Object Privileges)</h1>
     <div class="header-actions">
+        <a href="/privileges" class="btn btn-secondary">
+            <i class="icon-key"></i> Quản lý Quyền Hệ thống
+        </a>
         <a href="/privileges/object/grant" class="btn btn-primary">
-            <i class="icon-plus"></i> Grant Object Privilege
+            <i class="icon-plus"></i> Cấp Quyền Đối tượng
         </a>
         <a href="/privileges/column/grant" class="btn btn-secondary">
-            <i class="icon-columns"></i> Grant Column Privilege
+            <i class="icon-columns"></i> Cấp Quyền trên Cột
         </a>
     </div>
 </div>
@@ -25,14 +28,14 @@
 
 <div class="card">
     <div class="card-header">
-        <h3>Filter by Grantee</h3>
+        <h3>Lọc theo User/Role</h3>
     </div>
     <div class="card-body">
         <form method="GET" action="/privileges/object" class="form-inline">
             <div class="form-group">
-                <label for="grantee">Select User/Role:</label>
+                <label for="grantee">Chọn User/Role:</label>
                 <select name="grantee" id="grantee" class="form-control" onchange="this.form.submit()">
-                    <option value="">-- Select --</option>
+                    <option value="">-- Chọn --</option>
                     <optgroup label="Users">
                         {% for user in users %}
                         <option value="{{ user.username }}" {% if selected_grantee==user.username %}selected{% endif %}>
@@ -56,18 +59,18 @@
 {% if selected_grantee %}
 <div class="card mt-4">
     <div class="card-header">
-        <h3>Object Privileges for: {{ selected_grantee }}</h3>
+        <h3>Quyền Đối tượng của: {{ selected_grantee }}</h3>
     </div>
     <div class="card-body">
         {% if object_privs %}
         <table class="table">
             <thead>
                 <tr>
-                    <th>Owner</th>
-                    <th>Table Name</th>
-                    <th>Privilege</th>
+                    <th>Chủ sở hữu</th>
+                    <th>Tên Bảng</th>
+                    <th>Quyền</th>
                     <th>Grantable</th>
-                    <th>Actions</th>
+                    <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
@@ -78,9 +81,9 @@
                     <td><span class="badge badge-info">{{ priv.privilege }}</span></td>
                     <td>
                         {% if priv.grantable == 'YES' %}
-                        <span class="badge badge-success">YES</span>
+                        <span class="badge badge-success">CÓ</span>
                         {% else %}
-                        <span class="badge badge-secondary">NO</span>
+                        <span class="badge badge-secondary">KHÔNG</span>
                         {% endif %}
                     </td>
                     <td>
@@ -90,8 +93,8 @@
                             <input type="hidden" name="table_owner" value="{{ priv.owner }}">
                             <input type="hidden" name="table_name" value="{{ priv.table_name }}">
                             <button type="submit" class="btn btn-sm btn-danger"
-                                onclick="return confirm('Revoke {{ priv.privilege }} on {{ priv.owner }}.{{ priv.table_name }}?')">
-                                Revoke
+                                onclick="return confirm('Thu hồi quyền {{ priv.privilege }} trên bảng {{ priv.owner }}.{{ priv.table_name }}?')">
+                                Thu hồi
                             </button>
                         </form>
                     </td>
@@ -100,20 +103,20 @@
             </tbody>
         </table>
         {% else %}
-        <p class="text-muted">No object privileges found for this grantee.</p>
+        <p class="text-muted">Không tìm thấy quyền đối tượng nào cho User/Role này.</p>
         {% endif %}
     </div>
 </div>
 {% endif %}
 
 <div class="info-box mt-4">
-    <h4>Object Privileges (Table-level)</h4>
+    <h4>Thông tin Quyền Đối tượng (Bảng)</h4>
     <ul>
-        <li><strong>SELECT:</strong> Read data from table</li>
-        <li><strong>INSERT:</strong> Add new rows to table</li>
-        <li><strong>UPDATE:</strong> Modify existing rows</li>
-        <li><strong>DELETE:</strong> Remove rows from table</li>
+        <li><strong>SELECT:</strong> Xem dữ liệu từ bảng</li>
+        <li><strong>INSERT:</strong> Thêm dòng mới vào bảng</li>
+        <li><strong>UPDATE:</strong> Cập nhật dữ liệu hiện có</li>
+        <li><strong>DELETE:</strong> Xóa dữ liệu khỏi bảng</li>
     </ul>
-    <p><strong>Column-level:</strong> SELECT and INSERT can be granted on specific columns only.</p>
+    <p><strong>Cấp độ Cột:</strong> SELECT và INSERT có thể được cấp riêng cho từng cột cụ thể.</p>
 </div>
 {% endblock %}

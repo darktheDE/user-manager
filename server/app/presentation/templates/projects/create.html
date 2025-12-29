@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Create Project - User Manager{% endblock %}
+{% block title %}Tạo Dự án - User Manager{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">Create New Project</h1>
+    <h1 class="page-title">Tạo Dự án Mới</h1>
     <div class="page-actions">
-        <a href="/projects" class="btn btn-secondary">Back to Projects</a>
+        <a href="/projects" class="btn btn-secondary">Quay lại DS</a>
     </div>
 </div>
 
@@ -16,20 +16,20 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Project Information</h3>
+        <h3 class="card-title">Thông tin Dự án</h3>
     </div>
     <div class="card-body">
         <form method="post" action="/projects/create">
             <div class="form-group">
-                <label for="project_name">Project Name <span class="required">*</span></label>
+                <label for="project_name">Tên Dự án <span class="required">*</span></label>
                 <input type="text" id="project_name" name="project_name" value="{{ project_name or '' }}" required
-                    maxlength="100" placeholder="Enter project name">
+                    maxlength="100" placeholder="Nhập tên dự án">
             </div>
 
             <div class="form-group">
-                <label for="department">Department <span class="required">*</span></label>
+                <label for="department">Phòng ban <span class="required">*</span></label>
                 <select id="department" name="department" required>
-                    <option value="">-- Select Department --</option>
+                    <option value="">-- Chọn Phòng ban --</option>
                     {% for dept in departments %}
                     <option value="{{ dept }}" {% if department==dept %}selected{% endif %}>{{ dept }}</option>
                     {% endfor %}
@@ -37,13 +37,13 @@
             </div>
 
             <div class="form-group">
-                <label for="budget">Budget</label>
+                <label for="budget">Ngân sách (Budget)</label>
                 <input type="number" id="budget" name="budget" value="{{ budget or 0 }}" min="0" step="0.01"
                     placeholder="0.00">
             </div>
 
             <div class="form-group">
-                <label for="status">Status</label>
+                <label for="status">Trạng thái</label>
                 <select id="status" name="status">
                     {% for st in statuses %}
                     <option value="{{ st }}" {% if status==st %}selected{% endif %}>{{ st }}</option>
@@ -52,8 +52,8 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Create Project</button>
-                <a href="/projects" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Tạo Dự án</button>
+                <a href="/projects" class="btn btn-secondary">Hủy</a>
             </div>
         </form>
     </div>

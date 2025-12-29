@@ -4,9 +4,9 @@
 
 {% block content %}
 <div class="page-header">
-    <h1>Grant Object Privilege</h1>
+    <h1>Cấp Quyền Đối tượng</h1>
     <a href="/privileges/object" class="btn btn-secondary">
-        <i class="icon-back"></i> Back to Object Privileges
+        <i class="icon-back"></i> Quay lại DS
     </a>
 </div>
 
@@ -16,14 +16,14 @@
 
 <div class="card">
     <div class="card-header">
-        <h3>Grant Table Privilege</h3>
+        <h3>Cấp Quyền trên Bảng</h3>
     </div>
     <div class="card-body">
         <form method="POST" action="/privileges/object/grant">
             <div class="form-group">
-                <label for="grantee">Grantee (User/Role) *</label>
+                <label for="grantee">Người được cấp (User/Role) *</label>
                 <select name="grantee" id="grantee" class="form-control" required>
-                    <option value="">-- Select User or Role --</option>
+                    <option value="">-- Chọn User hoặc Role --</option>
                     <optgroup label="Users">
                         {% for user in users %}
                         <option value="{{ user.username }}" {% if selected_grantee==user.username %}selected{% endif %}>
@@ -42,7 +42,7 @@
             </div>
 
             <div class="form-group">
-                <label for="privilege">Privilege *</label>
+                <label for="privilege">Quyền *</label>
                 <select name="privilege" id="privilege" class="form-control" required>
                     {% for priv in object_privileges %}
                     <option value="{{ priv }}">{{ priv }}</option>
@@ -51,10 +51,10 @@
             </div>
 
             <div class="form-group">
-                <label for="table_select">Table *</label>
+                <label for="table_select">Bảng *</label>
                 <select name="table_select" id="table_select" class="form-control" required
                     onchange="updateTableFields()">
-                    <option value="">-- Select Table --</option>
+                    <option value="">-- Chọn Bảng --</option>
                     {% for table in tables %}
                     <option value="{{ table.owner }}.{{ table.table_name }}" data-owner="{{ table.owner }}"
                         data-table="{{ table.table_name }}">
@@ -69,14 +69,14 @@
             <div class="form-group">
                 <label class="checkbox-label">
                     <input type="checkbox" name="with_grant_option" value="true">
-                    <span>WITH GRANT OPTION</span>
+                    <span>Cấp kèm WITH GRANT OPTION</span>
                 </label>
-                <small class="form-hint">Allow grantee to grant this privilege to others</small>
+                <small class="form-hint">Cho phép người nhận cấp lại quyền này cho người khác</small>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Grant Privilege</button>
-                <a href="/privileges/object" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Cấp Quyền</button>
+                <a href="/privileges/object" class="btn btn-secondary">Hủy</a>
             </div>
         </form>
     </div>

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Create Profile - User Manager{% endblock %}
+{% block title %}Tạo Profile - User Manager{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">Create New Profile</h1>
+    <h1 class="page-title">Tạo Profile Mới</h1>
     <div class="page-actions">
-        <a href="/profiles" class="btn btn-secondary">Back to Profiles</a>
+        <a href="/profiles" class="btn btn-secondary">Quay lại DS</a>
     </div>
 </div>
 
@@ -16,22 +16,22 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Profile Information</h3>
+        <h3 class="card-title">Thông tin Profile</h3>
     </div>
     <div class="card-body">
         <form method="post" action="/profiles/create">
             <div class="form-group">
-                <label for="profile_name">Profile Name <span class="required">*</span></label>
+                <label for="profile_name">Tên Profile <span class="required">*</span></label>
                 <input type="text" id="profile_name" name="profile_name" value="{{ profile_name or '' }}" required
                     pattern="[a-zA-Z][a-zA-Z0-9_]*"
-                    title="Must start with a letter, only alphanumeric and underscore allowed"
-                    placeholder="e.g., STAFF_PROFILE">
-                <small class="form-hint">Must start with a letter, only alphanumeric and underscore allowed</small>
+                    title="Phải bắt đầu bằng chữ cái, chỉ chứa chữ cái, số và dấu gạch dưới"
+                    placeholder="Ví dụ: STAFF_PROFILE">
+                <small class="form-hint">Phải bắt đầu bằng chữ cái, chỉ chứa chữ cái, số và dấu gạch dưới</small>
             </div>
 
             <div class="form-section">
-                <h4 class="form-section-title">Resource Limits</h4>
-                <p class="form-section-desc">Configure session and time limits for users with this profile</p>
+                <h4 class="form-section-title">Giới hạn Tài nguyên (Resource Limits)</h4>
+                <p class="form-section-desc">Cấu hình giới hạn session và thời gian cho người dùng thuộc profile này</p>
             </div>
 
             <div class="form-group">
@@ -43,19 +43,19 @@
                         <option value="UNLIMITED" {% if sessions_per_user=='UNLIMITED' %}selected{% endif %}>UNLIMITED
                         </option>
                         <option value="CUSTOM" {% if sessions_per_user and sessions_per_user not in
-                            ['DEFAULT', 'UNLIMITED' ] %}selected{% endif %}>Custom Value</option>
+                            ['DEFAULT', 'UNLIMITED' ] %}selected{% endif %}>Giá trị tùy chỉnh</option>
                     </select>
-                    <input type="text" id="sessions_per_user_value" placeholder="Number of sessions"
+                    <input type="text" id="sessions_per_user_value" placeholder="Số lượng sessions"
                         style="{% if not sessions_per_user or sessions_per_user in ['DEFAULT', 'UNLIMITED'] %}display: none;{% endif %}"
                         value="{{ sessions_per_user if sessions_per_user and sessions_per_user not in ['DEFAULT', 'UNLIMITED'] else '' }}">
                     <input type="hidden" id="sessions_per_user" name="sessions_per_user"
                         value="{{ sessions_per_user or 'DEFAULT' }}">
                 </div>
-                <small class="form-hint">Maximum concurrent sessions per user</small>
+                <small class="form-hint">Số lượng session tối đa đồng thời cho mỗi user</small>
             </div>
 
             <div class="form-group">
-                <label for="connect_time">CONNECT_TIME (minutes)</label>
+                <label for="connect_time">CONNECT_TIME (phút)</label>
                 <div class="resource-input">
                     <select id="connect_time_type" onchange="toggleResourceInput('connect_time')">
                         <option value="DEFAULT" {% if not connect_time or connect_time=='DEFAULT' %}selected{% endif %}>
@@ -63,37 +63,37 @@
                         <option value="UNLIMITED" {% if connect_time=='UNLIMITED' %}selected{% endif %}>UNLIMITED
                         </option>
                         <option value="CUSTOM" {% if connect_time and connect_time not in ['DEFAULT', 'UNLIMITED' ]
-                            %}selected{% endif %}>Custom Value</option>
+                            %}selected{% endif %}>Giá trị tùy chỉnh</option>
                     </select>
-                    <input type="text" id="connect_time_value" placeholder="Minutes"
+                    <input type="text" id="connect_time_value" placeholder="Phút"
                         style="{% if not connect_time or connect_time in ['DEFAULT', 'UNLIMITED'] %}display: none;{% endif %}"
                         value="{{ connect_time if connect_time and connect_time not in ['DEFAULT', 'UNLIMITED'] else '' }}">
                     <input type="hidden" id="connect_time" name="connect_time" value="{{ connect_time or 'DEFAULT' }}">
                 </div>
-                <small class="form-hint">Maximum elapsed connection time</small>
+                <small class="form-hint">Thời gian kết nối tối đa (tính bằng phút)</small>
             </div>
 
             <div class="form-group">
-                <label for="idle_time">IDLE_TIME (minutes)</label>
+                <label for="idle_time">IDLE_TIME (phút)</label>
                 <div class="resource-input">
                     <select id="idle_time_type" onchange="toggleResourceInput('idle_time')">
                         <option value="DEFAULT" {% if not idle_time or idle_time=='DEFAULT' %}selected{% endif %}>
                             DEFAULT</option>
                         <option value="UNLIMITED" {% if idle_time=='UNLIMITED' %}selected{% endif %}>UNLIMITED</option>
                         <option value="CUSTOM" {% if idle_time and idle_time not in ['DEFAULT', 'UNLIMITED' ]
-                            %}selected{% endif %}>Custom Value</option>
+                            %}selected{% endif %}>Giá trị tùy chỉnh</option>
                     </select>
-                    <input type="text" id="idle_time_value" placeholder="Minutes"
+                    <input type="text" id="idle_time_value" placeholder="Phút"
                         style="{% if not idle_time or idle_time in ['DEFAULT', 'UNLIMITED'] %}display: none;{% endif %}"
                         value="{{ idle_time if idle_time and idle_time not in ['DEFAULT', 'UNLIMITED'] else '' }}">
                     <input type="hidden" id="idle_time" name="idle_time" value="{{ idle_time or 'DEFAULT' }}">
                 </div>
-                <small class="form-hint">Maximum idle time before automatic disconnect</small>
+                <small class="form-hint">Thời gian nhàn rỗi tối đa trước khi ngắt kết nối</small>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Create Profile</button>
-                <a href="/profiles" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Tạo Profile</button>
+                <a href="/profiles" class="btn btn-secondary">Hủy</a>
             </div>
         </form>
     </div>

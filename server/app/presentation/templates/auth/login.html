@@ -4,103 +4,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - User Manager</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Đăng nhập - Hệ thống Quản lý Người dùng & Dự án</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #f5f5f5;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #2c0b47 0%, #48126e 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
             padding: 20px;
+            overflow: hidden;
+            position: relative;
         }
 
-        .login-container {
+        /* Decorative background blobs */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, #ff5370 0%, transparent 60%);
+            opacity: 0.2;
+            filter: blur(80px);
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -10%;
+            right: -10%;
+            width: 40vw;
+            height: 40vw;
+            background: radial-gradient(circle, #4099ff 0%, transparent 60%);
+            opacity: 0.2;
+            filter: blur(80px);
+            z-index: 0;
+        }
+
+        .login-wrapper {
+            background: #fff;
             width: 100%;
-            max-width: 400px;
+            max-width: 900px;
+            height: 550px;
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            display: flex;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
         }
 
-        .login-card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
+        /* Left Side - Form */
+        .login-left {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #fff;
         }
 
         .login-header h1 {
-            font-size: 28px;
-            font-weight: 600;
+            font-size: 24px;
+            font-weight: 700;
             color: #333;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            line-height: 1.3;
         }
 
         .login-header p {
-            color: #6c757d;
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 40px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            border: none;
+            border-bottom: 2px solid #eee;
+            padding: 10px 0;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-bottom-color: #ff5370;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .form-check input {
+            margin-right: 10px;
+        }
+
+        .form-check label {
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .btn-login {
+            background: linear-gradient(to right, #ff9966, #ff5e62);
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 30px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 15px rgba(255, 94, 98, 0.4);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 94, 98, 0.6);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            background: #ffecec;
+            color: #ff5370;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Right Side - Decorative */
+        .login-right {
+            flex: 1.2;
+            background: #2b1055;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #2c0b47 0%, #48126e 100%);
+        }
+
+        /* Abstract shapes in CSS */
+        .shape {
+            position: absolute;
+            border-radius: 50px;
+            opacity: 0.5;
+            filter: blur(10px);
+        }
+
+        .shape-1 {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #ff5370, #ff869a);
+            top: -50px;
+            right: -50px;
+            transform: rotate(45deg);
+        }
+
+        .shape-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, #4099ff, #73b4ff);
+            bottom: -100px;
+            left: -50px;
+            transform: rotate(30deg);
+            border-radius: 50%;
+        }
+
+        .shape-3 {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            top: 20%;
+            left: 20%;
+            border-radius: 20px;
+            transform: rotate(-15deg);
+        }
+
+        .illustration-text {
+            position: relative;
+            z-index: 2;
+            color: #fff;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .illustration-text h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .illustration-text p {
+            font-weight: 300;
+            opacity: 0.8;
             font-size: 14px;
         }
 
-        .login-form {
-            margin-top: 20px;
-        }
+        @media (max-width: 768px) {
+            .login-wrapper {
+                height: auto;
+                flex-direction: column;
+            }
 
-        .btn-block {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            margin-top: 8px;
-        }
-
-        .login-footer {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .login-footer p {
-            color: #6c757d;
-            font-size: 12px;
+            .login-right {
+                display: none;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="login-container">
-        <div class="login-card">
+    <div class="login-wrapper">
+        <div class="login-left">
+            <!-- Removed Back Button as requested -->
+
             <div class="login-header">
-                <h1>User Manager</h1>
-                <p>Hệ thống Quản lý Oracle Database</p>
+                <h1>Hệ thống Quản lý<br>Người dùng & Dự án</h1>
+                <p>Đăng nhập bằng tài khoản Oracle Database<br>để truy cập hệ thống quản trị.</p>
             </div>
 
             {% if error %}
-            <div class="alert alert-error">
+            <div class="error-message">
+                <i class="fa-solid fa-circle-exclamation"></i>
                 {{ error }}
             </div>
             {% endif %}
 
-            <form method="post" action="/login" class="login-form">
+            <form method="post" action="/login">
                 <div class="form-group">
-                    <label for="username" class="form-label">Tên đăng nhập</label>
-                    <input type="text" id="username" name="username" class="form-control" required autofocus
-                        value="{{ username or '' }}" placeholder="Nhập username Oracle">
+                    <label class="form-label">Tên đăng nhập Oracle</label>
+                    <input type="text" name="username" class="form-control" required value="{{ username or '' }}"
+                        placeholder="Ví dụ: SYS, SYSTEM, NV_IT...">
                 </div>
 
                 <div class="form-group">
-                    <label for="password" class="form-label">Mật khẩu</label>
-                    <input type="password" id="password" name="password" class="form-control" required
-                        placeholder="Nhập mật khẩu Oracle">
+                    <label class="form-label">Mật khẩu Database</label>
+                    <input type="password" name="password" class="form-control" required placeholder="Nhập mật khẩu...">
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
+                <div class="form-check">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Ghi nhớ đăng nhập</label>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    Đăng nhập Hệ thống
+                </button>
             </form>
+        </div>
 
-            <div class="login-footer">
-                <p>Sử dụng tài khoản Oracle Database để đăng nhập</p>
+        <div class="login-right">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+
+            <div class="illustration-text">
+                <h2>Oracle Security</h2>
+                <p>Quản trị User tập trung &<br>Bảo mật dữ liệu dự án (VPD, Audit, OLS).</p>
             </div>
         </div>
     </div>

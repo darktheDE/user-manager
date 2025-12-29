@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Create Role - User Manager{% endblock %}
+{% block title %}Tạo Role - User Manager{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">Create New Role</h1>
+    <h1 class="page-title">Tạo Role Mới</h1>
     <div class="page-actions">
-        <a href="/roles" class="btn btn-secondary">Back to Roles</a>
+        <a href="/roles" class="btn btn-secondary">Quay lại DS</a>
     </div>
 </div>
 
@@ -16,33 +16,33 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Role Information</h3>
+        <h3 class="card-title">Thông tin Role</h3>
     </div>
     <div class="card-body">
         <form method="post" action="/roles/create">
             <div class="form-group">
-                <label for="role_name">Role Name <span class="required">*</span></label>
+                <label for="role_name">Tên Role <span class="required">*</span></label>
                 <input type="text" id="role_name" name="role_name" value="{{ role_name or '' }}" required
                     pattern="[a-zA-Z][a-zA-Z0-9_]*"
-                    title="Must start with a letter, only alphanumeric and underscore allowed"
-                    placeholder="e.g., PROJECT_MANAGER">
-                <small class="form-hint">Must start with a letter, only alphanumeric and underscore allowed</small>
+                    title="Phải bắt đầu bằng chữ cái, chỉ chứa chữ cái, số và dấu gạch dưới"
+                    placeholder="Ví dụ: PROJECT_MANAGER">
+                <small class="form-hint">Phải bắt đầu bằng chữ cái, chỉ chứa chữ cái, số và dấu gạch dưới</small>
             </div>
 
             <div class="form-section">
-                <h4 class="form-section-title">Role Password (Optional)</h4>
-                <p class="form-section-desc">If set, users must provide this password to enable the role</p>
+                <h4 class="form-section-title">Mật khẩu Role (Tùy chọn)</h4>
+                <p class="form-section-desc">Nếu thiết lập, người dùng phải cung cấp mật khẩu này để kích hoạt role</p>
             </div>
 
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Leave empty for no password">
-                <small class="form-hint">If left empty, role will not require password to enable</small>
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password" name="password" placeholder="Để trống nếu không đặt mật khẩu">
+                <small class="form-hint">Nếu để trống, role sẽ không yêu cầu mật khẩu để kích hoạt</small>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Create Role</button>
-                <a href="/roles" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Tạo Role</button>
+                <a href="/roles" class="btn btn-secondary">Hủy</a>
             </div>
         </form>
     </div>

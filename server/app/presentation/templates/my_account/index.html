@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}My Account{% endblock %}
+{% block title %}Tài khoản của tôi{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1>My Account</h1>
+    <h1>Tài khoản của tôi</h1>
 </div>
 
 {% if error %}
@@ -16,16 +16,16 @@
     <!-- Account Info -->
     <div class="card">
         <div class="card-header">
-            <h3>Account Information</h3>
+            <h3>Thông tin Tài khoản</h3>
         </div>
         <div class="card-body">
             <table class="info-table">
                 <tr>
-                    <th>Username:</th>
+                    <th>Tên đăng nhập:</th>
                     <td><strong>{{ user.username }}</strong></td>
                 </tr>
                 <tr>
-                    <th>Account Status:</th>
+                    <th>Trạng thái:</th>
                     <td>
                         {% if user.account_status == 'OPEN' %}
                         <span class="badge badge-success">{{ user.account_status }}</span>
@@ -35,11 +35,11 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>Created:</th>
+                    <th>Ngày tạo:</th>
                     <td>{{ user.created }}</td>
                 </tr>
                 <tr>
-                    <th>Lock Date:</th>
+                    <th>Ngày khóa:</th>
                     <td>{{ user.lock_date or 'N/A' }}</td>
                 </tr>
                 <tr>
@@ -58,23 +58,23 @@
         <div class="card-body">
             <table class="info-table">
                 <tr>
-                    <th>Default Tablespace:</th>
+                    <th>Tablespace Mặc định:</th>
                     <td>{{ user.default_tablespace }}</td>
                 </tr>
                 <tr>
-                    <th>Temporary Tablespace:</th>
+                    <th>Tablespace Tạm:</th>
                     <td>{{ user.temporary_tablespace }}</td>
                 </tr>
             </table>
 
             {% if quota %}
-            <h4 class="mt-3">Quota Allocations</h4>
+            <h4 class="mt-3">Phân bổ Quota</h4>
             <table class="table table-sm">
                 <thead>
                     <tr>
                         <th>Tablespace</th>
-                        <th>Max Bytes</th>
-                        <th>Used Bytes</th>
+                        <th>Tối đa (Max)</th>
+                        <th>Đã dùng (Used)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -83,7 +83,7 @@
                         <td>{{ q.tablespace_name }}</td>
                         <td>
                             {% if q.max_bytes == -1 %}
-                            <span class="badge badge-warning">UNLIMITED</span>
+                            <span class="badge badge-warning">KHÔNG GIỚI HẠN</span>
                             {% else %}
                             {{ (q.max_bytes / 1024 / 1024)|round(2) }} MB
                             {% endif %}
@@ -101,7 +101,7 @@
 <!-- Roles -->
 <div class="card mt-4">
     <div class="card-header">
-        <h3>Roles Granted</h3>
+        <h3>Các Role Được gán</h3>
     </div>
     <div class="card-body">
         {% if roles %}
@@ -109,7 +109,7 @@
             <thead>
                 <tr>
                     <th>Role</th>
-                    <th>Admin Option</th>
+                    <th>Quyền Admin</th>
                 </tr>
             </thead>
             <tbody>
@@ -118,9 +118,9 @@
                     <td><span class="badge badge-primary">{{ role.privilege }}</span></td>
                     <td>
                         {% if role.admin_option == 'YES' %}
-                        <span class="badge badge-success">YES</span>
+                        <span class="badge badge-success">CÓ</span>
                         {% else %}
-                        <span class="badge badge-secondary">NO</span>
+                        <span class="badge badge-secondary">KHÔNG</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -128,7 +128,7 @@
             </tbody>
         </table>
         {% else %}
-        <p class="text-muted">No roles granted.</p>
+        <p class="text-muted">Không có role nào được gán.</p>
         {% endif %}
     </div>
 </div>
@@ -136,7 +136,7 @@
 <!-- System Privileges -->
 <div class="card mt-4">
     <div class="card-header">
-        <h3>System Privileges</h3>
+        <h3>Quyền Hệ thống (System Privileges)</h3>
     </div>
     <div class="card-body">
         {% if system_privs %}
@@ -148,9 +148,9 @@
             </span>
             {% endfor %}
         </div>
-        <p class="mt-2"><small>* Can be granted to others (WITH ADMIN OPTION)</small></p>
+        <p class="mt-2"><small>* Có thể gán cho người khác (WITH ADMIN OPTION)</small></p>
         {% else %}
-        <p class="text-muted">No system privileges granted directly.</p>
+        <p class="text-muted">Không có quyền hệ thống nào được gán trực tiếp.</p>
         {% endif %}
     </div>
 </div>
@@ -158,17 +158,17 @@
 <!-- Object Privileges -->
 <div class="card mt-4">
     <div class="card-header">
-        <h3>Object Privileges</h3>
+        <h3>Quyền Đối tượng (Object Privileges)</h3>
     </div>
     <div class="card-body">
         {% if object_privs %}
         <table class="table table-sm">
             <thead>
                 <tr>
-                    <th>Owner</th>
-                    <th>Table</th>
-                    <th>Privilege</th>
-                    <th>Grantable</th>
+                    <th>Chủ sở hữu</th>
+                    <th>Bảng (Table)</th>
+                    <th>Quyền (Privilege)</th>
+                    <th>Được gán (Grantable)</th>
                 </tr>
             </thead>
             <tbody>
@@ -183,7 +183,7 @@
             </tbody>
         </table>
         {% else %}
-        <p class="text-muted">No object privileges granted.</p>
+        <p class="text-muted">Không có quyền đối tượng nào.</p>
         {% endif %}
     </div>
 </div>
@@ -192,16 +192,16 @@
 <!-- Column Privileges -->
 <div class="card mt-4">
     <div class="card-header">
-        <h3>Column Privileges</h3>
+        <h3>Quyền trên Cột (Column Privileges)</h3>
     </div>
     <div class="card-body">
         <table class="table table-sm">
             <thead>
                 <tr>
-                    <th>Owner</th>
-                    <th>Table</th>
-                    <th>Column</th>
-                    <th>Privilege</th>
+                    <th>Chủ sở hữu</th>
+                    <th>Bảng (Table)</th>
+                    <th>Cột (Column)</th>
+                    <th>Quyền</th>
                 </tr>
             </thead>
             <tbody>
@@ -222,7 +222,7 @@
 {% else %}
 <div class="card">
     <div class="card-body">
-        <p class="text-muted">Unable to load account information.</p>
+        <p class="text-muted">Không tải được thông tin tài khoản.</p>
     </div>
 </div>
 {% endif %}

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Edit Role - User Manager{% endblock %}
+{% block title %}Sửa Role - User Manager{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">Edit Role: {{ role.role }}</h1>
+    <h1 class="page-title">Sửa Role: {{ role.role }}</h1>
     <div class="page-actions">
-        <a href="/roles" class="btn btn-secondary">Back to Roles</a>
+        <a href="/roles" class="btn btn-secondary">Quay lại DS</a>
     </div>
 </div>
 
@@ -16,52 +16,52 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Role Information</h3>
+        <h3 class="card-title">Thông tin Role</h3>
     </div>
     <div class="card-body">
         <form method="post" action="/roles/{{ role.role }}/edit">
             <div class="form-group">
-                <label>Role Name</label>
+                <label>Tên Role</label>
                 <input type="text" value="{{ role.role }}" disabled class="input-disabled">
-                <small class="form-hint">Role name cannot be changed</small>
+                <small class="form-hint">Tên Role không được phép thay đổi</small>
             </div>
 
             <div class="form-group">
-                <label>Current Password Status</label>
+                <label>Trạng thái Mật khẩu hiện tại</label>
                 <div class="status-display">
                     <span
                         class="badge {% if role.password_required == 'YES' %}badge-warning{% else %}badge-success{% endif %}">
                         {% if role.password_required == 'YES' %}
-                        Password Required
+                        Yêu cầu Mật khẩu
                         {% else %}
-                        No Password Required
+                        Không yêu cầu
                         {% endif %}
                     </span>
                 </div>
             </div>
 
             <div class="form-section">
-                <h4 class="form-section-title">Change Password</h4>
-                <p class="form-section-desc">Set a new password or remove password requirement</p>
+                <h4 class="form-section-title">Thay đổi Mật khẩu</h4>
+                <p class="form-section-desc">Đặt mật khẩu mới hoặc gỡ bỏ yêu cầu mật khẩu</p>
             </div>
 
             <div class="form-group">
-                <label for="password">New Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter new password">
-                <small class="form-hint">Leave empty if not changing password</small>
+                <label for="password">Mật khẩu Mới</label>
+                <input type="password" id="password" name="password" placeholder="Nhập mật khẩu mới">
+                <small class="form-hint">Để trống nếu không muốn đổi</small>
             </div>
 
             <div class="form-group">
                 <label class="checkbox-label">
                     <input type="checkbox" name="remove_password" value="true">
-                    <span>Remove password requirement</span>
+                    <span>Gỡ bỏ yêu cầu mật khẩu</span>
                 </label>
-                <small class="form-hint">Role will not require password to enable</small>
+                <small class="form-hint">Role sẽ không yêu cầu mật khẩu để kích hoạt</small>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="/roles" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                <a href="/roles" class="btn btn-secondary">Hủy</a>
             </div>
         </form>
     </div>
@@ -70,15 +70,15 @@
 {% if role.grantees %}
 <div class="card" style="margin-top: 20px;">
     <div class="card-header">
-        <h3 class="card-title">Grantees (Users/Roles with this role)</h3>
+        <h3 class="card-title">Người nhận (Users/Roles có role này)</h3>
     </div>
     <div class="card-body">
         <table class="table">
             <thead>
                 <tr>
-                    <th>Grantee</th>
-                    <th>Admin Option</th>
-                    <th>Default Role</th>
+                    <th>Người nhận</th>
+                    <th>Quyền Admin</th>
+                    <th>Role Mặc định</th>
                 </tr>
             </thead>
             <tbody>
@@ -103,15 +103,15 @@
 {% if role.privileges %}
 <div class="card" style="margin-top: 20px;">
     <div class="card-header">
-        <h3 class="card-title">Privileges Granted to this Role</h3>
+        <h3 class="card-title">Quyền hạn được gán cho Role này</h3>
     </div>
     <div class="card-body">
         <table class="table">
             <thead>
                 <tr>
-                    <th>Privilege</th>
-                    <th>Type</th>
-                    <th>Admin Option</th>
+                    <th>Quyền (Privilege)</th>
+                    <th>Loại</th>
+                    <th>Quyền Admin</th>
                 </tr>
             </thead>
             <tbody>

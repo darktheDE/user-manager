@@ -4,10 +4,10 @@
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">Grant Privilege or Role</h1>
+    <h1 class="page-title">Cấp Quyền hoặc Vai trò (Role)</h1>
     <div class="page-actions">
         <a href="/privileges{% if selected_grantee %}?grantee={{ selected_grantee }}{% endif %}"
-            class="btn btn-secondary">Back to Privileges</a>
+            class="btn btn-secondary">Quay lại DS Quyền</a>
     </div>
 </div>
 
@@ -17,14 +17,14 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Grant Form</h3>
+        <h3 class="card-title">Form Cấp Quyền</h3>
     </div>
     <div class="card-body">
         <form method="post" action="/privileges/grant">
             <div class="form-group">
-                <label for="grantee">Grantee (User/Role) <span class="required">*</span></label>
+                <label for="grantee">Người được cấp (User/Role) <span class="required">*</span></label>
                 <select id="grantee" name="grantee" required>
-                    <option value="">-- Select User or Role --</option>
+                    <option value="">-- Chọn User hoặc Role --</option>
                     <optgroup label="Users">
                         {% for user in users %}
                         <option value="{{ user.username }}" {% if selected_grantee==user.username %}selected{% endif %}>
@@ -43,28 +43,28 @@
             </div>
 
             <div class="form-group">
-                <label for="privilege_type">Grant Type <span class="required">*</span></label>
+                <label for="privilege_type">Loại hành động <span class="required">*</span></label>
                 <select id="privilege_type" name="privilege_type" required onchange="updatePrivilegeOptions()">
-                    <option value="SYSTEM" selected>System Privilege</option>
-                    <option value="ROLE">Role</option>
+                    <option value="SYSTEM" selected>Quyền Hệ thống (System Privilege)</option>
+                    <option value="ROLE">Vai trò (Role)</option>
                 </select>
             </div>
 
             <div class="form-group" id="privilege_group">
-                <label for="privilege_or_role">System Privilege <span class="required">*</span></label>
+                <label for="privilege_or_role">Quyền Hệ thống <span class="required">*</span></label>
                 <select id="privilege_or_role" name="privilege_or_role" required>
-                    <option value="">-- Select Privilege --</option>
+                    <option value="">-- Chọn Quyền --</option>
                     {% for priv in common_privileges %}
                     <option value="{{ priv }}">{{ priv }}</option>
                     {% endfor %}
                 </select>
-                <small class="form-hint">Common system privileges</small>
+                <small class="form-hint">Các quyền hệ thống phổ biến</small>
             </div>
 
             <div class="form-group" id="role_group" style="display: none;">
-                <label for="role_select">Role <span class="required">*</span></label>
+                <label for="role_select">Vai trò (Role) <span class="required">*</span></label>
                 <select id="role_select">
-                    <option value="">-- Select Role --</option>
+                    <option value="">-- Chọn Role --</option>
                     {% for role in roles %}
                     <option value="{{ role.role }}">{{ role.role }}</option>
                     {% endfor %}
@@ -74,15 +74,15 @@
             <div class="form-group">
                 <label class="checkbox-label">
                     <input type="checkbox" name="with_admin" value="true">
-                    <span>Grant with ADMIN OPTION</span>
+                    <span>Cấp kèm ADMIN OPTION</span>
                 </label>
-                <small class="form-hint">Allow grantee to grant this privilege/role to others</small>
+                <small class="form-hint">Cho phép người nhận cấp lại quyền này cho người khác</small>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Grant</button>
+                <button type="submit" class="btn btn-primary">Cấp Quyền</button>
                 <a href="/privileges{% if selected_grantee %}?grantee={{ selected_grantee }}{% endif %}"
-                    class="btn btn-secondary">Cancel</a>
+                    class="btn btn-secondary">Hủy</a>
             </div>
         </form>
     </div>
@@ -90,18 +90,18 @@
 
 <div class="card" style="margin-top: 20px;">
     <div class="card-header">
-        <h3 class="card-title">Common System Privileges Reference</h3>
+        <h3 class="card-title">Tham khảo Quyền Hệ thống (System Privileges)</h3>
     </div>
     <div class="card-body">
         <div class="priv-grid">
             <div class="priv-category">
                 <h4>Session</h4>
                 <ul>
-                    <li><code>CREATE SESSION</code> - Connect to database</li>
+                    <li><code>CREATE SESSION</code> - Kết nối vào database</li>
                 </ul>
             </div>
             <div class="priv-category">
-                <h4>Objects</h4>
+                <h4>Đối tượng (Objects)</h4>
                 <ul>
                     <li><code>CREATE TABLE</code></li>
                     <li><code>CREATE VIEW</code></li>
@@ -110,7 +110,7 @@
                 </ul>
             </div>
             <div class="priv-category">
-                <h4>ANY Privileges</h4>
+                <h4>Quyền ANY (Toàn cục)</h4>
                 <ul>
                     <li><code>SELECT ANY TABLE</code></li>
                     <li><code>INSERT ANY TABLE</code></li>
@@ -119,7 +119,7 @@
                 </ul>
             </div>
             <div class="priv-category">
-                <h4>User Management</h4>
+                <h4>Quản trị User</h4>
                 <ul>
                     <li><code>CREATE USER</code></li>
                     <li><code>ALTER USER</code></li>

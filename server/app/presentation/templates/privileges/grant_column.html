@@ -4,9 +4,9 @@
 
 {% block content %}
 <div class="page-header">
-    <h1>Grant Column Privilege</h1>
+    <h1>Cấp Quyền trên Cột</h1>
     <a href="/privileges/object" class="btn btn-secondary">
-        <i class="icon-back"></i> Back to Object Privileges
+        <i class="icon-back"></i> Quay lại DS
     </a>
 </div>
 
@@ -16,14 +16,14 @@
 
 <div class="card">
     <div class="card-header">
-        <h3>Grant Column-Level Privilege</h3>
+        <h3>Form Cấp Quyền Cột</h3>
     </div>
     <div class="card-body">
         <form method="POST" action="/privileges/column/grant">
             <div class="form-group">
-                <label for="grantee">Grantee (User/Role) *</label>
+                <label for="grantee">Người được cấp (User/Role) *</label>
                 <select name="grantee" id="grantee" class="form-control" required>
-                    <option value="">-- Select User or Role --</option>
+                    <option value="">-- Chọn User hoặc Role --</option>
                     <optgroup label="Users">
                         {% for user in users %}
                         <option value="{{ user.username }}" {% if selected_grantee==user.username %}selected{% endif %}>
@@ -42,20 +42,20 @@
             </div>
 
             <div class="form-group">
-                <label for="privilege">Privilege *</label>
+                <label for="privilege">Quyền *</label>
                 <select name="privilege" id="privilege" class="form-control" required>
                     {% for priv in column_privileges %}
                     <option value="{{ priv }}">{{ priv }}</option>
                     {% endfor %}
                 </select>
-                <small class="form-hint">Note: Only SELECT and INSERT can be granted on columns</small>
+                <small class="form-hint">Lưu ý: Chỉ SELECT và INSERT được hỗ trợ trên cột</small>
             </div>
 
             <div class="form-group">
-                <label for="table_select">Table *</label>
+                <label for="table_select">Bảng *</label>
                 <select name="table_select" id="table_select" class="form-control" required
                     onchange="updateTableAndLoadColumns()">
-                    <option value="">-- Select Table --</option>
+                    <option value="">-- Chọn Bảng --</option>
                     {% for table in tables %}
                     <option value="{{ table.owner }}.{{ table.table_name }}" data-owner="{{ table.owner }}"
                         data-table="{{ table.table_name }}">
@@ -68,22 +68,22 @@
             </div>
 
             <div class="form-group">
-                <label for="columns">Columns * (comma-separated)</label>
-                <input type="text" name="columns" id="columns" class="form-control" placeholder="e.g., COLUMN1, COLUMN2"
-                    required>
-                <small class="form-hint">Enter column names or select from list below</small>
+                <label for="columns">Các Cột * (nhập tên cột, phân cách bằng dấu phẩy)</label>
+                <input type="text" name="columns" id="columns" class="form-control"
+                    placeholder="Ví dụ: COLUMN1, COLUMN2" required>
+                <small class="form-hint">Nhập thủ công hoặc chọn từ danh sách bên dưới</small>
             </div>
 
             <div class="form-group" id="column_list_container" style="display:none;">
-                <label>Available Columns:</label>
+                <label>Các Cột có sẵn:</label>
                 <div id="column_checkboxes" class="checkbox-grid">
                     <!-- Columns loaded via JavaScript -->
                 </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Grant Column Privilege</button>
-                <a href="/privileges/object" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Cấp Quyền Cột</button>
+                <a href="/privileges/object" class="btn btn-secondary">Hủy</a>
             </div>
         </form>
     </div>

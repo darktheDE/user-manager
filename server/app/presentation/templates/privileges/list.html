@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Privileges - User Manager{% endblock %}
+{% block title %}Quản lý Quyền - User Manager{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">Privilege Management</h1>
+    <h1 class="page-title">Quản lý Quyền hạn</h1>
     <div class="page-actions">
+        <a href="/privileges/object" class="btn btn-secondary" style="margin-right: 10px;">Quản lý Quyền Đối tượng</a>
         <a href="/privileges/grant{% if selected_grantee %}?grantee={{ selected_grantee }}{% endif %}"
-            class="btn btn-primary">Grant Privilege/Role</a>
+            class="btn btn-primary">Cấp Quyền/Role</a>
     </div>
 </div>
 
@@ -21,14 +22,14 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">View Privileges by User/Role</h3>
+        <h3 class="card-title">Xem Quyền theo User/Role</h3>
     </div>
     <div class="card-body">
         <form method="get" action="/privileges" class="filter-form">
             <div class="form-group inline">
-                <label for="grantee">Select User/Role:</label>
+                <label for="grantee">Chọn User/Role:</label>
                 <select name="grantee" id="grantee" onchange="this.form.submit()">
-                    <option value="">-- Select --</option>
+                    <option value="">-- Chọn --</option>
                     <optgroup label="Users">
                         {% for user in users %}
                         <option value="{{ user.username }}" {% if selected_grantee==user.username %}selected{% endif %}>
@@ -52,17 +53,17 @@
 {% if selected_grantee %}
 <div class="card" style="margin-top: 20px;">
     <div class="card-header">
-        <h3 class="card-title">Privileges of: {{ selected_grantee }}</h3>
+        <h3 class="card-title">Quyền của: {{ selected_grantee }}</h3>
     </div>
     <div class="card-body">
         {% if privileges %}
         <table class="table">
             <thead>
                 <tr>
-                    <th>Privilege/Role</th>
-                    <th>Type</th>
+                    <th>Quyền/Role</th>
+                    <th>Loại</th>
                     <th>Admin Option</th>
-                    <th>Actions</th>
+                    <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
@@ -87,8 +88,8 @@
                             <input type="hidden" name="privilege_or_role" value="{{ priv.privilege }}">
                             <input type="hidden" name="privilege_type" value="{{ priv.privilege_type }}">
                             <button type="submit" class="btn btn-danger btn-sm"
-                                onclick="return confirm('Revoke {{ priv.privilege }} from {{ selected_grantee }}?')">
-                                Revoke
+                                onclick="return confirm('Bạn có chắc muốn thu hồi {{ priv.privilege }} từ {{ selected_grantee }}?')">
+                                Thu hồi
                             </button>
                         </form>
                     </td>
@@ -99,9 +100,9 @@
         {% else %}
         <div class="empty-state">
             <div class="empty-state-icon">🔓</div>
-            <div class="empty-state-text">No privileges found for {{ selected_grantee }}</div>
+            <div class="empty-state-text">Không tìm thấy quyền nào cho {{ selected_grantee }}</div>
             <div class="empty-state-subtext">
-                <a href="/privileges/grant?grantee={{ selected_grantee }}">Grant a privilege or role</a>
+                <a href="/privileges/grant?grantee={{ selected_grantee }}">Cấp quyền hoặc role mới</a>
             </div>
         </div>
         {% endif %}
@@ -112,7 +113,7 @@
     <div class="card-body">
         <div class="empty-state">
             <div class="empty-state-icon">🔐</div>
-            <div class="empty-state-text">Select a user or role to view privileges</div>
+            <div class="empty-state-text">Chọn một User hoặc Role để xem quyền hạn</div>
         </div>
     </div>
 </div>

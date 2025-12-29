@@ -56,6 +56,21 @@
         </a>
     </li>
 
+    <li class="nav-item nav-sub-item">
+        <a href="/privileges"
+            class="nav-link {% if request.url.path == '/privileges' or request.url.path == '/privileges/grant' %}active{% endif %}">
+            <span class="nav-icon"><i class="fa-solid fa-user-lock"></i></span>
+            <span class="nav-text">Quyền Hệ thống</span>
+        </a>
+    </li>
+    <li class="nav-item nav-sub-item">
+        <a href="/privileges/object"
+            class="nav-link {% if '/privileges/object' in request.url.path or '/privileges/column' in request.url.path %}active{% endif %}">
+            <span class="nav-icon"><i class="fa-solid fa-table"></i></span>
+            <span class="nav-text">Quyền Đối tượng</span>
+        </a>
+    </li>
+
     <!-- Project Management -->
     <div class="nav-title">Nghiệp vụ</div>
 
