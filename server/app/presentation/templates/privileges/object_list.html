@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Object Privileges{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Object Privileges</h1>
+    <div class="header-actions">
+        <a href="/privileges/object/grant" class="btn btn-primary">
+            <i class="icon-plus"></i> Grant Object Privilege
+        </a>
+        <a href="/privileges/column/grant" class="btn btn-secondary">
+            <i class="icon-columns"></i> Grant Column Privilege
+        </a>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+{% if success %}
+<div class="alert alert-success">{{ success }}</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3>Filter by Grantee</h3>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="/privileges/object" class="form-inline">
+            <div class="form-group">
+                <label for="grantee">Select User/Role:</label>
+                <select name="grantee" id="grantee" class="form-control" onchange="this.form.submit()">
+                    <option value="">-- Select --</option>
+                    <optgroup label="Users">
+                        {% for user in users %}
+                        <option value="{{ user.username }}" {% if selected_grantee==user.username %}selected{% endif %}>
+                            {{ user.username }}
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="Roles">
+                        {% for role in roles %}
+                        <option value="{{ role.role }}" {% if selected_grantee==role.role %}selected{% endif %}>
+                            {{ role.role }}
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if selected_grantee %}
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>Object Privileges for: {{ selected_grantee }}</h3>
+    </div>
+    <div class="card-body">
+        {% if object_privs %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Owner</th>
+                    <th>Table Name</th>
+                    <th>Privilege</th>
+                    <th>Grantable</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for priv in object_privs %}
+                <tr>
+                    <td>{{ priv.owner }}</td>
+                    <td>{{ priv.table_name }}</td>
+                    <td><span class="badge badge-info">{{ priv.privilege }}</span></td>
+                    <td>
+                        {% if priv.grantable == 'YES' %}
+                        <span class="badge badge-success">YES</span>
+                        {% else %}
+                        <span class="badge badge-secondary">NO</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="POST" action="/privileges/object/revoke" style="display:inline;">
+                            <input type="hidden" name="grantee" value="{{ selected_grantee }}">
+                            <input type="hidden" name="privilege" value="{{ priv.privilege }}">
+                            <input type="hidden" name="table_owner" value="{{ priv.owner }}">
+                            <input type="hidden" name="table_name" value="{{ priv.table_name }}">
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Revoke {{ priv.privilege }} on {{ priv.owner }}.{{ priv.table_name }}?')">
+                                Revoke
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted">No object privileges found for this grantee.</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<div class="info-box mt-4">
+    <h4>Object Privileges (Table-level)</h4>
+    <ul>
+        <li><strong>SELECT:</strong> Read data from table</li>
+        <li><strong>INSERT:</strong> Add new rows to table</li>
+        <li><strong>UPDATE:</strong> Modify existing rows</li>
+        <li><strong>DELETE:</strong> Remove rows from table</li>
+    </ul>
+    <p><strong>Column-level:</strong> SELECT and INSERT can be granted on specific columns only.</p>
+</div>
+{% endblock %}

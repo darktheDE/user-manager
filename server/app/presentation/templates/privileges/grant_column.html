@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Grant Column Privilege{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Grant Column Privilege</h1>
+    <a href="/privileges/object" class="btn btn-secondary">
+        <i class="icon-back"></i> Back to Object Privileges
+    </a>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3>Grant Column-Level Privilege</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="/privileges/column/grant">
+            <div class="form-group">
+                <label for="grantee">Grantee (User/Role) *</label>
+                <select name="grantee" id="grantee" class="form-control" required>
+                    <option value="">-- Select User or Role --</option>
+                    <optgroup label="Users">
+                        {% for user in users %}
+                        <option value="{{ user.username }}" {% if selected_grantee==user.username %}selected{% endif %}>
+                            {{ user.username }}
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="Roles">
+                        {% for role in roles %}
+                        <option value="{{ role.role }}" {% if selected_grantee==role.role %}selected{% endif %}>
+                            {{ role.role }}
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="privilege">Privilege *</label>
+                <select name="privilege" id="privilege" class="form-control" required>
+                    {% for priv in column_privileges %}
+                    <option value="{{ priv }}">{{ priv }}</option>
+                    {% endfor %}
+                </select>
+                <small class="form-hint">Note: Only SELECT and INSERT can be granted on columns</small>
+            </div>
+
+            <div class="form-group">
+                <label for="table_select">Table *</label>
+                <select name="table_select" id="table_select" class="form-control" required
+                    onchange="updateTableAndLoadColumns()">
+                    <option value="">-- Select Table --</option>
+                    {% for table in tables %}
+                    <option value="{{ table.owner }}.{{ table.table_name }}" data-owner="{{ table.owner }}"
+                        data-table="{{ table.table_name }}">
+                        {{ table.owner }}.{{ table.table_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="table_owner" id="table_owner">
+                <input type="hidden" name="table_name" id="table_name">
+            </div>
+
+            <div class="form-group">
+                <label for="columns">Columns * (comma-separated)</label>
+                <input type="text" name="columns" id="columns" class="form-control" placeholder="e.g., COLUMN1, COLUMN2"
+                    required>
+                <small class="form-hint">Enter column names or select from list below</small>
+            </div>
+
+            <div class="form-group" id="column_list_container" style="display:none;">
+                <label>Available Columns:</label>
+                <div id="column_checkboxes" class="checkbox-grid">
+                    <!-- Columns loaded via JavaScript -->
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Grant Column Privilege</button>
+                <a href="/privileges/object" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function updateTableAndLoadColumns() {
+        var select = document.getElementById('table_select');
+        var option = select.options[select.selectedIndex];
+
+        var owner = option.getAttribute('data-owner') || '';
+        var table = option.getAttribute('data-table') || '';
+
+        document.getElementById('table_owner').value = owner;
+        document.getElementById('table_name').value = table;
+
+        if (owner && table) {
+            loadColumns(owner, table);
+        }
+    }
+
+    function loadColumns(owner, table) {
+        var container = document.getElementById('column_list_container');
+        var checkboxes = document.getElementById('column_checkboxes');
+
+        fetch('/api/tables/' + owner + '/' + table + '/columns')
+            .then(response => response.json())
+            .then(data => {
+                if (data.columns && data.columns.length > 0) {
+                    checkboxes.innerHTML = '';
+                    data.columns.forEach(function (col) {
+                        var label = document.createElement('label');
+                        label.className = 'checkbox-item';
+                        label.innerHTML = '<input type="checkbox" value="' + col.column_name + '" onchange="updateColumnsField()"> ' +
+                            col.column_name + ' (' + col.data_type + ')';
+                        checkboxes.appendChild(label);
+                    });
+                    container.style.display = 'block';
+                } else {
+                    container.style.display = 'none';
+                }
+            })
+            .catch(function (err) {
+                console.error('Error loading columns:', err);
+                container.style.display = 'none';
+            });
+    }
+
+    function updateColumnsField() {
+        var checkboxes = document.querySelectorAll('#column_checkboxes input[type="checkbox"]:checked');
+        var columns = Array.from(checkboxes).map(function (cb) { return cb.value; });
+        document.getElementById('columns').value = columns.join(', ');
+    }
+</script>
+
+<style>
+    .checkbox-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background: var(--bg-secondary);
+        border-radius: 4px;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}

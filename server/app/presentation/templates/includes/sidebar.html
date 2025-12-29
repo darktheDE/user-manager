@@ -17,6 +17,13 @@
         </li>
 
         <li class="nav-item">
+            <a href="/my-account" class="nav-link {% if '/my-account' in request.url.path %}active{% endif %}">
+                <span class="nav-icon">👤</span>
+                <span class="nav-text">My Account</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
             <a href="/users" class="nav-link {% if '/users' in request.url.path %}active{% endif %}">
                 <span class="nav-icon">👥</span>
                 <span class="nav-text">User Management</span>
@@ -62,10 +69,19 @@
             </a>
         </li>
         <li class="nav-sub-item">
-            <a href="/privileges" class="nav-link">View Privileges</a>
+            <a href="/privileges" class="nav-link">System Privileges</a>
         </li>
         <li class="nav-sub-item">
-            <a href="/privileges/grant" class="nav-link">Grant Privilege</a>
+            <a href="/privileges/grant" class="nav-link">Grant System Priv</a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/privileges/object" class="nav-link">Object Privileges</a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/privileges/object/grant" class="nav-link">Grant Object Priv</a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/privileges/column/grant" class="nav-link">Grant Column Priv</a>
         </li>
 
         <li class="nav-item">
@@ -79,13 +95,6 @@
         </li>
         <li class="nav-sub-item">
             <a href="/projects/create" class="nav-link">Create Project</a>
-        </li>
-
-        <li class="nav-item">
-            <a href="/settings" class="nav-link {% if '/settings' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">⚙️</span>
-                <span class="nav-text">Settings</span>
-            </a>
         </li>
     </ul>
 </nav>

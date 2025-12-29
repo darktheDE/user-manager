@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Grant Object Privilege{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Grant Object Privilege</h1>
+    <a href="/privileges/object" class="btn btn-secondary">
+        <i class="icon-back"></i> Back to Object Privileges
+    </a>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3>Grant Table Privilege</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="/privileges/object/grant">
+            <div class="form-group">
+                <label for="grantee">Grantee (User/Role) *</label>
+                <select name="grantee" id="grantee" class="form-control" required>
+                    <option value="">-- Select User or Role --</option>
+                    <optgroup label="Users">
+                        {% for user in users %}
+                        <option value="{{ user.username }}" {% if selected_grantee==user.username %}selected{% endif %}>
+                            {{ user.username }}
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="Roles">
+                        {% for role in roles %}
+                        <option value="{{ role.role }}" {% if selected_grantee==role.role %}selected{% endif %}>
+                            {{ role.role }}
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="privilege">Privilege *</label>
+                <select name="privilege" id="privilege" class="form-control" required>
+                    {% for priv in object_privileges %}
+                    <option value="{{ priv }}">{{ priv }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="table_select">Table *</label>
+                <select name="table_select" id="table_select" class="form-control" required
+                    onchange="updateTableFields()">
+                    <option value="">-- Select Table --</option>
+                    {% for table in tables %}
+                    <option value="{{ table.owner }}.{{ table.table_name }}" data-owner="{{ table.owner }}"
+                        data-table="{{ table.table_name }}">
+                        {{ table.owner }}.{{ table.table_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="table_owner" id="table_owner">
+                <input type="hidden" name="table_name" id="table_name">
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="with_grant_option" value="true">
+                    <span>WITH GRANT OPTION</span>
+                </label>
+                <small class="form-hint">Allow grantee to grant this privilege to others</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Grant Privilege</button>
+                <a href="/privileges/object" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function updateTableFields() {
+        var select = document.getElementById('table_select');
+        var option = select.options[select.selectedIndex];
+
+        document.getElementById('table_owner').value = option.getAttribute('data-owner') || '';
+        document.getElementById('table_name').value = option.getAttribute('data-table') || '';
+    }
+</script>
+{% endblock %}

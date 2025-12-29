@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}My Account{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>My Account</h1>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+{% if user %}
+<div class="grid grid-2">
+    <!-- Account Info -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Account Information</h3>
+        </div>
+        <div class="card-body">
+            <table class="info-table">
+                <tr>
+                    <th>Username:</th>
+                    <td><strong>{{ user.username }}</strong></td>
+                </tr>
+                <tr>
+                    <th>Account Status:</th>
+                    <td>
+                        {% if user.account_status == 'OPEN' %}
+                        <span class="badge badge-success">{{ user.account_status }}</span>
+                        {% else %}
+                        <span class="badge badge-danger">{{ user.account_status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Created:</th>
+                    <td>{{ user.created }}</td>
+                </tr>
+                <tr>
+                    <th>Lock Date:</th>
+                    <td>{{ user.lock_date or 'N/A' }}</td>
+                </tr>
+                <tr>
+                    <th>Profile:</th>
+                    <td><span class="badge badge-info">{{ user.profile or 'DEFAULT' }}</span></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tablespace Info -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Tablespace & Quota</h3>
+        </div>
+        <div class="card-body">
+            <table class="info-table">
+                <tr>
+                    <th>Default Tablespace:</th>
+                    <td>{{ user.default_tablespace }}</td>
+                </tr>
+                <tr>
+                    <th>Temporary Tablespace:</th>
+                    <td>{{ user.temporary_tablespace }}</td>
+                </tr>
+            </table>
+
+            {% if quota %}
+            <h4 class="mt-3">Quota Allocations</h4>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Tablespace</th>
+                        <th>Max Bytes</th>
+                        <th>Used Bytes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for q in quota %}
+                    <tr>
+                        <td>{{ q.tablespace_name }}</td>
+                        <td>
+                            {% if q.max_bytes == -1 %}
+                            <span class="badge badge-warning">UNLIMITED</span>
+                            {% else %}
+                            {{ (q.max_bytes / 1024 / 1024)|round(2) }} MB
+                            {% endif %}
+                        </td>
+                        <td>{{ (q.bytes / 1024 / 1024)|round(2) }} MB</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Roles -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>Roles Granted</h3>
+    </div>
+    <div class="card-body">
+        {% if roles %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Role</th>
+                    <th>Admin Option</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for role in roles %}
+                <tr>
+                    <td><span class="badge badge-primary">{{ role.privilege }}</span></td>
+                    <td>
+                        {% if role.admin_option == 'YES' %}
+                        <span class="badge badge-success">YES</span>
+                        {% else %}
+                        <span class="badge badge-secondary">NO</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted">No roles granted.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- System Privileges -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>System Privileges</h3>
+    </div>
+    <div class="card-body">
+        {% if system_privs %}
+        <div class="badge-list">
+            {% for priv in system_privs %}
+            <span class="badge badge-info" title="Admin: {{ priv.admin_option }}">
+                {{ priv.privilege }}
+                {% if priv.admin_option == 'YES' %}<small>*</small>{% endif %}
+            </span>
+            {% endfor %}
+        </div>
+        <p class="mt-2"><small>* Can be granted to others (WITH ADMIN OPTION)</small></p>
+        {% else %}
+        <p class="text-muted">No system privileges granted directly.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Object Privileges -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>Object Privileges</h3>
+    </div>
+    <div class="card-body">
+        {% if object_privs %}
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Owner</th>
+                    <th>Table</th>
+                    <th>Privilege</th>
+                    <th>Grantable</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for priv in object_privs %}
+                <tr>
+                    <td>{{ priv.owner }}</td>
+                    <td>{{ priv.table_name }}</td>
+                    <td><span class="badge badge-info">{{ priv.privilege }}</span></td>
+                    <td>{{ priv.grantable }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted">No object privileges granted.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if column_privs %}
+<!-- Column Privileges -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>Column Privileges</h3>
+    </div>
+    <div class="card-body">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Owner</th>
+                    <th>Table</th>
+                    <th>Column</th>
+                    <th>Privilege</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for priv in column_privs %}
+                <tr>
+                    <td>{{ priv.owner }}</td>
+                    <td>{{ priv.table_name }}</td>
+                    <td>{{ priv.column_name }}</td>
+                    <td><span class="badge badge-info">{{ priv.privilege }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="card">
+    <div class="card-body">
+        <p class="text-muted">Unable to load account information.</p>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .info-table {
+        width: 100%;
+    }
+
+    .info-table th {
+        text-align: left;
+        padding: 0.5rem;
+        width: 40%;
+        color: var(--text-secondary);
+    }
+
+    .info-table td {
+        padding: 0.5rem;
+    }
+
+    .badge-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .grid-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

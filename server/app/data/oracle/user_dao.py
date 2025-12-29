@@ -291,6 +291,34 @@ class UserDAO:
         finally:
             await db.release_connection(conn)
 
+    async def get_user_quota(self, username: str) -> List[Dict[str, Any]]:
+        """
+        Get user quota from DBA_TS_QUOTAS.
+        
+        Args:
+            username: Oracle username
+            
+        Returns:
+            List of quota information dicts
+        """
+        conn = await db.get_connection()
+        try:
+            cursor = conn.cursor()
+            await cursor.execute("""
+                SELECT tablespace_name, bytes, max_bytes
+                FROM dba_ts_quotas
+                WHERE username = :username
+            """, username=username.upper())
+            
+            columns = [desc[0].lower() for desc in cursor.description]
+            rows = await cursor.fetchall()
+            return [dict(zip(columns, row)) for row in rows]
+        except Exception:
+            return []
+        finally:
+            await db.release_connection(conn)
+
+
     async def query_user_info(self, username: str) -> Optional[Dict[str, Any]]:
         """
         Query user info from application table user_info.

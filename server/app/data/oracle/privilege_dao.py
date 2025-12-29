@@ -266,6 +266,253 @@ class PrivilegeDAO:
         finally:
             await db.release_connection(conn)
 
+    # ==========================================
+    # Object Privileges Methods
+    # ==========================================
+
+    async def query_all_tables(self, owner: str = None) -> List[Dict[str, Any]]:
+        """
+        Query all tables available for granting object privileges.
+        
+        Args:
+            owner: Optional owner filter (default: all owners except SYS schemas)
+        """
+        if not db.pool:
+            await db.create_pool()
+        
+        conn = await db.get_connection()
+        try:
+            cursor = conn.cursor()
+            if owner:
+                await cursor.execute("""
+                    SELECT owner, table_name 
+                    FROM all_tables 
+                    WHERE owner = :owner
+                    ORDER BY owner, table_name
+                """, owner=owner.upper())
+            else:
+                await cursor.execute("""
+                    SELECT owner, table_name 
+                    FROM all_tables 
+                    WHERE owner NOT IN (
+                        'SYS', 'SYSTEM', 'XDB', 'CTXSYS', 'MDSYS', 
+                        'ORDSYS', 'WMSYS', 'LBACSYS', 'OUTLN', 'DBSNMP'
+                    )
+                    ORDER BY owner, table_name
+                """)
+            
+            columns = [desc[0].lower() for desc in cursor.description]
+            rows = await cursor.fetchall()
+            return [dict(zip(columns, row)) for row in rows]
+        except oracledb.Error as e:
+            print(f"Error querying tables: {e}")
+            raise
+        finally:
+            await db.release_connection(conn)
+
+    async def query_object_privileges(self, grantee: str) -> List[Dict[str, Any]]:
+        """
+        Query object privileges granted to a specific user/role.
+        
+        Returns:
+            List of object privileges with table name, owner, privilege, grantable
+        """
+        if not db.pool:
+            await db.create_pool()
+        
+        conn = await db.get_connection()
+        try:
+            cursor = conn.cursor()
+            await cursor.execute("""
+                SELECT owner, table_name, privilege, grantable, 'OBJECT' as privilege_type
+                FROM dba_tab_privs
+                WHERE grantee = :grantee
+                ORDER BY owner, table_name, privilege
+            """, grantee=grantee.upper())
+            
+            columns = [desc[0].lower() for desc in cursor.description]
+            rows = await cursor.fetchall()
+            return [dict(zip(columns, row)) for row in rows]
+        except oracledb.Error as e:
+            print(f"Error querying object privileges: {e}")
+            raise
+        finally:
+            await db.release_connection(conn)
+
+    async def grant_object_privilege_ddl(
+        self,
+        privilege: str,
+        owner: str,
+        table_name: str,
+        grantee: str,
+        with_grant_option: bool = False,
+    ) -> None:
+        """
+        Grant object privilege on table to user/role.
+        
+        Args:
+            privilege: SELECT, INSERT, UPDATE, DELETE
+            owner: Table owner
+            table_name: Table name
+            grantee: User or role name
+            with_grant_option: Allow grantee to grant this privilege to others
+        """
+        conn = await db.get_connection()
+        try:
+            cursor = conn.cursor()
+            ddl = f'GRANT {privilege} ON "{owner.upper()}"."{table_name.upper()}" TO {grantee.upper()}'
+            if with_grant_option:
+                ddl += " WITH GRANT OPTION"
+            
+            await cursor.execute(ddl)
+            await conn.commit()
+        except oracledb.Error as e:
+            await conn.rollback()
+            print(f"Error granting object privilege: {e}")
+            raise
+        finally:
+            await db.release_connection(conn)
+
+    async def revoke_object_privilege_ddl(
+        self,
+        privilege: str,
+        owner: str,
+        table_name: str,
+        grantee: str,
+    ) -> None:
+        """
+        Revoke object privilege from user/role.
+        """
+        conn = await db.get_connection()
+        try:
+            cursor = conn.cursor()
+            await cursor.execute(
+                f'REVOKE {privilege} ON "{owner.upper()}"."{table_name.upper()}" FROM {grantee.upper()}'
+            )
+            await conn.commit()
+        except oracledb.Error as e:
+            await conn.rollback()
+            print(f"Error revoking object privilege: {e}")
+            raise
+        finally:
+            await db.release_connection(conn)
+
+    # ==========================================
+    # Column Privileges Methods
+    # ==========================================
+
+    async def query_table_columns(self, owner: str, table_name: str) -> List[Dict[str, Any]]:
+        """
+        Query columns of a specific table.
+        """
+        if not db.pool:
+            await db.create_pool()
+        
+        conn = await db.get_connection()
+        try:
+            cursor = conn.cursor()
+            await cursor.execute("""
+                SELECT column_name, data_type, nullable
+                FROM all_tab_columns
+                WHERE owner = :owner AND table_name = :table_name
+                ORDER BY column_id
+            """, owner=owner.upper(), table_name=table_name.upper())
+            
+            columns = [desc[0].lower() for desc in cursor.description]
+            rows = await cursor.fetchall()
+            return [dict(zip(columns, row)) for row in rows]
+        except oracledb.Error as e:
+            print(f"Error querying table columns: {e}")
+            raise
+        finally:
+            await db.release_connection(conn)
+
+    async def query_column_privileges(self, grantee: str) -> List[Dict[str, Any]]:
+        """
+        Query column-level privileges granted to a specific user/role.
+        """
+        if not db.pool:
+            await db.create_pool()
+        
+        conn = await db.get_connection()
+        try:
+            cursor = conn.cursor()
+            await cursor.execute("""
+                SELECT owner, table_name, column_name, privilege, grantable, 'COLUMN' as privilege_type
+                FROM dba_col_privs
+                WHERE grantee = :grantee
+                ORDER BY owner, table_name, column_name, privilege
+            """, grantee=grantee.upper())
+            
+            columns = [desc[0].lower() for desc in cursor.description]
+            rows = await cursor.fetchall()
+            return [dict(zip(columns, row)) for row in rows]
+        except oracledb.Error as e:
+            print(f"Error querying column privileges: {e}")
+            raise
+        finally:
+            await db.release_connection(conn)
+
+    async def grant_column_privilege_ddl(
+        self,
+        privilege: str,
+        owner: str,
+        table_name: str,
+        columns: List[str],
+        grantee: str,
+    ) -> None:
+        """
+        Grant column privilege on specific columns to user/role.
+        
+        Args:
+            privilege: SELECT or INSERT
+            owner: Table owner
+            table_name: Table name
+            columns: List of column names
+            grantee: User or role name
+        """
+        conn = await db.get_connection()
+        try:
+            cursor = conn.cursor()
+            cols = ", ".join([f'"{c.upper()}"' for c in columns])
+            ddl = f'GRANT {privilege}({cols}) ON "{owner.upper()}"."{table_name.upper()}" TO {grantee.upper()}'
+            
+            await cursor.execute(ddl)
+            await conn.commit()
+        except oracledb.Error as e:
+            await conn.rollback()
+            print(f"Error granting column privilege: {e}")
+            raise
+        finally:
+            await db.release_connection(conn)
+
+    async def revoke_column_privilege_ddl(
+        self,
+        privilege: str,
+        owner: str,
+        table_name: str,
+        columns: List[str],
+        grantee: str,
+    ) -> None:
+        """
+        Revoke column privilege from user/role.
+        """
+        conn = await db.get_connection()
+        try:
+            cursor = conn.cursor()
+            cols = ", ".join([f'"{c.upper()}"' for c in columns])
+            await cursor.execute(
+                f'REVOKE {privilege}({cols}) ON "{owner.upper()}"."{table_name.upper()}" FROM {grantee.upper()}'
+            )
+            await conn.commit()
+        except oracledb.Error as e:
+            await conn.rollback()
+            print(f"Error revoking column privilege: {e}")
+            raise
+        finally:
+            await db.release_connection(conn)
+
 
 # Global DAO instance
 privilege_dao = PrivilegeDAO()
+
