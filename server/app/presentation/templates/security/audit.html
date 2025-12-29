@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Audit - Kiểm toán{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📝 Audit - Kiểm toán</h1>
+    <a href="/security" class="btn btn-secondary">← Quay lại</a>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="info-card">
+    <h3>Cơ chế hoạt động</h3>
+    <p>Oracle Audit ghi lại mọi hành động quan trọng:</p>
+    <ul>
+        <li><strong>FGA (Fine-Grained Auditing):</strong> Giám sát chi tiết cột BUDGET</li>
+        <li><strong>Unified Audit:</strong> Login/Logout, DDL, DML quan trọng</li>
+    </ul>
+</div>
+
+<!-- Audit Policies -->
+<div class="demo-section">
+    <h3>📋 Audit Policies đang Active</h3>
+    {% if audit_policies %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Policy Name</th>
+                <th>Enabled Option</th>
+                <th>Entity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for policy in audit_policies %}
+            <tr>
+                <td><strong>{{ policy.policy_name }}</strong></td>
+                <td><span class="badge badge-success">{{ policy.enabled_option }}</span></td>
+                <td>{{ policy.entity_name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-warning">Chưa có Unified Audit policies. Chạy script <code>05_create_audit.sql</code></div>
+    {% endif %}
+</div>
+
+<!-- FGA Logs -->
+<div class="demo-section">
+    <h3>🔍 FGA Audit Trail (Giám sát BUDGET)</h3>
+    <p class="text-muted">Log các lần truy cập/cập nhật cột BUDGET</p>
+
+    {% if fga_logs %}
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>User</th>
+                <th>Object</th>
+                <th>Policy</th>
+                <th>Statement</th>
+                <th>SQL</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in fga_logs %}
+            <tr>
+                <td><small>{{ log.timestamp }}</small></td>
+                <td><span class="badge badge-info">{{ log.db_user }}</span></td>
+                <td>{{ log.object_schema }}.{{ log.object_name }}</td>
+                <td>{{ log.policy_name }}</td>
+                <td>{{ log.statement_type }}</td>
+                <td><code class="sql-text">{{ log.sql_text[:50] }}{% if log.sql_text|length > 50 %}...{% endif %}</code>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-info">Chưa có FGA logs. Thử UPDATE một project để tạo log.</div>
+    {% endif %}
+</div>
+
+<!-- Unified Audit Logs -->
+<div class="demo-section">
+    <h3>📊 Unified Audit Trail</h3>
+    <p class="text-muted">Log login/logout và các hành động trên PROJECTS</p>
+
+    {% if unified_logs %}
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Object</th>
+                <th>Return Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in unified_logs %}
+            <tr>
+                <td><small>{{ log.event_timestamp }}</small></td>
+                <td><span class="badge badge-info">{{ log.dbusername }}</span></td>
+                <td>
+                    {% if log.action_name == 'LOGON' %}
+                    <span class="badge badge-success">{{ log.action_name }}</span>
+                    {% elif log.action_name == 'LOGOFF' %}
+                    <span class="badge badge-secondary">{{ log.action_name }}</span>
+                    {% else %}
+                    <span class="badge badge-warning">{{ log.action_name }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ log.object_schema }}.{{ log.object_name if log.object_name else '-' }}</td>
+                <td>
+                    {% if log.return_code == 0 %}
+                    <span class="text-success">Success</span>
+                    {% else %}
+                    <span class="text-danger">{{ log.return_code }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-info">Chưa có Unified Audit logs.</div>
+    {% endif %}
+</div>
+
+<div class="test-box">
+    <h3>🧪 Cách kiểm tra Audit</h3>
+    <ol>
+        <li>Vào <a href="/projects">Projects</a> và sửa BUDGET của một project</li>
+        <li>Refresh trang này → Thấy log trong FGA Audit Trail</li>
+        <li>Login/Logout → Thấy log trong Unified Audit Trail</li>
+    </ol>
+</div>
+
+<style>
+    .info-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .demo-section {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .test-box {
+        background: var(--bg-secondary);
+        border-left: 4px solid #f5576c;
+        padding: 1.5rem;
+        border-radius: 0 8px 8px 0;
+    }
+
+    .sql-text {
+        font-size: 0.75rem;
+        max-width: 200px;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}

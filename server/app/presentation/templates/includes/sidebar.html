@@ -96,5 +96,21 @@
         <li class="nav-sub-item">
             <a href="/projects/create" class="nav-link">Create Project</a>
         </li>
+
+        <li class="nav-item">
+            <a href="/security" class="nav-link {% if '/security' in request.url.path %}active{% endif %}">
+                <span class="nav-icon">🔒</span>
+                <span class="nav-text">Oracle Security</span>
+            </a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/security/vpd" class="nav-link">VPD</a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/security/audit" class="nav-link">Audit</a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/security/dbvault" class="nav-link">Database Vault</a>
+        </li>
     </ul>
 </nav>

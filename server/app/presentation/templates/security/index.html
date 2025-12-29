@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Oracle Security{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🔒 Tính năng bảo mật Oracle</h1>
+</div>
+
+<div class="intro-box">
+    <p>Các tính năng bảo mật Oracle nâng cao đã được triển khai trong hệ thống.</p>
+</div>
+
+<div class="security-grid">
+    <!-- VPD Card -->
+    <div class="security-card">
+        <div class="card-icon">🛡️</div>
+        <h3>VPD - Virtual Private Database</h3>
+        <p>Phân quyền dữ liệu theo phòng ban. User thuộc phòng nào chỉ thấy dữ liệu phòng đó.</p>
+        <ul>
+            <li>Filter dữ liệu tự động bằng policy</li>
+            <li>Áp dụng trên bảng PROJECTS</li>
+            <li>Dựa vào cột DEPARTMENT</li>
+        </ul>
+        <a href="/security/vpd" class="btn btn-primary">Xem chi tiết →</a>
+    </div>
+
+    <!-- Audit Card -->
+    <div class="security-card">
+        <div class="card-icon">📝</div>
+        <h3>Audit - Kiểm toán</h3>
+        <p>Ghi nhật ký các hành động trên hệ thống để phát hiện và ngăn chặn gian lận.</p>
+        <ul>
+            <li><strong>Standard Audit:</strong> Login/Logout, DDL</li>
+            <li><strong>FGA:</strong> Giám sát cột BUDGET</li>
+            <li>Unified Audit Trail</li>
+        </ul>
+        <a href="/security/audit" class="btn btn-primary">Xem chi tiết →</a>
+    </div>
+
+    <!-- Database Vault Card -->
+    <div class="security-card">
+        <div class="card-icon">🏰</div>
+        <h3>Database Vault</h3>
+        <p>Bảo vệ dữ liệu nhạy cảm, ngăn chặn truy cập trái phép ngay cả từ DBA.</p>
+        <ul>
+            <li><strong>Realms:</strong> Vùng bảo vệ tables</li>
+            <li><strong>Command Rules:</strong> Kiểm soát SQL</li>
+            <li>Thay thế Oracle Label Security</li>
+        </ul>
+        <a href="/security/dbvault" class="btn btn-primary">Xem chi tiết →</a>
+    </div>
+</div>
+
+<div class="summary-table">
+    <h3>📊 Tổng quan các tính năng</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tính năng</th>
+                <th>Mục đích</th>
+                <th>Script</th>
+                <th>Áp dụng trên</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="badge badge-info">VPD</span></td>
+                <td>Phân quyền dòng dữ liệu</td>
+                <td><code>03_create_vpd_policy.sql</code></td>
+                <td>PROJECTS.DEPARTMENT</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-warning">Standard Audit</span></td>
+                <td>Log login/DDL</td>
+                <td><code>05_create_audit.sql</code></td>
+                <td>Toàn hệ thống</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-warning">FGA</span></td>
+                <td>Giám sát chi tiết</td>
+                <td><code>05_create_audit.sql</code></td>
+                <td>PROJECTS.BUDGET</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-success">Database Vault</span></td>
+                <td>Bảo vệ dữ liệu mật</td>
+                <td><code>07_create_dbvault.sql</code></td>
+                <td>PROJECTS, USER_INFO</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .intro-box {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .security-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .security-card {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .security-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .security-card h3 {
+        margin-bottom: 0.75rem;
+        color: var(--text-primary);
+    }
+
+    .security-card p {
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+    }
+
+    .security-card ul {
+        margin-bottom: 1.5rem;
+        padding-left: 1.25rem;
+    }
+
+    .security-card li {
+        margin-bottom: 0.25rem;
+        color: var(--text-secondary);
+    }
+
+    .summary-table {
+        background: var(--bg-primary);
+        border-radius: 8px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+    }
+
+    .summary-table h3 {
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}

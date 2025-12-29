@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}VPD - Virtual Private Database{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🛡️ VPD - Virtual Private Database</h1>
+    <a href="/security" class="btn btn-secondary">← Quay lại</a>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="info-card">
+    <h3>Cơ chế hoạt động</h3>
+    <p>VPD tự động thêm điều kiện WHERE vào mọi query trên bảng PROJECTS:</p>
+    <pre><code>-- User thuộc phòng IT login
+SELECT * FROM PROJECTS;
+
+-- VPD tự động thêm:
+SELECT * FROM PROJECTS WHERE DEPARTMENT = 'IT';</code></pre>
+    <p><strong>Kết quả:</strong> User chỉ thấy projects của phòng mình.</p>
+</div>
+
+<div class="demo-section">
+    <h3>📋 VPD Policies trên PROJECTS</h3>
+    {% if vpd_policies %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Policy Name</th>
+                <th>Function</th>
+                <th>Enabled</th>
+                <th>SELECT</th>
+                <th>INSERT</th>
+                <th>UPDATE</th>
+                <th>DELETE</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for policy in vpd_policies %}
+            <tr>
+                <td><strong>{{ policy.policy_name }}</strong></td>
+                <td><code>{{ policy.function }}</code></td>
+                <td>
+                    {% if policy.enable == 'YES' %}
+                    <span class="badge badge-success">YES</span>
+                    {% else %}
+                    <span class="badge badge-secondary">NO</span>
+                    {% endif %}
+                </td>
+                <td>{{ policy.sel }}</td>
+                <td>{{ policy.ins }}</td>
+                <td>{{ policy.upd }}</td>
+                <td>{{ policy.del }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-warning">
+        Chưa có VPD policy. Chạy script <code>03_create_vpd_policy.sql</code>
+    </div>
+    {% endif %}
+</div>
+
+<div class="demo-section">
+    <h3>📁 Projects bạn có thể thấy (User: {{ username }})</h3>
+    <p class="text-muted">
+        Nếu VPD đang active, bạn chỉ thấy projects thuộc department của mình.
+    </p>
+
+    {% if projects %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Project Name</th>
+                <th>Department</th>
+                <th>Budget</th>
+                <th>Status</th>
+                <th>Owner</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for proj in projects %}
+            <tr>
+                <td>{{ proj.project_id }}</td>
+                <td>{{ proj.project_name }}</td>
+                <td><span class="badge badge-info">{{ proj.department }}</span></td>
+                <td>
+                    {% if proj.budget %}
+                    ${{ "{:,.0f}".format(proj.budget) }}
+                    {% else %}
+                    <span class="text-muted">Ẩn</span>
+                    {% endif %}
+                </td>
+                <td>{{ proj.status }}</td>
+                <td>{{ proj.owner_username }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p class="result-count">Hiển thị {{ projects|length }} projects</p>
+    {% else %}
+    <div class="alert alert-info">Không có projects nào hoặc VPD đã filter hết.</div>
+    {% endif %}
+</div>
+
+<div class="test-box">
+    <h3>🧪 Cách kiểm tra VPD</h3>
+    <ol>
+        <li>Login với <code>HR_USER</code> → Chỉ thấy projects có DEPARTMENT = 'HR'</li>
+        <li>Login với <code>IT_USER</code> → Chỉ thấy projects có DEPARTMENT = 'IT'</li>
+        <li>Login với <code>ADMIN</code> → Thấy tất cả projects</li>
+    </ol>
+</div>
+
+<style>
+    .info-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .info-card pre {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 1rem;
+        border-radius: 4px;
+        overflow-x: auto;
+    }
+
+    .info-card code {
+        color: #fff;
+    }
+
+    .demo-section {
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .test-box {
+        background: var(--bg-secondary);
+        border-left: 4px solid var(--primary);
+        padding: 1.5rem;
+        border-radius: 0 8px 8px 0;
+    }
+
+    .result-count {
+        text-align: right;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
