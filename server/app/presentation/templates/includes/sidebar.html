@@ -56,16 +56,16 @@
         </li>
 
         <li class="nav-item">
-            <a href="/privileges/system" class="nav-link {% if '/privileges' in request.url.path %}active{% endif %}">
+            <a href="/privileges" class="nav-link {% if '/privileges' in request.url.path %}active{% endif %}">
                 <span class="nav-icon">🔑</span>
                 <span class="nav-text">Privilege Management</span>
             </a>
         </li>
         <li class="nav-sub-item">
-            <a href="/privileges/system" class="nav-link">System Privileges</a>
+            <a href="/privileges" class="nav-link">View Privileges</a>
         </li>
         <li class="nav-sub-item">
-            <a href="/privileges/object" class="nav-link">Object Privileges</a>
+            <a href="/privileges/grant" class="nav-link">Grant Privilege</a>
         </li>
 
         <li class="nav-item">
@@ -89,4 +89,3 @@
         </li>
     </ul>
 </nav>
-

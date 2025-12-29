@@ -9,7 +9,7 @@ from fastapi.responses import HTMLResponse
 from app.config import settings
 from app.data.oracle.connection import db
 from app.presentation.middleware import setup_session_middleware
-from app.presentation.routes import auth, users, profiles, roles
+from app.presentation.routes import auth, users, profiles, roles, privileges
 from app.presentation.templates import templates
 
 app = FastAPI(
@@ -28,6 +28,7 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(profiles.router)
 app.include_router(roles.router)
+app.include_router(privileges.router)
 
 # Static files (skip if directory doesn't exist)
 if os.path.exists("app/presentation/static"):

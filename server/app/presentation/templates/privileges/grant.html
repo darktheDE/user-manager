@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Grant Privilege - User Manager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Grant Privilege or Role</h1>
+    <div class="page-actions">
+        <a href="/privileges{% if selected_grantee %}?grantee={{ selected_grantee }}{% endif %}"
+            class="btn btn-secondary">Back to Privileges</a>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Grant Form</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" action="/privileges/grant">
+            <div class="form-group">
+                <label for="grantee">Grantee (User/Role) <span class="required">*</span></label>
+                <select id="grantee" name="grantee" required>
+                    <option value="">-- Select User or Role --</option>
+                    <optgroup label="Users">
+                        {% for user in users %}
+                        <option value="{{ user.username }}" {% if selected_grantee==user.username %}selected{% endif %}>
+                            {{ user.username }}
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="Roles">
+                        {% for role in roles %}
+                        <option value="{{ role.role }}" {% if selected_grantee==role.role %}selected{% endif %}>
+                            {{ role.role }}
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="privilege_type">Grant Type <span class="required">*</span></label>
+                <select id="privilege_type" name="privilege_type" required onchange="updatePrivilegeOptions()">
+                    <option value="SYSTEM" selected>System Privilege</option>
+                    <option value="ROLE">Role</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="privilege_group">
+                <label for="privilege_or_role">System Privilege <span class="required">*</span></label>
+                <select id="privilege_or_role" name="privilege_or_role" required>
+                    <option value="">-- Select Privilege --</option>
+                    {% for priv in common_privileges %}
+                    <option value="{{ priv }}">{{ priv }}</option>
+                    {% endfor %}
+                </select>
+                <small class="form-hint">Common system privileges</small>
+            </div>
+
+            <div class="form-group" id="role_group" style="display: none;">
+                <label for="role_select">Role <span class="required">*</span></label>
+                <select id="role_select">
+                    <option value="">-- Select Role --</option>
+                    {% for role in roles %}
+                    <option value="{{ role.role }}">{{ role.role }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="with_admin" value="true">
+                    <span>Grant with ADMIN OPTION</span>
+                </label>
+                <small class="form-hint">Allow grantee to grant this privilege/role to others</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Grant</button>
+                <a href="/privileges{% if selected_grantee %}?grantee={{ selected_grantee }}{% endif %}"
+                    class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+        <h3 class="card-title">Common System Privileges Reference</h3>
+    </div>
+    <div class="card-body">
+        <div class="priv-grid">
+            <div class="priv-category">
+                <h4>Session</h4>
+                <ul>
+                    <li><code>CREATE SESSION</code> - Connect to database</li>
+                </ul>
+            </div>
+            <div class="priv-category">
+                <h4>Objects</h4>
+                <ul>
+                    <li><code>CREATE TABLE</code></li>
+                    <li><code>CREATE VIEW</code></li>
+                    <li><code>CREATE PROCEDURE</code></li>
+                    <li><code>CREATE SEQUENCE</code></li>
+                </ul>
+            </div>
+            <div class="priv-category">
+                <h4>ANY Privileges</h4>
+                <ul>
+                    <li><code>SELECT ANY TABLE</code></li>
+                    <li><code>INSERT ANY TABLE</code></li>
+                    <li><code>UPDATE ANY TABLE</code></li>
+                    <li><code>DELETE ANY TABLE</code></li>
+                </ul>
+            </div>
+            <div class="priv-category">
+                <h4>User Management</h4>
+                <ul>
+                    <li><code>CREATE USER</code></li>
+                    <li><code>ALTER USER</code></li>
+                    <li><code>DROP USER</code></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .required {
+        color: #dc3545;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        width: auto;
+    }
+
+    .priv-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .priv-category h4 {
+        margin: 0 0 8px;
+        color: #333;
+        font-size: 14px;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 4px;
+    }
+
+    .priv-category ul {
+        margin: 0;
+        padding-left: 16px;
+    }
+
+    .priv-category li {
+        margin-bottom: 4px;
+        font-size: 13px;
+    }
+
+    .priv-category code {
+        background-color: #f8f9fa;
+        padding: 1px 4px;
+        border-radius: 3px;
+        font-size: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updatePrivilegeOptions() {
+        const type = document.getElementById('privilege_type').value;
+        const privGroup = document.getElementById('privilege_group');
+        const roleGroup = document.getElementById('role_group');
+        const privSelect = document.getElementById('privilege_or_role');
+        const roleSelect = document.getElementById('role_select');
+
+        if (type === 'ROLE') {
+            privGroup.style.display = 'none';
+            roleGroup.style.display = 'block';
+            // Sync role selection to hidden input
+            roleSelect.onchange = function () {
+                privSelect.value = this.value;
+            };
+            privSelect.value = roleSelect.value;
+        } else {
+            privGroup.style.display = 'block';
+            roleGroup.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Privileges - User Manager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Privilege Management</h1>
+    <div class="page-actions">
+        <a href="/privileges/grant{% if selected_grantee %}?grantee={{ selected_grantee }}{% endif %}"
+            class="btn btn-primary">Grant Privilege/Role</a>
+    </div>
+</div>
+
+{% if success %}
+<div class="alert alert-success">{{ success }}</div>
+{% endif %}
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">View Privileges by User/Role</h3>
+    </div>
+    <div class="card-body">
+        <form method="get" action="/privileges" class="filter-form">
+            <div class="form-group inline">
+                <label for="grantee">Select User/Role:</label>
+                <select name="grantee" id="grantee" onchange="this.form.submit()">
+                    <option value="">-- Select --</option>
+                    <optgroup label="Users">
+                        {% for user in users %}
+                        <option value="{{ user.username }}" {% if selected_grantee==user.username %}selected{% endif %}>
+                            {{ user.username }}
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="Roles">
+                        {% for role in roles %}
+                        <option value="{{ role.role }}" {% if selected_grantee==role.role %}selected{% endif %}>
+                            {{ role.role }}
+                        </option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if selected_grantee %}
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+        <h3 class="card-title">Privileges of: {{ selected_grantee }}</h3>
+    </div>
+    <div class="card-body">
+        {% if privileges %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Privilege/Role</th>
+                    <th>Type</th>
+                    <th>Admin Option</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for priv in privileges %}
+                <tr>
+                    <td><strong>{{ priv.privilege }}</strong></td>
+                    <td>
+                        <span
+                            class="badge {% if priv.privilege_type == 'SYSTEM' %}badge-primary{% else %}badge-info{% endif %}">
+                            {{ priv.privilege_type }}
+                        </span>
+                    </td>
+                    <td>
+                        <span
+                            class="badge {% if priv.admin_option == 'YES' %}badge-warning{% else %}badge-secondary{% endif %}">
+                            {{ priv.admin_option or 'NO' }}
+                        </span>
+                    </td>
+                    <td>
+                        <form action="/privileges/revoke" method="post" style="display: inline;">
+                            <input type="hidden" name="grantee" value="{{ selected_grantee }}">
+                            <input type="hidden" name="privilege_or_role" value="{{ priv.privilege }}">
+                            <input type="hidden" name="privilege_type" value="{{ priv.privilege_type }}">
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Revoke {{ priv.privilege }} from {{ selected_grantee }}?')">
+                                Revoke
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">🔓</div>
+            <div class="empty-state-text">No privileges found for {{ selected_grantee }}</div>
+            <div class="empty-state-subtext">
+                <a href="/privileges/grant?grantee={{ selected_grantee }}">Grant a privilege or role</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<div class="card" style="margin-top: 20px;">
+    <div class="card-body">
+        <div class="empty-state">
+            <div class="empty-state-icon">🔐</div>
+            <div class="empty-state-text">Select a user or role to view privileges</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-form {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .form-group.inline {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 0;
+    }
+
+    .form-group.inline label {
+        margin-bottom: 0;
+    }
+
+    .form-group.inline select {
+        min-width: 200px;
+    }
+
+    .badge-primary {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+
+    .badge-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .badge-warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-secondary {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+</style>
+{% endblock %}
