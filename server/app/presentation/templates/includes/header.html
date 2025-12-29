@@ -1,23 +1,28 @@
-<div class="header-content">
-    <div class="header-left">
-        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-    </div>
-
-    <div class="header-right">
-        {% if request.session.get('username') %}
-            <div class="user-info">
-                <span class="username">{{ request.session.get('username') }}</span>
-                <form method="post" action="/logout" style="display: inline;">
-                    <button type="submit" class="btn-logout">Logout</button>
-                </form>
-            </div>
-        {% else %}
-            <a href="/login" class="btn-login">Login</a>
-        {% endif %}
+<div class="header-left">
+    <div class="search-box">
+        <input type="text" placeholder="Tìm kiếm...">
     </div>
 </div>
 
+<div class="header-right">
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" style="display: none;">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    {% if request.session.get('username') %}
+    <div class="user-profile">
+        <img src="https://ui-avatars.com/api/?name={{ request.session.get('username') }}&background=0D8ABC&color=fff"
+            alt="User Avatar">
+        <div class="user-info-dropdown">
+            <span class="user-name">{{ request.session.get('username') }}</span>
+        </div>
+        <form method="post" action="/logout" style="margin-left: 10px;">
+            <button type="submit" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </form>
+    </div>
+    {% else %}
+    <a href="/login" class="btn btn-primary">Đăng nhập</a>
+    {% endif %}
+</div>

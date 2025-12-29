@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}User Manager{% endblock %}</title>
+    <title>{% block title %}User Manager - Adminty{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/dashboard.css">
     {% block extra_css %}{% endblock %}
 </head>
+
 <body>
     <div class="dashboard-container">
         <!-- Sidebar -->
@@ -34,8 +42,14 @@
         </div>
     </div>
 
-    <script src="/static/js/main.js"></script>
+    <!-- Scripts -->
+    <script>
+        // Toggle Sidebar
+        document.getElementById('mobileMenuToggle')?.addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
-</html>
 
+</html>

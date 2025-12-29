@@ -1,116 +1,97 @@
 <div class="sidebar-header">
-    <h2>User Manager</h2>
-    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
+    <a href="/" class="brand-text">
+        <i class="fa-solid fa-feather"></i> USER MANAGER
+    </a>
 </div>
 
 <nav class="sidebar-nav">
-    <ul class="nav-menu">
-        <li class="nav-item">
-            <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}">
-                <span class="nav-icon">🏠</span>
-                <span class="nav-text">Dashboard</span>
-            </a>
-        </li>
+    <!-- Main Navigation -->
+    <div class="nav-title">Điều hướng</div>
 
-        <li class="nav-item">
-            <a href="/my-account" class="nav-link {% if '/my-account' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">👤</span>
-                <span class="nav-text">My Account</span>
-            </a>
-        </li>
+    <li class="nav-item">
+        <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}">
+            <span class="nav-icon"><i class="fa-solid fa-house"></i></span>
+            <span class="nav-text">Bảng điều khiển</span>
+        </a>
+    </li>
 
-        <li class="nav-item">
-            <a href="/users" class="nav-link {% if '/users' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">👥</span>
-                <span class="nav-text">User Management</span>
-            </a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/users" class="nav-link">List Users</a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/users/create" class="nav-link">Create User</a>
-        </li>
+    <li class="nav-item">
+        <a href="/my-account" class="nav-link {% if '/my-account' in request.url.path %}active{% endif %}">
+            <span class="nav-icon"><i class="fa-solid fa-user-circle"></i></span>
+            <span class="nav-text">Tài khoản của tôi</span>
+        </a>
+    </li>
 
-        <li class="nav-item">
-            <a href="/profiles" class="nav-link {% if '/profiles' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">⚙️</span>
-                <span class="nav-text">Profile Management</span>
-            </a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/profiles" class="nav-link">List Profiles</a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/profiles/create" class="nav-link">Create Profile</a>
-        </li>
+    <!-- User Management -->
+    <div class="nav-title">Quản lý User & Profile</div>
 
-        <li class="nav-item">
-            <a href="/roles" class="nav-link {% if '/roles' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">🔐</span>
-                <span class="nav-text">Role Management</span>
-            </a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/roles" class="nav-link">List Roles</a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/roles/create" class="nav-link">Create Role</a>
-        </li>
+    <li class="nav-item">
+        <a href="/users" class="nav-link {% if '/users' in request.url.path %}active{% endif %}">
+            <span class="nav-icon"><i class="fa-solid fa-users"></i></span>
+            <span class="nav-text">Quản lý Người dùng</span>
+        </a>
+    </li>
 
-        <li class="nav-item">
-            <a href="/privileges" class="nav-link {% if '/privileges' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">🔑</span>
-                <span class="nav-text">Privilege Management</span>
-            </a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/privileges" class="nav-link">System Privileges</a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/privileges/grant" class="nav-link">Grant System Priv</a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/privileges/object" class="nav-link">Object Privileges</a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/privileges/object/grant" class="nav-link">Grant Object Priv</a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/privileges/column/grant" class="nav-link">Grant Column Priv</a>
-        </li>
+    <li class="nav-item">
+        <a href="/profiles" class="nav-link {% if '/profiles' in request.url.path %}active{% endif %}">
+            <span class="nav-icon"><i class="fa-solid fa-id-card"></i></span>
+            <span class="nav-text">Quản lý Profile</span>
+        </a>
+    </li>
 
-        <li class="nav-item">
-            <a href="/projects" class="nav-link {% if '/projects' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">📁</span>
-                <span class="nav-text">Project Management</span>
-            </a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/projects" class="nav-link">List Projects</a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/projects/create" class="nav-link">Create Project</a>
-        </li>
+    <!-- Role & Privilege -->
+    <div class="nav-title">Phân quyền</div>
 
-        <li class="nav-item">
-            <a href="/security" class="nav-link {% if '/security' in request.url.path %}active{% endif %}">
-                <span class="nav-icon">🔒</span>
-                <span class="nav-text">Oracle Security</span>
-            </a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/security/vpd" class="nav-link">VPD</a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/security/audit" class="nav-link">Audit</a>
-        </li>
-        <li class="nav-sub-item">
-            <a href="/security/dbvault" class="nav-link">Database Vault</a>
-        </li>
-    </ul>
+    <li class="nav-item">
+        <a href="/roles" class="nav-link {% if '/roles' in request.url.path %}active{% endif %}">
+            <span class="nav-icon"><i class="fa-solid fa-user-shield"></i></span>
+            <span class="nav-text">Quản lý Role</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a href="/privileges" class="nav-link {% if '/privileges' in request.url.path %}active{% endif %}">
+            <span class="nav-icon"><i class="fa-solid fa-key"></i></span>
+            <span class="nav-text">Quản lý Quyền</span>
+        </a>
+    </li>
+
+    <!-- Project Management -->
+    <div class="nav-title">Nghiệp vụ</div>
+
+    <li class="nav-item">
+        <a href="/projects" class="nav-link {% if '/projects' in request.url.path %}active{% endif %}">
+            <span class="nav-icon"><i class="fa-solid fa-folder-open"></i></span>
+            <span class="nav-text">Quản lý Dự án</span>
+        </a>
+    </li>
+
+    <!-- Oracle Security -->
+    <div class="nav-title">Bảo mật Oracle</div>
+
+    <li class="nav-item">
+        <a href="/security" class="nav-link {% if '/security' in request.url.path %}active{% endif %}">
+            <span class="nav-icon"><i class="fa-solid fa-shield-halved"></i></span>
+            <span class="nav-text">Tính năng Bảo mật</span>
+        </a>
+    </li>
+
+    <li class="nav-item nav-sub-item">
+        <a href="/security/vpd" class="nav-link">
+            <span class="nav-icon"><i class="fa-solid fa-eye-slash"></i></span>
+            <span class="nav-text">VPD (Row Level)</span>
+        </a>
+    </li>
+    <li class="nav-item nav-sub-item">
+        <a href="/security/audit" class="nav-link">
+            <span class="nav-icon"><i class="fa-solid fa-file-contract"></i></span>
+            <span class="nav-text">Audit (Giám sát)</span>
+        </a>
+    </li>
+    <li class="nav-item nav-sub-item">
+        <a href="/security/dbvault" class="nav-link">
+            <span class="nav-icon"><i class="fa-solid fa-vault"></i></span>
+            <span class="nav-text">Database Vault</span>
+        </a>
+    </li>
 </nav>

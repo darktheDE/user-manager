@@ -1,135 +1,139 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - User Manager{% endblock %}
+{% block title %}Bảng điều khiển - User Manager{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1 class="page-title">Dashboard</h1>
-    <p class="page-subtitle">Welcome, {{ username }}!</p>
+<div class="dashboard-widgets-grid">
+    <!-- User Widget -->
+    <div class="widget-card bg-c-blue">
+        <div class="card-block">
+            <h3>{{ stats.users if stats else 0 }}</h3>
+            <p>Tổng Người dùng</p>
+            <i class="fa-solid fa-users icon"></i>
+        </div>
+        <div class="card-footer">
+            <span>Server Oracle</span>
+            <span><i class="fa-solid fa-clock"></i> Cập nhật ngay</span>
+        </div>
+    </div>
+
+    <!-- Project Widget -->
+    <div class="widget-card bg-c-green">
+        <div class="card-block">
+            <h3>{{ stats.projects if stats else 0 }}</h3>
+            <p>Dự án Hoạt động</p>
+            <i class="fa-solid fa-folder-open icon"></i>
+        </div>
+        <div class="card-footer">
+            <span>System Projects</span>
+            <span><i class="fa-solid fa-database"></i> Real-time</span>
+        </div>
+    </div>
+
+    <!-- Role Widget -->
+    <div class="widget-card bg-c-yellow">
+        <div class="card-block">
+            <h3>{{ stats.roles if stats else 0 }}</h3>
+            <p>Roles Hệ thống</p>
+            <i class="fa-solid fa-user-shield icon"></i>
+        </div>
+        <div class="card-footer">
+            <span>Phân quyền</span>
+            <span><i class="fa-solid fa-check"></i> Active</span>
+        </div>
+    </div>
+
+    <!-- Security Widget -->
+    <div class="widget-card bg-c-pink">
+        <div class="card-block">
+            <h3>{{ stats.realms if stats else 0 }}</h3>
+            <p>Realms Bảo vệ</p>
+            <i class="fa-solid fa-shield-cat icon"></i>
+        </div>
+        <div class="card-footer">
+            <span>Database Vault</span>
+            <span><i class="fa-solid fa-lock"></i> Protected</span>
+        </div>
+    </div>
 </div>
 
-<div class="dashboard-grid">
-    <div class="dashboard-card">
+<div class="dashboard-main-grid">
+    <!-- Recent Projects -->
+    <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Quick Actions</h3>
+            <h5 class="card-title">Tính năng Bảo mật đã triển khai</h5>
         </div>
-        <div class="card-body">
-            <div class="action-buttons">
-                <a href="/users/create" class="btn btn-primary">Create User</a>
-                <a href="/profiles/create" class="btn btn-primary">Create Profile</a>
-                <a href="/roles/create" class="btn btn-primary">Create Role</a>
-                <a href="/projects/create" class="btn btn-primary">Create Project</a>
+        <div class="card-body" style="padding: 0;">
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Tính năng</th>
+                            <th>Mô tả</th>
+                            <th>Trạng thái</th>
+                            <th>Chi tiết</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><i class="fa-solid fa-eye-slash text-primary"></i> VPD</td>
+                            <td>Phân quyền dòng (Row-level Security) theo phòng ban.</td>
+                            <td><span class="badge badge-active">Hoạt động</span></td>
+                            <td><a href="/security/vpd" class="btn btn-primary"
+                                    style="padding: 2px 8px; font-size: 10px;">Xem Demo</a></td>
+                        </tr>
+                        <tr>
+                            <td><i class="fa-solid fa-file-contract text-success"></i> Audit</td>
+                            <td>Giám sát truy cập nhạy cảm (Standard & FGA).</td>
+                            <td><span class="badge badge-active">Hoạt động</span></td>
+                            <td><a href="/security/audit" class="btn btn-primary"
+                                    style="padding: 2px 8px; font-size: 10px;">Xem Log</a></td>
+                        </tr>
+                        <tr>
+                            <td><i class="fa-solid fa-vault text-danger"></i> Database Vault</td>
+                            <td>Bảo vệ bảng PROJECTS khỏi Admin trái phép.</td>
+                            <td><span class="badge badge-active">Hoạt động</span></td>
+                            <td><a href="/security/dbvault" class="btn btn-primary"
+                                    style="padding: 2px 8px; font-size: 10px;">Xem Realm</a></td>
+                        </tr>
+                        <tr>
+                            <td><i class="fa-solid fa-user-lock text-warning"></i> User Profile</td>
+                            <td>Giới hạn tài nguyên (CPU, Idle Time, Sessions).</td>
+                            <td><span class="badge badge-active">Hoạt động</span></td>
+                            <td><a href="/profiles" class="btn btn-primary"
+                                    style="padding: 2px 8px; font-size: 10px;">Cấu hình</a></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <div class="dashboard-card">
+    <!-- Quick Activity -->
+    <div class="card">
         <div class="card-header">
-            <h3 class="card-title">System Overview</h3>
+            <h5 class="card-title">Hoạt động gần đây</h5>
         </div>
         <div class="card-body">
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-label">Users</div>
-                    <div class="stat-value">
-                        <a href="/users">View All</a>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Profiles</div>
-                    <div class="stat-value">
-                        <a href="/profiles">View All</a>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Roles</div>
-                    <div class="stat-value">
-                        <a href="/roles">View All</a>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Projects</div>
-                    <div class="stat-value">
-                        <a href="/projects">View All</a>
-                    </div>
-                </div>
-            </div>
+            <ul class="activity-list">
+                <li class="activity-item primary">
+                    <span class="activity-time">Vừa xong</span>
+                    <p class="activity-text">Hệ thống đã khởi động thành công.</p>
+                </li>
+                <li class="activity-item success">
+                    <span class="activity-time">Hôm nay</span>
+                    <p class="activity-text">Database Connection Pool đã được thiết lập.</p>
+                </li>
+                <li class="activity-item warning">
+                    <span class="activity-time">Lưu ý</span>
+                    <p class="activity-text">Kiểm tra log Audit thường xuyên để phát hiện bất thường.</p>
+                </li>
+                <li class="activity-item danger">
+                    <span class="activity-time">Bảo mật</span>
+                    <p class="activity-text">Database Vault đang bảo vệ bảng PROJECTS.</p>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
 {% endblock %}
-
-{% block extra_css %}
-<style>
-.page-header {
-    margin-bottom: 30px;
-}
-
-.page-title {
-    font-size: 32px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 8px;
-}
-
-.page-subtitle {
-    color: #6c757d;
-    font-size: 16px;
-}
-
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.dashboard-card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 24px;
-}
-
-.action-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.action-buttons .btn {
-    text-align: center;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-}
-
-.stat-item {
-    padding: 16px;
-    background: #f8f9fa;
-    border-radius: 4px;
-    text-align: center;
-}
-
-.stat-label {
-    font-size: 14px;
-    color: #6c757d;
-    margin-bottom: 8px;
-}
-
-.stat-value a {
-    font-size: 18px;
-    font-weight: 600;
-    color: #007bff;
-    text-decoration: none;
-}
-
-.stat-value a:hover {
-    text-decoration: underline;
-}
-</style>
-{% endblock %}
-

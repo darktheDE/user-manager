@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Profiles - User Manager{% endblock %}
+{% block title %}Profile - User Manager{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">Profile Management</h1>
+    <h1 class="page-title">Quản lý Profile</h1>
     <div class="page-actions">
-        <a href="/profiles/create" class="btn btn-primary">Create New Profile</a>
+        <a href="/profiles/create" class="btn btn-primary">Tạo Profile Mới</a>
     </div>
 </div>
 
@@ -20,19 +20,19 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Oracle Profiles</h3>
+        <h3 class="card-title">Danh sách Oracle Profiles</h3>
     </div>
     <div class="card-body">
         {% if profiles %}
         <table class="table">
             <thead>
                 <tr>
-                    <th>Profile Name</th>
+                    <th>Tên Profile</th>
                     <th>SESSIONS_PER_USER</th>
                     <th>CONNECT_TIME</th>
                     <th>IDLE_TIME</th>
-                    <th>Users</th>
-                    <th>Actions</th>
+                    <th>Người dùng</th>
+                    <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,7 +40,8 @@
                 <tr>
                     <td><strong>{{ profile.profile }}</strong></td>
                     <td>
-                        <span class="resource-value {% if profile.sessions_per_user == 'UNLIMITED' %}unlimited{% endif %}">
+                        <span
+                            class="resource-value {% if profile.sessions_per_user == 'UNLIMITED' %}unlimited{% endif %}">
                             {{ profile.sessions_per_user or 'DEFAULT' }}
                         </span>
                     </td>
@@ -58,12 +59,13 @@
                         <span class="badge badge-info">{{ profile.user_count or 0 }} users</span>
                     </td>
                     <td>
-                        <a href="/profiles/{{ profile.profile }}/edit" class="btn btn-primary btn-sm">Edit</a>
+                        <a href="/profiles/{{ profile.profile }}/edit" class="btn btn-primary btn-sm">Sửa</a>
                         {% if profile.profile != 'DEFAULT' %}
-                        <form action="/profiles/{{ profile.profile }}/delete?cascade=true" method="post" style="display: inline;">
-                            <button type="submit" class="btn btn-danger btn-sm" 
-                                    onclick="return confirm('Are you sure you want to delete profile {{ profile.profile }}? Users will be reassigned to DEFAULT.')">
-                                Delete
+                        <form action="/profiles/{{ profile.profile }}/delete?cascade=true" method="post"
+                            style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Bạn có chắc chắn muốn xóa profile {{ profile.profile }}? Các user sẽ được chuyển về DEFAULT.')">
+                                Xóa
                             </button>
                         </form>
                         {% endif %}
@@ -75,8 +77,8 @@
         {% else %}
         <div class="empty-state">
             <div class="empty-state-icon">📋</div>
-            <div class="empty-state-text">No profiles found</div>
-            <div class="empty-state-subtext">Create a new profile to manage resource limits</div>
+            <div class="empty-state-text">Không tìm thấy profile nào</div>
+            <div class="empty-state-subtext">Hãy tạo profile mới để quản lý giới hạn tài nguyên</div>
         </div>
         {% endif %}
     </div>
@@ -84,66 +86,67 @@
 
 <div class="card" style="margin-top: 20px;">
     <div class="card-header">
-        <h3 class="card-title">Resource Limits Reference</h3>
+        <h3 class="card-title">Tham chiếu Giới hạn Tài nguyên</h3>
     </div>
     <div class="card-body">
         <ul class="info-list">
-            <li><strong>SESSIONS_PER_USER:</strong> Maximum concurrent sessions per user</li>
-            <li><strong>CONNECT_TIME:</strong> Maximum elapsed connection time (in minutes)</li>
-            <li><strong>IDLE_TIME:</strong> Maximum idle time before automatic disconnect (in minutes)</li>
+            <li><strong>SESSIONS_PER_USER:</strong> Số lượng session tối đa đồng thời cho mỗi user</li>
+            <li><strong>CONNECT_TIME:</strong> Thời gian kết nối tối đa (tính bằng phút)</li>
+            <li><strong>IDLE_TIME:</strong> Thời gian nhàn rỗi tối đa trước khi tự động ngắt kết nối (tính bằng phút)
+            </li>
         </ul>
-        <p class="info-note">Values can be: <code>UNLIMITED</code>, <code>DEFAULT</code>, or a positive integer.</p>
+        <p class="info-note">Giá trị có thể là: <code>UNLIMITED</code>, <code>DEFAULT</code>, hoặc số dương.</p>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-.resource-value {
-    font-family: monospace;
-    padding: 2px 6px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-}
+    .resource-value {
+        font-family: monospace;
+        padding: 2px 6px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
 
-.resource-value.unlimited {
-    background-color: #d4edda;
-    color: #155724;
-}
+    .resource-value.unlimited {
+        background-color: #d4edda;
+        color: #155724;
+    }
 
-.badge-info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-}
+    .badge-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
 
-.btn-danger {
-    background-color: #dc3545;
-    color: white;
-}
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
 
-.btn-danger:hover {
-    background-color: #c82333;
-}
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
 
-.info-list {
-    margin: 0;
-    padding-left: 20px;
-}
+    .info-list {
+        margin: 0;
+        padding-left: 20px;
+    }
 
-.info-list li {
-    margin-bottom: 8px;
-}
+    .info-list li {
+        margin-bottom: 8px;
+    }
 
-.info-note {
-    margin-top: 16px;
-    color: #666;
-    font-size: 14px;
-}
+    .info-note {
+        margin-top: 16px;
+        color: #666;
+        font-size: 14px;
+    }
 
-.info-note code {
-    background-color: #f8f9fa;
-    padding: 2px 4px;
-    border-radius: 3px;
-}
+    .info-note code {
+        background-color: #f8f9fa;
+        padding: 2px 4px;
+        border-radius: 3px;
+    }
 </style>
 {% endblock %}

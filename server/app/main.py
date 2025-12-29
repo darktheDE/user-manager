@@ -69,9 +69,51 @@ async def root(request: Request):
         from starlette.status import HTTP_303_SEE_OTHER
         return RedirectResponse(url="/login", status_code=HTTP_303_SEE_OTHER)
     
+    
+    # Lấy thống kê
+    try:
+        # Count Users
+        async with db.pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute("SELECT count(*) FROM dba_users")
+                user_count = (await cursor.fetchone())[0]
+                
+                # Count Projects
+                try:
+                    await cursor.execute("SELECT count(*) FROM SYSTEM.PROJECTS")
+                    project_count = (await cursor.fetchone())[0]
+                except:
+                    project_count = 0
+                    
+                # Count Roles
+                await cursor.execute("SELECT count(*) FROM dba_roles")
+                role_count = (await cursor.fetchone())[0]
+                
+                # Count Realms (Security)
+                try:
+                    await cursor.execute("SELECT count(*) FROM DVSYS.DBA_DV_REALM")
+                    realm_count = (await cursor.fetchone())[0]
+                except:
+                    realm_count = 0
+    except Exception as e:
+        print(f"Error fetching stats: {e}")
+        user_count = 0
+        project_count = 0
+        role_count = 0
+        realm_count = 0
+    
     return templates.TemplateResponse(
         "dashboard.html",
-        {"request": request, "username": username}
+        {
+            "request": request, 
+            "username": username,
+            "stats": {
+                "users": user_count,
+                "projects": project_count,
+                "roles": role_count,
+                "realms": realm_count
+            }
+        }
     )
 
 

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Users - User Manager{% endblock %}
+{% block title %}Người dùng - User Manager{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">User Management</h1>
+    <h1 class="page-title">Quản lý Người dùng</h1>
     <div class="page-actions">
-        <a href="/users/create" class="btn btn-primary">Create New User</a>
+        <a href="/users/create" class="btn btn-primary">Tạo Người dùng mới</a>
     </div>
 </div>
 
@@ -16,19 +16,19 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Oracle Users</h3>
+        <h3 class="card-title">Danh sách Oracle Users</h3>
     </div>
     <div class="card-body">
         {% if users %}
         <table class="table">
             <thead>
                 <tr>
-                    <th>Username</th>
-                    <th>Account Status</th>
-                    <th>Default Tablespace</th>
+                    <th>Tên đăng nhập</th>
+                    <th>Trạng thái</th>
+                    <th>Tablespace Mặc định</th>
                     <th>Profile</th>
-                    <th>Created</th>
-                    <th>Actions</th>
+                    <th>Ngày tạo</th>
+                    <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
@@ -36,7 +36,8 @@
                 <tr>
                     <td><a href="/users/{{ user.username }}">{{ user.username }}</a></td>
                     <td>
-                        <span class="badge {% if 'OPEN' in user.account_status %}badge-success{% elif 'LOCKED' in user.account_status %}badge-danger{% else %}badge-warning{% endif %}">
+                        <span
+                            class="badge {% if 'OPEN' in user.account_status %}badge-success{% elif 'LOCKED' in user.account_status %}badge-danger{% else %}badge-warning{% endif %}">
                             {{ user.account_status }}
                         </span>
                     </td>
@@ -44,8 +45,8 @@
                     <td>{{ user.profile or 'DEFAULT' }}</td>
                     <td>{{ user.created or '-' }}</td>
                     <td>
-                        <a href="/users/{{ user.username }}" class="btn btn-secondary btn-sm">View</a>
-                        <a href="/users/{{ user.username }}/edit" class="btn btn-primary btn-sm">Edit</a>
+                        <a href="/users/{{ user.username }}" class="btn btn-secondary btn-sm">Xem</a>
+                        <a href="/users/{{ user.username }}/edit" class="btn btn-primary btn-sm">Sửa</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -54,8 +55,8 @@
         {% else %}
         <div class="empty-state">
             <div class="empty-state-icon">👥</div>
-            <div class="empty-state-text">No users found</div>
-            <div class="empty-state-subtext">Create your first user to get started</div>
+            <div class="empty-state-text">Không tìm thấy người dùng nào</div>
+            <div class="empty-state-subtext">Hãy tạo người dùng đầu tiên để bắt đầu</div>
         </div>
         {% endif %}
     </div>
@@ -64,34 +65,33 @@
 
 {% block extra_css %}
 <style>
-.badge {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-}
+    .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
 
-.badge-success {
-    background-color: #d4edda;
-    color: #155724;
-}
+    .badge-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
 
-.badge-danger {
-    background-color: #f8d7da;
-    color: #721c24;
-}
+    .badge-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
 
-.badge-warning {
-    background-color: #fff3cd;
-    color: #856404;
-}
+    .badge-warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
 
-.btn-sm {
-    padding: 4px 8px;
-    font-size: 12px;
-    margin-right: 4px;
-}
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 12px;
+        margin-right: 4px;
+    }
 </style>
 {% endblock %}
-

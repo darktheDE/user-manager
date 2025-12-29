@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Projects - User Manager{% endblock %}
+{% block title %}Dự án - User Manager{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">Project Management</h1>
+    <h1 class="page-title">Quản lý Dự án</h1>
     <div class="page-actions">
-        <a href="/projects/create" class="btn btn-primary">Create New Project</a>
+        <a href="/projects/create" class="btn btn-primary">Tạo Dự án Mới</a>
     </div>
 </div>
 
@@ -20,7 +20,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Projects</h3>
+        <h3 class="card-title">Danh sách Dự án</h3>
     </div>
     <div class="card-body">
         {% if projects %}
@@ -28,12 +28,12 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Project Name</th>
-                    <th>Department</th>
-                    <th>Budget</th>
-                    <th>Status</th>
-                    <th>Owner</th>
-                    <th>Actions</th>
+                    <th>Tên Dự án</th>
+                    <th>Phòng ban</th>
+                    <th>Ngân sách</th>
+                    <th>Trạng thái</th>
+                    <th>Chủ sở hữu</th>
+                    <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
@@ -53,11 +53,11 @@
                     </td>
                     <td>{{ project.owner_username }}</td>
                     <td>
-                        <a href="/projects/{{ project.project_id }}/edit" class="btn btn-primary btn-sm">Edit</a>
+                        <a href="/projects/{{ project.project_id }}/edit" class="btn btn-primary btn-sm">Sửa</a>
                         <form action="/projects/{{ project.project_id }}/delete" method="post" style="display: inline;">
                             <button type="submit" class="btn btn-danger btn-sm"
-                                onclick="return confirm('Delete project {{ project.project_name }}?')">
-                                Delete
+                                onclick="return confirm('Bạn có chắc chắn muốn xóa dự án {{ project.project_name }}?')">
+                                Xóa
                             </button>
                         </form>
                     </td>
@@ -68,8 +68,8 @@
         {% else %}
         <div class="empty-state">
             <div class="empty-state-icon">📁</div>
-            <div class="empty-state-text">No projects found</div>
-            <div class="empty-state-subtext">Create your first project to get started</div>
+            <div class="empty-state-text">Không tìm thấy dự án nào</div>
+            <div class="empty-state-subtext">Hãy tạo dự án đầu tiên để bắt đầu</div>
         </div>
         {% endif %}
     </div>

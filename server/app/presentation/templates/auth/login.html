@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - User Manager</title>
+    <title>Đăng nhập - User Manager</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
         body {
@@ -67,12 +68,13 @@
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
                 <h1>User Manager</h1>
-                <p>Oracle Database Management System</p>
+                <p>Hệ thống Quản lý Oracle Database</p>
             </div>
 
             {% if error %}
@@ -83,38 +85,25 @@
 
             <form method="post" action="/login" class="login-form">
                 <div class="form-group">
-                    <label for="username" class="form-label">Username</label>
-                    <input 
-                        type="text" 
-                        id="username" 
-                        name="username" 
-                        class="form-control" 
-                        required 
-                        autofocus
-                        value="{{ username or '' }}"
-                        placeholder="Enter Oracle username"
-                    >
+                    <label for="username" class="form-label">Tên đăng nhập</label>
+                    <input type="text" id="username" name="username" class="form-control" required autofocus
+                        value="{{ username or '' }}" placeholder="Nhập username Oracle">
                 </div>
 
                 <div class="form-group">
-                    <label for="password" class="form-label">Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        class="form-control" 
-                        required
-                        placeholder="Enter Oracle password"
-                    >
+                    <label for="password" class="form-label">Mật khẩu</label>
+                    <input type="password" id="password" name="password" class="form-control" required
+                        placeholder="Nhập mật khẩu Oracle">
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-block">Login</button>
+                <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
             </form>
 
             <div class="login-footer">
-                <p>Use your Oracle Database credentials to login</p>
+                <p>Sử dụng tài khoản Oracle Database để đăng nhập</p>
             </div>
         </div>
     </div>
 </body>
+
 </html>

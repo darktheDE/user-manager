@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Create User - User Manager{% endblock %}
+{% block title %}Tạo Người Dùng - User Manager{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">Create New User</h1>
+    <h1 class="page-title">Tạo Người Dùng Mới</h1>
     <div class="page-actions">
-        <a href="/users" class="btn btn-secondary">Back to Users</a>
+        <a href="/users" class="btn btn-secondary">Quay lại</a>
     </div>
 </div>
 
@@ -16,41 +16,27 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">User Information</h3>
+        <h3 class="card-title">Thông tin Người dùng</h3>
     </div>
     <div class="card-body">
         <form method="post" action="/users/create">
             <div class="form-group">
-                <label for="username" class="form-label">Username *</label>
-                <input 
-                    type="text" 
-                    id="username" 
-                    name="username" 
-                    class="form-control" 
-                    required
-                    pattern="[a-zA-Z0-9_]+"
-                    value="{{ username or '' }}"
-                    placeholder="Enter username (alphanumeric and underscore only)"
-                >
-                <small class="form-text">Only alphanumeric characters and underscores are allowed</small>
+                <label for="username" class="form-label">Tên đăng nhập (Username) *</label>
+                <input type="text" id="username" name="username" class="form-control" required pattern="[a-zA-Z0-9_]+"
+                    value="{{ username or '' }}" placeholder="Nhập tên đăng nhập (chữ cái, số và dấu gạch dưới)">
+                <small class="form-text">Chỉ cho phép chữ cái, số và dấu gạch dưới</small>
             </div>
 
             <div class="form-group">
-                <label for="password" class="form-label">Password *</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    class="form-control" 
-                    required
-                    placeholder="Enter password"
-                >
+                <label for="password" class="form-label">Mật khẩu *</label>
+                <input type="password" id="password" name="password" class="form-control" required
+                    placeholder="Nhập mật khẩu">
             </div>
 
             <div class="form-group">
                 <label for="default_tablespace" class="form-label">Default Tablespace *</label>
                 <select id="default_tablespace" name="default_tablespace" class="form-select" required>
-                    <option value="">Select tablespace</option>
+                    <option value="">Chọn tablespace</option>
                     {% for ts in tablespaces %}
                     <option value="{{ ts }}">{{ ts }}</option>
                     {% endfor %}
@@ -60,43 +46,33 @@
             <div class="form-group">
                 <label for="temporary_tablespace" class="form-label">Temporary Tablespace</label>
                 <select id="temporary_tablespace" name="temporary_tablespace" class="form-select">
-                    <option value="">Select tablespace (optional)</option>
-                    <option value="TEMP">TEMP (Recommended for temporary)</option>
+                    <option value="">Chọn tablespace (tùy chọn)</option>
+                    <option value="TEMP">TEMP (Khuyên dùng cho tạm thời)</option>
                     {% for ts in tablespaces %}
                     {% if ts != default_tablespace %}
                     <option value="{{ ts }}">{{ ts }}</option>
                     {% endif %}
                     {% endfor %}
                 </select>
-                <small class="form-text">Temporary tablespace must be different from default tablespace</small>
+                <small class="form-text">Temporary tablespace nên khác với default tablespace</small>
             </div>
 
             <div class="form-group">
                 <label for="quota" class="form-label">Quota</label>
-                <input 
-                    type="text" 
-                    id="quota" 
-                    name="quota" 
-                    class="form-control"
-                    placeholder="e.g., 100M, 1G, UNLIMITED"
-                >
-                <small class="form-text">Leave empty for default quota</small>
+                <input type="text" id="quota" name="quota" class="form-control"
+                    placeholder="Ví dụ: 100M, 1G, UNLIMITED">
+                <small class="form-text">Để trống nếu dùng mặc định</small>
             </div>
 
             <div class="form-group">
                 <label for="profile" class="form-label">Profile</label>
-                <input 
-                    type="text" 
-                    id="profile" 
-                    name="profile" 
-                    class="form-control"
-                    placeholder="Profile name (optional)"
-                >
+                <input type="text" id="profile" name="profile" class="form-control"
+                    placeholder="Tên Profile (tùy chọn)">
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Create User</button>
-                <a href="/users" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Tạo Người Dùng</button>
+                <a href="/users" class="btn btn-secondary">Hủy</a>
             </div>
         </form>
     </div>
@@ -105,18 +81,17 @@
 
 {% block extra_css %}
 <style>
-.form-text {
-    display: block;
-    margin-top: 4px;
-    font-size: 12px;
-    color: #6c757d;
-}
+    .form-text {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        color: #6c757d;
+    }
 
-.form-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 24px;
-}
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+    }
 </style>
 {% endblock %}
-
