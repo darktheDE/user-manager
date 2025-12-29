@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  oracle-db:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-db-23ai
+    environment:
+      - ORACLE_PWD=oracle123
+    ports:
+      - "1521:1521"
+      - "5500:5500"  # Oracle Enterprise Manager Express
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    networks:
+      - user-manager-network
+    restart: unless-stopped
+    shm_size: '2gb'
+    # Note: Oracle 23ai Free does not support auto-init scripts like PostgreSQL
+    # Run initialization scripts manually after container starts using:
+    # docker exec -i oracle-db-23ai sqlplus system/oracle123@FREEPDB1 < scripts/setup/01_create_users.sql
+
+volumes:
+  oracle-data:
+    driver: local
+
+networks:
+  user-manager-network:
+    driver: bridge
+
