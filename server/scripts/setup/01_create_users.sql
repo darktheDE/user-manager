@@ -20,5 +20,18 @@ GRANT CREATE TABLE TO app_admin;
 GRANT CREATE VIEW TO app_admin;
 GRANT CREATE PROCEDURE TO app_admin;
 
+-- Cấp quyền SELECT trên các DBA views (cần thiết cho authentication module)
+-- Lưu ý: Để query DBA_USERS, cần có quyền SELECT_CATALOG_ROLE hoặc DBA role
+-- User SYSTEM đã có quyền này, nhưng nếu muốn dùng app_admin thì cần grant:
+-- GRANT SELECT_CATALOG_ROLE TO app_admin;
+-- Hoặc grant trực tiếp:
+-- GRANT SELECT ON SYS.DBA_USERS TO app_admin;
+-- GRANT SELECT ON SYS.DBA_SYS_PRIVS TO app_admin;
+-- GRANT SELECT ON SYS.DBA_ROLE_PRIVS TO app_admin;
+-- GRANT SELECT ON SYS.DBA_PROFILES TO app_admin;
+-- GRANT SELECT ON SYS.DBA_ROLES TO app_admin;
+-- GRANT SELECT ON SYS.DBA_TAB_PRIVS TO app_admin;
+-- GRANT SELECT ON SYS.DBA_FGA_AUDIT_TRAIL TO app_admin;
+
 -- Thoát
 EXIT;

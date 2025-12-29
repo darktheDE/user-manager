@@ -1,2 +1,1 @@
-"""Oracle database access package."""
-
+"""Oracle data access package."""

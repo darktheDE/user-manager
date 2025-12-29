@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}User Details - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">User Details: {{ user.username }}</h1>
+    <div class="page-actions">
+        <a href="/users/{{ user.username }}/edit" class="btn btn-primary">Edit</a>
+        {% if 'LOCKED' in user.account_status %}
+        <form method="post" action="/users/{{ user.username }}/unlock" style="display: inline;">
+            <button type="submit" class="btn btn-success">Unlock</button>
+        </form>
+        {% else %}
+        <form method="post" action="/users/{{ user.username }}/lock" style="display: inline;">
+            <button type="submit" class="btn btn-danger">Lock</button>
+        </form>
+        {% endif %}
+        <a href="/users" class="btn btn-secondary">Back to Users</a>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3 class="card-title">Basic Information</h3>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <tr>
+                    <th>Username</th>
+                    <td>{{ user.username }}</td>
+                </tr>
+                <tr>
+                    <th>Account Status</th>
+                    <td>
+                        <span class="badge {% if 'OPEN' in user.account_status %}badge-success{% elif 'LOCKED' in user.account_status %}badge-danger{% else %}badge-warning{% endif %}">
+                            {{ user.account_status }}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Default Tablespace</th>
+                    <td>{{ user.default_tablespace or '-' }}</td>
+                </tr>
+                <tr>
+                    <th>Temporary Tablespace</th>
+                    <td>{{ user.temporary_tablespace or '-' }}</td>
+                </tr>
+                <tr>
+                    <th>Profile</th>
+                    <td>{{ user.profile or 'DEFAULT' }}</td>
+                </tr>
+                <tr>
+                    <th>Created</th>
+                    <td>{{ user.created or '-' }}</td>
+                </tr>
+                <tr>
+                    <th>Lock Date</th>
+                    <td>{{ user.lock_date or '-' }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3 class="card-title">Roles</h3>
+        </div>
+        <div class="card-body">
+            {% if user.roles %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Admin Option</th>
+                        <th>Default</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for role in user.roles %}
+                    <tr>
+                        <td>{{ role.granted_role }}</td>
+                        <td>{{ 'Yes' if role.admin_option == 'YES' else 'No' }}</td>
+                        <td>{{ 'Yes' if role.default_role == 'YES' else 'No' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No roles assigned</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3 class="card-title">Privileges</h3>
+        </div>
+        <div class="card-body">
+            {% if user.privileges %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Privilege</th>
+                        <th>Type</th>
+                        <th>Admin Option</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for priv in user.privileges %}
+                    <tr>
+                        <td>{{ priv.privilege }}</td>
+                        <td>{{ priv.grant_type }}</td>
+                        <td>{{ 'Yes' if priv.admin_option == 'YES' else 'No' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No privileges assigned</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

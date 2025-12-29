@@ -1,2 +1,1 @@
-"""Presentation routes package."""
-
+"""Routes package."""

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Create User - User Manager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Create New User</h1>
+    <div class="page-actions">
+        <a href="/users" class="btn btn-secondary">Back to Users</a>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">User Information</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" action="/users/create">
+            <div class="form-group">
+                <label for="username" class="form-label">Username *</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    class="form-control" 
+                    required
+                    pattern="[a-zA-Z0-9_]+"
+                    value="{{ username or '' }}"
+                    placeholder="Enter username (alphanumeric and underscore only)"
+                >
+                <small class="form-text">Only alphanumeric characters and underscores are allowed</small>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password *</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-control" 
+                    required
+                    placeholder="Enter password"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="default_tablespace" class="form-label">Default Tablespace *</label>
+                <select id="default_tablespace" name="default_tablespace" class="form-select" required>
+                    <option value="">Select tablespace</option>
+                    {% for ts in tablespaces %}
+                    <option value="{{ ts }}">{{ ts }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="temporary_tablespace" class="form-label">Temporary Tablespace</label>
+                <select id="temporary_tablespace" name="temporary_tablespace" class="form-select">
+                    <option value="">Select tablespace (optional)</option>
+                    <option value="TEMP">TEMP (Recommended for temporary)</option>
+                    {% for ts in tablespaces %}
+                    {% if ts != default_tablespace %}
+                    <option value="{{ ts }}">{{ ts }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+                <small class="form-text">Temporary tablespace must be different from default tablespace</small>
+            </div>
+
+            <div class="form-group">
+                <label for="quota" class="form-label">Quota</label>
+                <input 
+                    type="text" 
+                    id="quota" 
+                    name="quota" 
+                    class="form-control"
+                    placeholder="e.g., 100M, 1G, UNLIMITED"
+                >
+                <small class="form-text">Leave empty for default quota</small>
+            </div>
+
+            <div class="form-group">
+                <label for="profile" class="form-label">Profile</label>
+                <input 
+                    type="text" 
+                    id="profile" 
+                    name="profile" 
+                    class="form-control"
+                    placeholder="Profile name (optional)"
+                >
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create User</button>
+                <a href="/users" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.form-text {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+</style>
+{% endblock %}
+

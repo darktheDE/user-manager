@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - User Manager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Welcome, {{ username }}!</p>
+</div>
+
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3 class="card-title">Quick Actions</h3>
+        </div>
+        <div class="card-body">
+            <div class="action-buttons">
+                <a href="/users/create" class="btn btn-primary">Create User</a>
+                <a href="/profiles/create" class="btn btn-primary">Create Profile</a>
+                <a href="/roles/create" class="btn btn-primary">Create Role</a>
+                <a href="/projects/create" class="btn btn-primary">Create Project</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3 class="card-title">System Overview</h3>
+        </div>
+        <div class="card-body">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">Users</div>
+                    <div class="stat-value">
+                        <a href="/users">View All</a>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Profiles</div>
+                    <div class="stat-value">
+                        <a href="/profiles">View All</a>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Roles</div>
+                    <div class="stat-value">
+                        <a href="/roles">View All</a>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Projects</div>
+                    <div class="stat-value">
+                        <a href="/projects">View All</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-header {
+    margin-bottom: 30px;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.page-subtitle {
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.dashboard-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.action-buttons .btn {
+    text-align: center;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.stat-item {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 8px;
+}
+
+.stat-value a {
+    font-size: 18px;
+    font-weight: 600;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.stat-value a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
+

@@ -1,7 +1,7 @@
 # Claude Code
 .claude/
 CLAUDE.md
-
+.cursor/
 # Python
 __pycache__/
 *.py[cod]

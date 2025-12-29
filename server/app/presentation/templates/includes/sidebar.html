@@ -1,0 +1,92 @@
+<div class="sidebar-header">
+    <h2>User Manager</h2>
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+</div>
+
+<nav class="sidebar-nav">
+    <ul class="nav-menu">
+        <li class="nav-item">
+            <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="/users" class="nav-link {% if '/users' in request.url.path %}active{% endif %}">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">User Management</span>
+            </a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/users" class="nav-link">List Users</a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/users/create" class="nav-link">Create User</a>
+        </li>
+
+        <li class="nav-item">
+            <a href="/profiles" class="nav-link {% if '/profiles' in request.url.path %}active{% endif %}">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Profile Management</span>
+            </a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/profiles" class="nav-link">List Profiles</a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/profiles/create" class="nav-link">Create Profile</a>
+        </li>
+
+        <li class="nav-item">
+            <a href="/roles" class="nav-link {% if '/roles' in request.url.path %}active{% endif %}">
+                <span class="nav-icon">🔐</span>
+                <span class="nav-text">Role Management</span>
+            </a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/roles" class="nav-link">List Roles</a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/roles/create" class="nav-link">Create Role</a>
+        </li>
+
+        <li class="nav-item">
+            <a href="/privileges/system" class="nav-link {% if '/privileges' in request.url.path %}active{% endif %}">
+                <span class="nav-icon">🔑</span>
+                <span class="nav-text">Privilege Management</span>
+            </a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/privileges/system" class="nav-link">System Privileges</a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/privileges/object" class="nav-link">Object Privileges</a>
+        </li>
+
+        <li class="nav-item">
+            <a href="/projects" class="nav-link {% if '/projects' in request.url.path %}active{% endif %}">
+                <span class="nav-icon">📁</span>
+                <span class="nav-text">Project Management</span>
+            </a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/projects" class="nav-link">List Projects</a>
+        </li>
+        <li class="nav-sub-item">
+            <a href="/projects/create" class="nav-link">Create Project</a>
+        </li>
+
+        <li class="nav-item">
+            <a href="/settings" class="nav-link {% if '/settings' in request.url.path %}active{% endif %}">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+

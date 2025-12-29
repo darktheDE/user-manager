@@ -9,7 +9,7 @@ class OracleConnection:
 
     def __init__(self):
         """Initialize connection pool."""
-        self.pool: oracledb.ConnectionPool | None = None
+        self.pool: oracledb.AsyncConnectionPool | None = None
 
     async def create_pool(self) -> None:
         """Create connection pool."""
@@ -19,7 +19,9 @@ class OracleConnection:
             service_name=settings.ORACLE_SERVICE_NAME,
         )
 
-        self.pool = await oracledb.create_pool_async(
+        # create_pool_async() is synchronous but returns AsyncConnectionPool
+        # It's a synchronous function that creates an async pool
+        self.pool = oracledb.create_pool_async(
             user=settings.ORACLE_USER,
             password=settings.ORACLE_PASSWORD,
             dsn=dsn,

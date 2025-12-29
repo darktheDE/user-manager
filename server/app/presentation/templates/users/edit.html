@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User - User Manager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Edit User: {{ user.username }}</h1>
+    <div class="page-actions">
+        <a href="/users/{{ user.username }}" class="btn btn-secondary">View Details</a>
+        <a href="/users" class="btn btn-secondary">Back to Users</a>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">User Information</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" action="/users/{{ user.username }}/edit">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    value="{{ user.username }}"
+                    disabled
+                >
+                <small class="form-text">Username cannot be changed</small>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">New Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-control"
+                    placeholder="Leave empty to keep current password"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="default_tablespace" class="form-label">Default Tablespace</label>
+                <select id="default_tablespace" name="default_tablespace" class="form-select">
+                    <option value="">Keep current ({{ user.default_tablespace or 'None' }})</option>
+                    {% for ts in tablespaces %}
+                    <option value="{{ ts }}" {% if ts == user.default_tablespace %}selected{% endif %}>{{ ts }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="temporary_tablespace" class="form-label">Temporary Tablespace</label>
+                <select id="temporary_tablespace" name="temporary_tablespace" class="form-select">
+                    <option value="">Keep current ({{ user.temporary_tablespace or 'None' }})</option>
+                    {% for ts in tablespaces %}
+                    <option value="{{ ts }}" {% if ts == user.temporary_tablespace %}selected{% endif %}>{{ ts }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="quota" class="form-label">Quota</label>
+                <input 
+                    type="text" 
+                    id="quota" 
+                    name="quota" 
+                    class="form-control"
+                    placeholder="e.g., 100M, 1G, UNLIMITED"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="profile" class="form-label">Profile</label>
+                <input 
+                    type="text" 
+                    id="profile" 
+                    name="profile" 
+                    class="form-control"
+                    value="{{ user.profile or '' }}"
+                    placeholder="Profile name"
+                >
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Update User</button>
+                <a href="/users/{{ user.username }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

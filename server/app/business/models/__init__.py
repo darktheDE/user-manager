@@ -1,2 +1,1 @@
-"""Business models package (Pydantic models)."""
-
+"""Models package."""

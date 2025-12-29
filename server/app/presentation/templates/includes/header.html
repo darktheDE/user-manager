@@ -1,0 +1,23 @@
+<div class="header-content">
+    <div class="header-left">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+
+    <div class="header-right">
+        {% if request.session.get('username') %}
+            <div class="user-info">
+                <span class="username">{{ request.session.get('username') }}</span>
+                <form method="post" action="/logout" style="display: inline;">
+                    <button type="submit" class="btn-logout">Logout</button>
+                </form>
+            </div>
+        {% else %}
+            <a href="/login" class="btn-login">Login</a>
+        {% endif %}
+    </div>
+</div>
+
