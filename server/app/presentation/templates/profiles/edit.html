@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - User Manager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Edit Profile: {{ profile.profile }}</h1>
+    <div class="page-actions">
+        <a href="/profiles" class="btn btn-secondary">Back to Profiles</a>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Profile Information</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" action="/profiles/{{ profile.profile }}/edit">
+            <div class="form-group">
+                <label>Profile Name</label>
+                <input type="text" value="{{ profile.profile }}" disabled class="input-disabled">
+                <small class="form-hint">Profile name cannot be changed</small>
+            </div>
+
+            <div class="form-section">
+                <h4 class="form-section-title">Resource Limits</h4>
+                <p class="form-section-desc">Modify session and time limits for users with this profile</p>
+            </div>
+
+            {% set spu = profile.sessions_per_user or 'DEFAULT' %}
+            {% set ct = profile.connect_time or 'DEFAULT' %}
+            {% set it = profile.idle_time or 'DEFAULT' %}
+
+            <div class="form-group">
+                <label for="sessions_per_user">SESSIONS_PER_USER</label>
+                <div class="resource-input">
+                    <select id="sessions_per_user_type" onchange="toggleResourceInput('sessions_per_user')">
+                        <option value="DEFAULT" {% if spu=='DEFAULT' %}selected{% endif %}>DEFAULT</option>
+                        <option value="UNLIMITED" {% if spu=='UNLIMITED' %}selected{% endif %}>UNLIMITED</option>
+                        <option value="CUSTOM" {% if spu not in ['DEFAULT', 'UNLIMITED' ] %}selected{% endif %}>Custom
+                            Value</option>
+                    </select>
+                    <input type="text" id="sessions_per_user_value" placeholder="Number of sessions"
+                        style="{% if spu in ['DEFAULT', 'UNLIMITED'] %}display: none;{% endif %}"
+                        value="{{ spu if spu not in ['DEFAULT', 'UNLIMITED'] else '' }}">
+                    <input type="hidden" id="sessions_per_user" name="sessions_per_user" value="{{ spu }}">
+                </div>
+                <small class="form-hint">Maximum concurrent sessions per user</small>
+            </div>
+
+            <div class="form-group">
+                <label for="connect_time">CONNECT_TIME (minutes)</label>
+                <div class="resource-input">
+                    <select id="connect_time_type" onchange="toggleResourceInput('connect_time')">
+                        <option value="DEFAULT" {% if ct=='DEFAULT' %}selected{% endif %}>DEFAULT</option>
+                        <option value="UNLIMITED" {% if ct=='UNLIMITED' %}selected{% endif %}>UNLIMITED</option>
+                        <option value="CUSTOM" {% if ct not in ['DEFAULT', 'UNLIMITED' ] %}selected{% endif %}>Custom
+                            Value</option>
+                    </select>
+                    <input type="text" id="connect_time_value" placeholder="Minutes"
+                        style="{% if ct in ['DEFAULT', 'UNLIMITED'] %}display: none;{% endif %}"
+                        value="{{ ct if ct not in ['DEFAULT', 'UNLIMITED'] else '' }}">
+                    <input type="hidden" id="connect_time" name="connect_time" value="{{ ct }}">
+                </div>
+                <small class="form-hint">Maximum elapsed connection time</small>
+            </div>
+
+            <div class="form-group">
+                <label for="idle_time">IDLE_TIME (minutes)</label>
+                <div class="resource-input">
+                    <select id="idle_time_type" onchange="toggleResourceInput('idle_time')">
+                        <option value="DEFAULT" {% if it=='DEFAULT' %}selected{% endif %}>DEFAULT</option>
+                        <option value="UNLIMITED" {% if it=='UNLIMITED' %}selected{% endif %}>UNLIMITED</option>
+                        <option value="CUSTOM" {% if it not in ['DEFAULT', 'UNLIMITED' ] %}selected{% endif %}>Custom
+                            Value</option>
+                    </select>
+                    <input type="text" id="idle_time_value" placeholder="Minutes"
+                        style="{% if it in ['DEFAULT', 'UNLIMITED'] %}display: none;{% endif %}"
+                        value="{{ it if it not in ['DEFAULT', 'UNLIMITED'] else '' }}">
+                    <input type="hidden" id="idle_time" name="idle_time" value="{{ it }}">
+                </div>
+                <small class="form-hint">Maximum idle time before automatic disconnect</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="/profiles" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if users %}
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+        <h3 class="card-title">Users with this Profile</h3>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Account Status</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td><a href="/users/{{ user.username }}">{{ user.username }}</a></td>
+                    <td>
+                        <span
+                            class="badge {% if 'OPEN' in user.account_status %}badge-success{% elif 'LOCKED' in user.account_status %}badge-danger{% else %}badge-warning{% endif %}">
+                            {{ user.account_status }}
+                        </span>
+                    </td>
+                    <td>{{ user.created or '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        margin: 24px 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .form-section-title {
+        margin: 0 0 4px;
+        color: #333;
+    }
+
+    .form-section-desc {
+        margin: 0;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .resource-input {
+        display: flex;
+        gap: 8px;
+    }
+
+    .resource-input select {
+        flex: 0 0 150px;
+    }
+
+    .resource-input input[type="text"] {
+        flex: 1;
+    }
+
+    .input-disabled {
+        background-color: #f0f0f0;
+        color: #666;
+        cursor: not-allowed;
+    }
+
+    .badge-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .badge-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .badge-warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleResourceInput(fieldName) {
+        const select = document.getElementById(fieldName + '_type');
+        const input = document.getElementById(fieldName + '_value');
+        const hidden = document.getElementById(fieldName);
+
+        if (select.value === 'CUSTOM') {
+            input.style.display = 'block';
+            input.focus();
+            hidden.value = input.value || 'DEFAULT';
+        } else {
+            input.style.display = 'none';
+            hidden.value = select.value;
+        }
+    }
+
+    // Update hidden field when custom value changes
+    document.querySelectorAll('.resource-input input[type="text"]').forEach(input => {
+        input.addEventListener('input', function () {
+            const fieldName = this.id.replace('_value', '');
+            const hidden = document.getElementById(fieldName);
+            hidden.value = this.value || 'DEFAULT';
+        });
+    });
+</script>
+{% endblock %}
