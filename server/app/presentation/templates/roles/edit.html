@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Role - User Manager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Edit Role: {{ role.role }}</h1>
+    <div class="page-actions">
+        <a href="/roles" class="btn btn-secondary">Back to Roles</a>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Role Information</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" action="/roles/{{ role.role }}/edit">
+            <div class="form-group">
+                <label>Role Name</label>
+                <input type="text" value="{{ role.role }}" disabled class="input-disabled">
+                <small class="form-hint">Role name cannot be changed</small>
+            </div>
+
+            <div class="form-group">
+                <label>Current Password Status</label>
+                <div class="status-display">
+                    <span
+                        class="badge {% if role.password_required == 'YES' %}badge-warning{% else %}badge-success{% endif %}">
+                        {% if role.password_required == 'YES' %}
+                        Password Required
+                        {% else %}
+                        No Password Required
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h4 class="form-section-title">Change Password</h4>
+                <p class="form-section-desc">Set a new password or remove password requirement</p>
+            </div>
+
+            <div class="form-group">
+                <label for="password">New Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter new password">
+                <small class="form-hint">Leave empty if not changing password</small>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="remove_password" value="true">
+                    <span>Remove password requirement</span>
+                </label>
+                <small class="form-hint">Role will not require password to enable</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="/roles" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if role.grantees %}
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+        <h3 class="card-title">Grantees (Users/Roles with this role)</h3>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Grantee</th>
+                    <th>Admin Option</th>
+                    <th>Default Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for grantee in role.grantees %}
+                <tr>
+                    <td><a href="/users/{{ grantee.grantee }}">{{ grantee.grantee }}</a></td>
+                    <td>
+                        <span
+                            class="badge {% if grantee.admin_option == 'YES' %}badge-warning{% else %}badge-secondary{% endif %}">
+                            {{ grantee.admin_option or 'NO' }}
+                        </span>
+                    </td>
+                    <td>{{ grantee.default_role or 'NO' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% if role.privileges %}
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+        <h3 class="card-title">Privileges Granted to this Role</h3>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Privilege</th>
+                    <th>Type</th>
+                    <th>Admin Option</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for priv in role.privileges %}
+                <tr>
+                    <td>{{ priv.privilege }}</td>
+                    <td>
+                        <span
+                            class="badge {% if priv.privilege_type == 'SYSTEM' %}badge-primary{% else %}badge-info{% endif %}">
+                            {{ priv.privilege_type }}
+                        </span>
+                    </td>
+                    <td>{{ priv.admin_option or 'NO' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        margin: 24px 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .form-section-title {
+        margin: 0 0 4px;
+        color: #333;
+    }
+
+    .form-section-desc {
+        margin: 0;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .input-disabled {
+        background-color: #f0f0f0;
+        color: #666;
+        cursor: not-allowed;
+    }
+
+    .status-display {
+        padding: 8px 0;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        width: auto;
+    }
+
+    .badge-warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .badge-secondary {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    .badge-primary {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+
+    .badge-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+</style>
+{% endblock %}

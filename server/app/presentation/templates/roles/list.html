@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Roles - User Manager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Role Management</h1>
+    <div class="page-actions">
+        <a href="/roles/create" class="btn btn-primary">Create New Role</a>
+    </div>
+</div>
+
+{% if success %}
+<div class="alert alert-success">{{ success }}</div>
+{% endif %}
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Oracle Roles</h3>
+    </div>
+    <div class="card-body">
+        {% if roles %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Role Name</th>
+                    <th>Password Required</th>
+                    <th>Authentication Type</th>
+                    <th>Grantees</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for role in roles %}
+                <tr>
+                    <td><strong>{{ role.role }}</strong></td>
+                    <td>
+                        <span
+                            class="badge {% if role.password_required == 'YES' %}badge-warning{% else %}badge-success{% endif %}">
+                            {{ role.password_required or 'NO' }}
+                        </span>
+                    </td>
+                    <td>{{ role.authentication_type or 'NONE' }}</td>
+                    <td>
+                        <span class="badge badge-info">{{ role.grantee_count or 0 }} grantees</span>
+                    </td>
+                    <td>
+                        <a href="/roles/{{ role.role }}/edit" class="btn btn-primary btn-sm">Edit</a>
+                        {% if role.role not in ['DBA', 'CONNECT', 'RESOURCE', 'PUBLIC'] %}
+                        <form action="/roles/{{ role.role }}/delete" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Are you sure you want to delete role {{ role.role }}?')">
+                                Delete
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">🔐</div>
+            <div class="empty-state-text">No roles found</div>
+            <div class="empty-state-subtext">Create a new role to manage access permissions</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+        <h3 class="card-title">Role Information</h3>
+    </div>
+    <div class="card-body">
+        <ul class="info-list">
+            <li><strong>Password Required:</strong> If YES, user must provide password when enabling the role</li>
+            <li><strong>Grantees:</strong> Number of users/roles that have been granted this role</li>
+        </ul>
+        <p class="info-note">Note: Reserved Oracle roles (DBA, CONNECT, RESOURCE, PUBLIC) cannot be deleted.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .badge-warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .badge-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+    .info-list {
+        margin: 0;
+        padding-left: 20px;
+    }
+
+    .info-list li {
+        margin-bottom: 8px;
+    }
+
+    .info-note {
+        margin-top: 16px;
+        color: #666;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
