@@ -1,4 +1,4 @@
-"""Privilege management service."""
+"""Dịch vụ quản lý quyền hạn."""
 
 import re
 from typing import List, Dict, Any
@@ -6,9 +6,9 @@ from app.data.oracle.privilege_dao import privilege_dao
 
 
 class PrivilegeService:
-    """Service for privilege management operations."""
+    """Dịch vụ cho các thao tác quản lý quyền hạn."""
 
-    # Common system privileges
+    # Các quyền hệ thống phổ biến
     COMMON_SYSTEM_PRIVILEGES = [
         "CREATE SESSION",
         "CREATE TABLE",
@@ -38,27 +38,27 @@ class PrivilegeService:
     ]
 
     def _validate_identifier(self, name: str) -> bool:
-        """Validate Oracle identifier format."""
+        """Kiểm tra định dạng định danh Oracle."""
         return bool(re.match(r'^[a-zA-Z][a-zA-Z0-9_$#]*$', name))
 
     async def get_all_system_privileges(self) -> List[Dict[str, Any]]:
-        """Get list of all system privileges."""
+        """Lấy danh sách tất cả quyền hệ thống."""
         return await privilege_dao.query_all_system_privileges()
 
     async def get_common_privileges(self) -> List[str]:
-        """Get list of common system privileges for UI."""
+        """Lấy danh sách các quyền hệ thống phổ biến cho UI."""
         return self.COMMON_SYSTEM_PRIVILEGES
 
     async def get_all_roles(self) -> List[Dict[str, Any]]:
-        """Get all available roles for granting."""
+        """Lấy tất cả roles có thể cấp."""
         return await privilege_dao.query_all_roles()
 
     async def get_all_users(self) -> List[Dict[str, Any]]:
-        """Get all users for privilege granting."""
+        """Lấy tất cả users để cấp quyền."""
         return await privilege_dao.query_all_users()
 
     async def get_grantee_privileges(self, grantee: str) -> List[Dict[str, Any]]:
-        """Get all privileges/roles granted to a user or role."""
+        """Lấy tất cả quyền/roles đã cấp cho user hoặc role."""
         return await privilege_dao.query_grantee_privileges(grantee)
 
     async def grant_system_privilege(
@@ -68,40 +68,40 @@ class PrivilegeService:
         with_admin: bool = False,
     ) -> None:
         """
-        Grant system privilege to user/role.
+        Cấp quyền hệ thống cho user/role.
         
         Args:
-            privilege: System privilege name
-            grantee: User or role name
-            with_admin: Grant with ADMIN OPTION
+            privilege: Tên quyền hệ thống
+            grantee: Tên user hoặc role
+            with_admin: Cấp kèm ADMIN OPTION
             
         Raises:
-            ValueError: If validation fails
+            ValueError: Nếu validation thất bại
         """
         if not grantee or not self._validate_identifier(grantee):
-            raise ValueError("Invalid grantee name.")
+            raise ValueError("Tên người được cấp không hợp lệ.")
         
         if not privilege:
-            raise ValueError("Privilege name is required.")
+            raise ValueError("Tên quyền là bắt buộc.")
         
         await privilege_dao.grant_system_privilege_ddl(privilege, grantee, with_admin)
 
     async def revoke_system_privilege(self, privilege: str, grantee: str) -> None:
         """
-        Revoke system privilege from user/role.
+        Thu hồi quyền hệ thống từ user/role.
         
         Args:
-            privilege: System privilege name
-            grantee: User or role name
+            privilege: Tên quyền hệ thống
+            grantee: Tên user hoặc role
             
         Raises:
-            ValueError: If validation fails
+            ValueError: Nếu validation thất bại
         """
         if not grantee or not self._validate_identifier(grantee):
-            raise ValueError("Invalid grantee name.")
+            raise ValueError("Tên người được cấp không hợp lệ.")
         
         if not privilege:
-            raise ValueError("Privilege name is required.")
+            raise ValueError("Tên quyền là bắt buộc.")
         
         await privilege_dao.revoke_system_privilege_ddl(privilege, grantee)
 
@@ -112,60 +112,60 @@ class PrivilegeService:
         with_admin: bool = False,
     ) -> None:
         """
-        Grant role to user/role.
+        Cấp role cho user/role.
         
         Args:
-            role: Role name
-            grantee: User or role name
-            with_admin: Grant with ADMIN OPTION
+            role: Tên role
+            grantee: Tên user hoặc role
+            with_admin: Cấp kèm ADMIN OPTION
             
         Raises:
-            ValueError: If validation fails
+            ValueError: Nếu validation thất bại
         """
         if not grantee or not self._validate_identifier(grantee):
-            raise ValueError("Invalid grantee name.")
+            raise ValueError("Tên người được cấp không hợp lệ.")
         
         if not role or not self._validate_identifier(role):
-            raise ValueError("Invalid role name.")
+            raise ValueError("Tên role không hợp lệ.")
         
         await privilege_dao.grant_role_ddl(role, grantee, with_admin)
 
     async def revoke_role(self, role: str, grantee: str) -> None:
         """
-        Revoke role from user/role.
+        Thu hồi role từ user/role.
         
         Args:
-            role: Role name
-            grantee: User or role name
+            role: Tên role
+            grantee: Tên user hoặc role
             
         Raises:
-            ValueError: If validation fails
+            ValueError: Nếu validation thất bại
         """
         if not grantee or not self._validate_identifier(grantee):
-            raise ValueError("Invalid grantee name.")
+            raise ValueError("Tên người được cấp không hợp lệ.")
         
         if not role or not self._validate_identifier(role):
-            raise ValueError("Invalid role name.")
+            raise ValueError("Tên role không hợp lệ.")
         
         await privilege_dao.revoke_role_ddl(role, grantee)
 
     async def check_privilege(self, username: str, privilege: str) -> bool:
-        """Check if user has a specific privilege."""
+        """Kiểm tra xem user có quyền cụ thể hay không."""
         return await privilege_dao.has_privilege(username, privilege)
 
     # ==========================================
-    # Object Privileges
+    # Quyền trên Đối tượng
     # ==========================================
 
     OBJECT_PRIVILEGES = ["SELECT", "INSERT", "UPDATE", "DELETE"]
     COLUMN_PRIVILEGES = ["SELECT", "INSERT"]
 
     async def get_all_tables(self, owner: str = None) -> List[Dict[str, Any]]:
-        """Get all tables for object privilege granting."""
+        """Lấy tất cả bảng để cấp quyền đối tượng."""
         return await privilege_dao.query_all_tables(owner)
 
     async def get_object_privileges(self, grantee: str) -> List[Dict[str, Any]]:
-        """Get object privileges granted to a grantee."""
+        """Lấy các quyền đối tượng đã cấp cho người được cấp."""
         return await privilege_dao.query_object_privileges(grantee)
 
     async def grant_object_privilege(
@@ -177,19 +177,19 @@ class PrivilegeService:
         with_grant_option: bool = False,
     ) -> None:
         """
-        Grant object privilege on table to user/role.
+        Cấp quyền đối tượng trên bảng cho user/role.
         
         Raises:
-            ValueError: If validation fails
+            ValueError: Nếu validation thất bại
         """
         if not grantee or not self._validate_identifier(grantee):
-            raise ValueError("Invalid grantee name.")
+            raise ValueError("Tên người được cấp không hợp lệ.")
         
         if privilege.upper() not in self.OBJECT_PRIVILEGES:
-            raise ValueError(f"Invalid privilege. Must be one of: {', '.join(self.OBJECT_PRIVILEGES)}")
+            raise ValueError(f"Quyền không hợp lệ. Phải là một trong: {', '.join(self.OBJECT_PRIVILEGES)}")
         
         if not owner or not table_name:
-            raise ValueError("Table owner and name are required.")
+            raise ValueError("Chủ sở hữu bảng và tên bảng là bắt buộc.")
         
         await privilege_dao.grant_object_privilege_ddl(
             privilege.upper(), owner, table_name, grantee, with_grant_option
@@ -202,24 +202,24 @@ class PrivilegeService:
         table_name: str,
         grantee: str,
     ) -> None:
-        """Revoke object privilege from user/role."""
+        """Thu hồi quyền đối tượng từ user/role."""
         if not grantee or not self._validate_identifier(grantee):
-            raise ValueError("Invalid grantee name.")
+            raise ValueError("Tên người được cấp không hợp lệ.")
         
         await privilege_dao.revoke_object_privilege_ddl(
             privilege.upper(), owner, table_name, grantee
         )
 
     # ==========================================
-    # Column Privileges
+    # Quyền trên Cột
     # ==========================================
 
     async def get_table_columns(self, owner: str, table_name: str) -> List[Dict[str, Any]]:
-        """Get columns of a table."""
+        """Lấy danh sách cột của một bảng."""
         return await privilege_dao.query_table_columns(owner, table_name)
 
     async def get_column_privileges(self, grantee: str) -> List[Dict[str, Any]]:
-        """Get column privileges granted to a grantee."""
+        """Lấy các quyền trên cột đã cấp cho người được cấp."""
         return await privilege_dao.query_column_privileges(grantee)
 
     async def grant_column_privilege(
@@ -231,19 +231,19 @@ class PrivilegeService:
         grantee: str,
     ) -> None:
         """
-        Grant column privilege on specific columns to user/role.
+        Cấp quyền trên các cột cụ thể cho user/role.
         
         Raises:
-            ValueError: If validation fails
+            ValueError: Nếu validation thất bại
         """
         if not grantee or not self._validate_identifier(grantee):
-            raise ValueError("Invalid grantee name.")
+            raise ValueError("Tên người được cấp không hợp lệ.")
         
         if privilege.upper() not in self.COLUMN_PRIVILEGES:
-            raise ValueError(f"Invalid column privilege. Must be one of: {', '.join(self.COLUMN_PRIVILEGES)}")
+            raise ValueError(f"Quyền cột không hợp lệ. Phải là một trong: {', '.join(self.COLUMN_PRIVILEGES)}")
         
         if not columns:
-            raise ValueError("At least one column is required.")
+            raise ValueError("Cần ít nhất một cột.")
         
         await privilege_dao.grant_column_privilege_ddl(
             privilege.upper(), owner, table_name, columns, grantee
@@ -257,14 +257,14 @@ class PrivilegeService:
         columns: List[str],
         grantee: str,
     ) -> None:
-        """Revoke column privilege from user/role."""
+        """Thu hồi quyền trên cột từ user/role."""
         if not grantee or not self._validate_identifier(grantee):
-            raise ValueError("Invalid grantee name.")
+            raise ValueError("Tên người được cấp không hợp lệ.")
         
         await privilege_dao.revoke_column_privilege_ddl(
             privilege.upper(), owner, table_name, columns, grantee
         )
 
 
-# Global service instance
+# Instance dịch vụ toàn cục
 privilege_service = PrivilegeService()

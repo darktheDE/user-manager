@@ -1,2 +1,1 @@
-"""Business layer package."""
-
+"""Gói lớp nghiệp vụ."""

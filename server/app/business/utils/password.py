@@ -1,34 +1,34 @@
-"""Password hashing utilities using bcrypt."""
+"""Tiện ích mã hóa mật khẩu sử dụng bcrypt."""
 
 import bcrypt
 
 
 def hash_password(password: str) -> str:
     """
-    Hash a password using bcrypt.
+    Mã hóa mật khẩu sử dụng bcrypt.
     
     Args:
-        password: Plain text password
+        password: Mật khẩu dạng plain text
         
     Returns:
-        Bcrypt hash string
+        Chuỗi hash bcrypt
     """
     password_bytes = password.encode('utf-8')
-    salt = bcrypt.gensalt(rounds=12)  # 12 rounds is secure and performant
+    salt = bcrypt.gensalt(rounds=12)  # 12 rounds đảm bảo bảo mật và hiệu suất
     hashed = bcrypt.hashpw(password_bytes, salt)
     return hashed.decode('utf-8')
 
 
 def verify_password(password: str, password_hash: str) -> bool:
     """
-    Verify a password against a bcrypt hash.
+    Xác minh mật khẩu với bcrypt hash.
     
     Args:
-        password: Plain text password
-        password_hash: Bcrypt hash string
+        password: Mật khẩu dạng plain text
+        password_hash: Chuỗi hash bcrypt
         
     Returns:
-        True if password matches, False otherwise
+        True nếu mật khẩu khớp, False nếu không
     """
     try:
         password_bytes = password.encode('utf-8')

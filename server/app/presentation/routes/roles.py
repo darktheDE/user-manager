@@ -1,4 +1,4 @@
-"""Role management routes."""
+"""Các route quản lý role."""
 
 from fastapi import APIRouter, Request, Form, HTTPException, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -12,17 +12,17 @@ router = APIRouter()
 
 
 def require_auth(request: Request) -> str:
-    """Require authentication and return username."""
+    """Yêu cầu xác thực và trả về username."""
     session = get_session(request)
     username = session.get("username")
     if not username:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        raise HTTPException(status_code=401, detail="Chưa xác thực")
     return username
 
 
 @router.get("/roles", response_class=HTMLResponse)
 async def list_roles(request: Request):
-    """Display list of roles."""
+    """Hiển thị danh sách role."""
     username = require_auth(request)
     
     try:
@@ -52,7 +52,7 @@ async def list_roles(request: Request):
 
 @router.get("/roles/create", response_class=HTMLResponse)
 async def create_role_page(request: Request):
-    """Display create role form."""
+    """Hiển thị form tạo role."""
     username = require_auth(request)
     
     return templates.TemplateResponse(
@@ -71,7 +71,7 @@ async def create_role(
     role_name: str = Form(...),
     password: str = Form(None),
 ):
-    """Handle create role form submission."""
+    """Xử lý submit form tạo role."""
     username = require_auth(request)
     
     # Convert empty string to None
@@ -81,7 +81,7 @@ async def create_role(
     try:
         await role_service.create_role(role_name=role_name, password=password)
         return RedirectResponse(
-            url=f"/roles?success=Role '{role_name}' created successfully",
+            url=f"/roles?success=Role '{role_name}' đã được tạo thành công",
             status_code=HTTP_303_SEE_OTHER,
         )
     except ValueError as e:
@@ -101,7 +101,7 @@ async def create_role(
             {
                 "request": request,
                 "username": username,
-                "error": f"Error creating role: {str(e)}",
+                "error": f"Lỗi khi tạo role: {str(e)}",
                 "role_name": role_name,
             },
             status_code=500,
@@ -110,7 +110,7 @@ async def create_role(
 
 @router.get("/roles/{role_name}/edit", response_class=HTMLResponse)
 async def edit_role_page(request: Request, role_name: str):
-    """Display edit role form."""
+    """Hiển thị form sửa role."""
     username = require_auth(request)
     
     try:
@@ -123,7 +123,7 @@ async def edit_role_page(request: Request, role_name: str):
                     "request": request,
                     "username": username,
                     "roles": await role_service.get_all_roles(),
-                    "error": f"Role '{role_name}' not found",
+                    "error": f"Không tìm thấy role '{role_name}'",
                     "success": None,
                 }
             )
@@ -157,7 +157,7 @@ async def update_role(
     password: str = Form(None),
     remove_password: bool = Form(False),
 ):
-    """Handle update role form submission."""
+    """Xử lý submit form cập nhật role."""
     username = require_auth(request)
     
     # Convert empty string to None
@@ -171,7 +171,7 @@ async def update_role(
             remove_password=remove_password,
         )
         return RedirectResponse(
-            url=f"/roles?success=Role '{role_name}' updated successfully",
+            url=f"/roles?success=Role '{role_name}' đã được cập nhật thành công",
             status_code=HTTP_303_SEE_OTHER,
         )
     except ValueError as e:
@@ -194,7 +194,7 @@ async def update_role(
                 "request": request,
                 "username": username,
                 "role": role or {"role": role_name},
-                "error": f"Error updating role: {str(e)}",
+                "error": f"Lỗi khi cập nhật role: {str(e)}",
             },
             status_code=500,
         )
@@ -202,13 +202,13 @@ async def update_role(
 
 @router.post("/roles/{role_name}/delete", response_class=HTMLResponse)
 async def delete_role(request: Request, role_name: str):
-    """Handle delete role."""
+    """Xử lý xóa role."""
     username = require_auth(request)
     
     try:
         await role_service.delete_role(role_name)
         return RedirectResponse(
-            url=f"/roles?success=Role '{role_name}' deleted successfully",
+            url=f"/roles?success=Role '{role_name}' đã được xóa thành công",
             status_code=HTTP_303_SEE_OTHER,
         )
     except ValueError as e:
@@ -232,7 +232,7 @@ async def delete_role(request: Request, role_name: str):
                 "request": request,
                 "username": username,
                 "roles": roles,
-                "error": f"Error deleting role: {str(e)}",
+                "error": f"Lỗi khi xóa role: {str(e)}",
                 "success": None,
             },
             status_code=500,

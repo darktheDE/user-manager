@@ -1,29 +1,28 @@
-"""Application configuration."""
+"""Cấu hình ứng dụng."""
 
 
 class Settings:
-    """Application settings."""
+    """Các thiết lập của ứng dụng."""
 
-    # Oracle Database Configuration
+    # Cấu hình Oracle Database
     ORACLE_HOST: str = "localhost"
     ORACLE_PORT: int = 1521
-    ORACLE_SERVICE_NAME: str = "FREEPDB1"  # Oracle 23ai Free uses FREEPDB1 by default
+    ORACLE_SERVICE_NAME: str = "FREEPDB1"  # Oracle 23ai Free sử dụng FREEPDB1 mặc định
     ORACLE_USER: str = "system"
     ORACLE_PASSWORD: str = "oracle123"
 
-    # Application Configuration
+    # Cấu hình ứng dụng
     APP_NAME: str = "User Manager"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = False
     SECRET_KEY: str = "change-me-in-production"
 
-    # Server Configuration
+    # Cấu hình server
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
-    # Session Configuration
+    # Cấu hình session
     SESSION_SECRET_KEY: str = "change-me-in-production"
 
 
 settings = Settings()
-

@@ -1,4 +1,4 @@
-"""Project data access object for Oracle database."""
+"""Đối tượng truy cập dữ liệu dự án cho Oracle database."""
 
 import oracledb
 from typing import List, Dict, Any, Optional
@@ -6,17 +6,17 @@ from app.data.oracle.connection import db
 
 
 class ProjectDAO:
-    """Data access object for project operations."""
+    """DAO cho các thao tác dự án."""
 
     async def query_all_projects(self, username: str = None) -> List[Dict[str, Any]]:
         """
-        Query all projects.
+        Truy vấn tất cả dự án.
         
         Args:
-            username: Optional - filter by owner username
+            username: Tùy chọn - lọc theo tên đăng nhập người sở hữu
             
         Returns:
-            List of project information dicts
+            Danh sách dict thông tin dự án
         """
         if not db.pool:
             await db.create_pool()
@@ -45,13 +45,13 @@ class ProjectDAO:
             rows = await cursor.fetchall()
             return [dict(zip(columns, row)) for row in rows]
         except oracledb.Error as e:
-            print(f"Error querying projects: {e}")
+            print(f"Lỗi truy vấn dự án: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def get_project_by_id(self, project_id: int) -> Optional[Dict[str, Any]]:
-        """Get a specific project by ID."""
+        """Lấy dự án cụ thể theo ID."""
         if not db.pool:
             await db.create_pool()
         
@@ -72,7 +72,7 @@ class ProjectDAO:
             columns = [desc[0].lower() for desc in cursor.description]
             return dict(zip(columns, row))
         except oracledb.Error as e:
-            print(f"Error getting project: {e}")
+            print(f"Lỗi lấy dự án: {e}")
             raise
         finally:
             await db.release_connection(conn)
@@ -86,16 +86,16 @@ class ProjectDAO:
         status: str = "ACTIVE",
     ) -> int:
         """
-        Create a new project.
+        Tạo dự án mới.
         
         Returns:
-            New project ID
+            ID dự án mới
         """
         conn = await db.get_connection()
         try:
             cursor = conn.cursor()
             
-            # Insert with RETURNING to get the generated ID
+            # Insert với RETURNING để lấy ID được tạo
             await cursor.execute("""
                 INSERT INTO projects (project_name, department, budget, status, owner_username)
                 VALUES (:project_name, :department, :budget, :status, :owner_username)
@@ -109,14 +109,14 @@ class ProjectDAO:
             
             await conn.commit()
             
-            # Get the last inserted ID
+            # Lấy ID được thêm vào cuối cùng
             await cursor.execute("SELECT MAX(project_id) FROM projects")
             row = await cursor.fetchone()
             return row[0] if row else 0
             
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error creating project: {e}")
+            print(f"Lỗi tạo dự án: {e}")
             raise
         finally:
             await db.release_connection(conn)
@@ -129,7 +129,7 @@ class ProjectDAO:
         budget: Optional[float] = None,
         status: Optional[str] = None,
     ) -> None:
-        """Update a project."""
+        """Cập nhật dự án."""
         conn = await db.get_connection()
         try:
             cursor = conn.cursor()
@@ -166,13 +166,13 @@ class ProjectDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error updating project: {e}")
+            print(f"Lỗi cập nhật dự án: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def delete_project(self, project_id: int) -> None:
-        """Delete a project."""
+        """Xóa dự án."""
         conn = await db.get_connection()
         try:
             cursor = conn.cursor()
@@ -183,13 +183,13 @@ class ProjectDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error deleting project: {e}")
+            print(f"Lỗi xóa dự án: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def get_departments(self) -> List[str]:
-        """Get list of distinct departments."""
+        """Lấy danh sách các phòng ban khác nhau."""
         if not db.pool:
             await db.create_pool()
         
@@ -203,11 +203,11 @@ class ProjectDAO:
             rows = await cursor.fetchall()
             return [row[0] for row in rows]
         except oracledb.Error as e:
-            print(f"Error getting departments: {e}")
+            print(f"Lỗi lấy danh sách phòng ban: {e}")
             return []
         finally:
             await db.release_connection(conn)
 
 
-# Global DAO instance
+# Instance DAO toàn cục
 project_dao = ProjectDAO()

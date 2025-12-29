@@ -1,4 +1,4 @@
-"""FastAPI application entry point."""
+"""Điểm khởi chạy ứng dụng FastAPI."""
 
 import os
 
@@ -20,10 +20,10 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# Setup session middleware
+# Thiết lập middleware session
 setup_session_middleware(app)
 
-# Include routers
+# Đăng ký các routers
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(profiles.router)
@@ -33,32 +33,32 @@ app.include_router(projects.router)
 app.include_router(my_account.router)
 app.include_router(security.router)
 
-# Static files (skip if directory doesn't exist)
+# Phục vụ static files (bỏ qua nếu thư mục không tồn tại)
 if os.path.exists("app/presentation/static"):
     app.mount("/static", StaticFiles(directory="app/presentation/static"), name="static")
 
 
 @app.on_event("startup")
 async def startup_event() -> None:
-    """Initialize connection pool on application startup."""
+    """Khởi tạo connection pool khi ứng dụng khởi động."""
     try:
         await db.create_pool()
-        print("Connection pool initialized successfully")
+        print("Khởi tạo connection pool thành công")
     except Exception as e:
-        print(f"Error initializing connection pool: {e}")
+        print(f"Lỗi khởi tạo connection pool: {e}")
         import traceback
         traceback.print_exc()
 
 
 @app.on_event("shutdown")
 async def shutdown_event() -> None:
-    """Close connection pool on application shutdown."""
+    """Đóng connection pool khi ứng dụng tắt."""
     await db.close_pool()
 
 
 @app.get("/", response_class=HTMLResponse, tags=["Root"])
 async def root(request: Request):
-    """Root endpoint - Dashboard."""
+    """Trang chủ - Dashboard."""
     from app.presentation.middleware import get_session
     
     session = get_session(request)
@@ -77,6 +77,5 @@ async def root(request: Request):
 
 @app.get("/health", tags=["Health"])
 async def health():
-    """Health check endpoint."""
+    """Endpoint kiểm tra tình trạng hệ thống."""
     return {"status": "healthy", "service": settings.APP_NAME}
-

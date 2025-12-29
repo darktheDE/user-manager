@@ -1,4 +1,4 @@
-"""Project management routes."""
+"""Các route quản lý dự án."""
 
 from fastapi import APIRouter, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -12,17 +12,17 @@ router = APIRouter()
 
 
 def require_auth(request: Request) -> str:
-    """Require authentication and return username."""
+    """Yêu cầu xác thực và trả về username."""
     session = get_session(request)
     username = session.get("username")
     if not username:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        raise HTTPException(status_code=401, detail="Chưa xác thực")
     return username
 
 
 @router.get("/projects", response_class=HTMLResponse)
 async def list_projects(request: Request):
-    """Display list of projects."""
+    """Hiển thị danh sách dự án."""
     username = require_auth(request)
     
     try:
@@ -52,7 +52,7 @@ async def list_projects(request: Request):
 
 @router.get("/projects/create", response_class=HTMLResponse)
 async def create_project_page(request: Request):
-    """Display create project form."""
+    """Hiển thị form tạo dự án."""
     username = require_auth(request)
     
     departments = await project_service.get_departments()
@@ -78,7 +78,7 @@ async def create_project(
     budget: float = Form(0),
     status: str = Form("ACTIVE"),
 ):
-    """Handle create project form submission."""
+    """Xử lý submit form tạo dự án."""
     username = require_auth(request)
     
     try:
@@ -90,7 +90,7 @@ async def create_project(
             status=status,
         )
         return RedirectResponse(
-            url=f"/projects?success=Project '{project_name}' created successfully (ID: {project_id})",
+            url=f"/projects?success=Dự án '{project_name}' đã được tạo thành công (ID: {project_id})",
             status_code=HTTP_303_SEE_OTHER,
         )
     except ValueError as e:
@@ -123,7 +123,7 @@ async def create_project(
                 "username": username,
                 "departments": departments,
                 "statuses": statuses,
-                "error": f"Error creating project: {str(e)}",
+                "error": f"Lỗi khi tạo dự án: {str(e)}",
                 "project_name": project_name,
                 "department": department,
                 "budget": budget,
@@ -135,7 +135,7 @@ async def create_project(
 
 @router.get("/projects/{project_id}/edit", response_class=HTMLResponse)
 async def edit_project_page(request: Request, project_id: int):
-    """Display edit project form."""
+    """Hiển thị form sửa dự án."""
     username = require_auth(request)
     
     try:
@@ -148,7 +148,7 @@ async def edit_project_page(request: Request, project_id: int):
                     "request": request,
                     "username": username,
                     "projects": await project_service.get_all_projects(),
-                    "error": f"Project ID {project_id} not found",
+                    "error": f"Không tìm thấy dự án ID {project_id}",
                     "success": None,
                 }
             )
@@ -189,7 +189,7 @@ async def update_project(
     budget: float = Form(0),
     status: str = Form("ACTIVE"),
 ):
-    """Handle update project form submission."""
+    """Xử lý submit form cập nhật dự án."""
     username = require_auth(request)
     
     try:
@@ -201,7 +201,7 @@ async def update_project(
             status=status,
         )
         return RedirectResponse(
-            url=f"/projects?success=Project ID {project_id} updated successfully",
+            url=f"/projects?success=Dự án ID {project_id} đã được cập nhật thành công",
             status_code=HTTP_303_SEE_OTHER,
         )
     except ValueError as e:
@@ -240,7 +240,7 @@ async def update_project(
                 "project": project or {"project_id": project_id},
                 "departments": departments,
                 "statuses": statuses,
-                "error": f"Error updating project: {str(e)}",
+                "error": f"Lỗi khi cập nhật dự án: {str(e)}",
             },
             status_code=500,
         )
@@ -248,13 +248,13 @@ async def update_project(
 
 @router.post("/projects/{project_id}/delete", response_class=HTMLResponse)
 async def delete_project(request: Request, project_id: int):
-    """Handle delete project."""
+    """Xử lý xóa dự án."""
     username = require_auth(request)
     
     try:
         await project_service.delete_project(project_id)
         return RedirectResponse(
-            url=f"/projects?success=Project ID {project_id} deleted successfully",
+            url=f"/projects?success=Dự án ID {project_id} đã được xóa thành công",
             status_code=HTTP_303_SEE_OTHER,
         )
     except ValueError as e:
@@ -278,7 +278,7 @@ async def delete_project(request: Request, project_id: int):
                 "request": request,
                 "username": username,
                 "projects": projects,
-                "error": f"Error deleting project: {str(e)}",
+                "error": f"Lỗi khi xóa dự án: {str(e)}",
                 "success": None,
             },
             status_code=500,

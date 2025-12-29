@@ -1,18 +1,18 @@
-"""User Pydantic models."""
+"""Các model Pydantic cho User."""
 
 from typing import Optional
 from pydantic import BaseModel, Field
 
 
 class LoginRequest(BaseModel):
-    """Model for login request."""
+    """Model yêu cầu đăng nhập."""
 
-    username: str = Field(..., min_length=1, max_length=100, description="Oracle username")
-    password: str = Field(..., min_length=1, description="Oracle password")
+    username: str = Field(..., min_length=1, max_length=100, description="Username Oracle")
+    password: str = Field(..., min_length=1, description="Mật khẩu Oracle")
 
 
 class SessionUser(BaseModel):
-    """Model for session user data."""
+    """Model dữ liệu user trong session."""
 
     username: str
     account_status: Optional[str] = None
@@ -22,7 +22,7 @@ class SessionUser(BaseModel):
 
 
 class UserCreate(BaseModel):
-    """Model for creating a new user."""
+    """Model tạo user mới."""
 
     username: str = Field(..., min_length=1, max_length=100)
     password: str = Field(..., min_length=1)
@@ -33,7 +33,7 @@ class UserCreate(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    """Model for updating a user."""
+    """Model cập nhật user."""
 
     password: Optional[str] = None
     default_tablespace: Optional[str] = None
@@ -43,7 +43,7 @@ class UserUpdate(BaseModel):
 
 
 class UserResponse(BaseModel):
-    """Model for user response."""
+    """Model phản hồi user."""
 
     username: str
     account_status: str
@@ -55,7 +55,7 @@ class UserResponse(BaseModel):
 
 
 class UserDetail(BaseModel):
-    """Model for detailed user information."""
+    """Model thông tin chi tiết user."""
 
     username: str
     account_status: str
@@ -66,5 +66,4 @@ class UserDetail(BaseModel):
     lock_date: Optional[str] = None
     roles: list[dict] = []
     privileges: list[dict] = []
-    user_info: Optional[dict] = None  # From user_info table
-
+    user_info: Optional[dict] = None  # Từ bảng user_info

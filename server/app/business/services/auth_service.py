@@ -1,4 +1,4 @@
-"""Authentication service with bcrypt password verification."""
+"""Dịch vụ xác thực với bcrypt để mã hóa mật khẩu."""
 
 from typing import Optional
 from app.business.models.user import LoginRequest, SessionUser
@@ -8,40 +8,40 @@ from app.data.oracle.user_info_dao import user_info_dao
 
 
 class AuthService:
-    """Service for authentication operations."""
+    """Dịch vụ xử lý các thao tác xác thực."""
 
     async def login(self, username: str, password: str) -> Optional[SessionUser]:
         """
-        Login user by verifying password with bcrypt AND Oracle.
+        Đăng nhập người dùng bằng cách xác minh mật khẩu với bcrypt VÀ Oracle.
         
-        Flow:
-        1. Check if user exists in user_info table
-        2. If exists: verify bcrypt password hash
-        3. Also verify with Oracle (for Oracle-level access)
-        4. Return session user if successful
+        Quy trình:
+        1. Kiểm tra user có tồn tại trong bảng user_info không
+        2. Nếu có: xác minh mật khẩu với bcrypt hash
+        3. Đồng thời xác minh với Oracle (để có quyền truy cập Oracle)
+        4. Trả về session user nếu thành công
         
         Args:
-            username: Username
-            password: Plain text password
+            username: Tên đăng nhập
+            password: Mật khẩu dạng plain text
             
         Returns:
-            SessionUser if login successful, None otherwise
+            SessionUser nếu đăng nhập thành công, None nếu thất bại
         """
-        # Step 1: Check user_info table for bcrypt verification
+        # Bước 1: Kiểm tra bảng user_info để xác minh bcrypt
         user_info = await user_info_dao.get_by_username(username)
         
         if user_info:
-            # Verify with bcrypt hash
+            # Xác minh với bcrypt hash
             if not verify_password(password, user_info.get("password_hash", "")):
                 return None
         
-        # Step 2: Always verify with Oracle as well (for Oracle-level privileges)
+        # Bước 2: Luôn xác minh với Oracle (để có quyền Oracle-level)
         is_valid = await user_dao.verify_password(username, password)
         
         if not is_valid:
             return None
         
-        # Step 3: Get Oracle user info from DBA_USERS
+        # Bước 3: Lấy thông tin user Oracle từ DBA_USERS
         oracle_user = await user_dao.get_user_info(username)
         
         if not oracle_user:
@@ -65,23 +65,23 @@ class AuthService:
         department: Optional[str] = None,
     ) -> int:
         """
-        Register user in user_info table with hashed password.
+        Đăng ký user vào bảng user_info với mật khẩu đã được hash.
         
         Args:
-            username: Username (must exist in Oracle)
-            password: Plain text password (will be hashed)
-            full_name: Full name
+            username: Tên đăng nhập (phải tồn tại trong Oracle)
+            password: Mật khẩu dạng plain text (sẽ được hash)
+            full_name: Họ tên đầy đủ
             email: Email
-            phone: Phone
-            department: Department
+            phone: Số điện thoại
+            department: Phòng ban
             
         Returns:
-            New user_id
+            user_id mới được tạo
         """
-        # Hash password with bcrypt
+        # Hash mật khẩu với bcrypt
         password_hash = hash_password(password)
         
-        # Create user_info record
+        # Tạo bản ghi user_info
         return await user_info_dao.create(
             username=username,
             password_hash=password_hash,
@@ -93,24 +93,24 @@ class AuthService:
 
     async def update_password(self, username: str, new_password: str) -> None:
         """
-        Update password hash in user_info table.
+        Cập nhật password hash trong bảng user_info.
         
         Args:
-            username: Username
-            new_password: New plain text password (will be hashed)
+            username: Tên đăng nhập
+            new_password: Mật khẩu mới dạng plain text (sẽ được hash)
         """
         password_hash = hash_password(new_password)
         await user_info_dao.update_password_hash(username, password_hash)
 
     async def get_current_user(self, username: str) -> Optional[SessionUser]:
         """
-        Get current user information from session.
+        Lấy thông tin user hiện tại từ session.
         
         Args:
-            username: Oracle username from session
+            username: Tên đăng nhập Oracle từ session
             
         Returns:
-            SessionUser if found, None otherwise
+            SessionUser nếu tìm thấy, None nếu không
         """
         user_info = await user_dao.get_user_info(username)
         
@@ -126,5 +126,5 @@ class AuthService:
         )
 
 
-# Global service instance
+# Instance dịch vụ toàn cục
 auth_service = AuthService()

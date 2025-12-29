@@ -1,4 +1,4 @@
-"""User Info data access object for Oracle database."""
+"""Đối tượng truy cập dữ liệu User Info cho Oracle database."""
 
 import oracledb
 from typing import Optional, Dict, Any
@@ -6,14 +6,14 @@ from app.data.oracle.connection import db
 
 
 class UserInfoDAO:
-    """Data access object for user_info table operations."""
+    """DAO cho các thao tác trên bảng user_info."""
 
     async def get_by_username(self, username: str) -> Optional[Dict[str, Any]]:
         """
-        Get user_info by username.
+        Lấy thông tin user_info theo username.
         
         Returns:
-            User info dict or None if not found
+            Dict thông tin user hoặc None nếu không tìm thấy
         """
         if not db.pool:
             await db.create_pool()
@@ -35,7 +35,7 @@ class UserInfoDAO:
             columns = [desc[0].lower() for desc in cursor.description]
             return dict(zip(columns, row))
         except oracledb.Error as e:
-            print(f"Error getting user info: {e}")
+            print(f"Lỗi lấy thông tin user: {e}")
             return None
         finally:
             await db.release_connection(conn)
@@ -51,10 +51,10 @@ class UserInfoDAO:
         notes: Optional[str] = None,
     ) -> int:
         """
-        Create new user_info record.
+        Tạo bản ghi user_info mới.
         
         Returns:
-            New user_id
+            user_id mới
         """
         conn = await db.get_connection()
         try:
@@ -73,7 +73,7 @@ class UserInfoDAO:
             )
             await conn.commit()
             
-            # Get the new ID
+            # Lấy ID mới
             await cursor.execute(
                 "SELECT user_id FROM user_info WHERE username = :username",
                 username=username.upper()
@@ -82,13 +82,13 @@ class UserInfoDAO:
             return row[0] if row else 0
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error creating user info: {e}")
+            print(f"Lỗi tạo thông tin user: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def update_password_hash(self, username: str, password_hash: str) -> None:
-        """Update password hash for a user."""
+        """Cập nhật mã băm mật khẩu cho user."""
         conn = await db.get_connection()
         try:
             cursor = conn.cursor()
@@ -100,7 +100,7 @@ class UserInfoDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error updating password hash: {e}")
+            print(f"Lỗi cập nhật mã băm mật khẩu: {e}")
             raise
         finally:
             await db.release_connection(conn)
@@ -114,7 +114,7 @@ class UserInfoDAO:
         department: Optional[str] = None,
         notes: Optional[str] = None,
     ) -> None:
-        """Update user_info fields."""
+        """Cập nhật các trường thông tin trong user_info."""
         conn = await db.get_connection()
         try:
             cursor = conn.cursor()
@@ -150,13 +150,13 @@ class UserInfoDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error updating user info: {e}")
+            print(f"Lỗi cập nhật thông tin user: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def delete(self, username: str) -> None:
-        """Delete user_info record."""
+        """Xóa bản ghi user_info."""
         conn = await db.get_connection()
         try:
             cursor = conn.cursor()
@@ -167,16 +167,16 @@ class UserInfoDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error deleting user info: {e}")
+            print(f"Lỗi xóa thông tin user: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def exists(self, username: str) -> bool:
-        """Check if username exists in user_info."""
+        """Kiểm tra xem username có tồn tại trong user_info hay không."""
         user = await self.get_by_username(username)
         return user is not None
 
 
-# Global DAO instance
+# Instance DAO toàn cục
 user_info_dao = UserInfoDAO()

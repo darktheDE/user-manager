@@ -1,11 +1,11 @@
-"""Project management service."""
+"""Dịch vụ quản lý dự án."""
 
 from typing import List, Dict, Any, Optional
 from app.data.oracle.project_dao import project_dao
 
 
 class ProjectService:
-    """Service for project management operations."""
+    """Dịch vụ cho các thao tác quản lý dự án."""
 
     VALID_STATUSES = ["ACTIVE", "COMPLETED", "CANCELLED"]
     
@@ -21,11 +21,11 @@ class ProjectService:
     ]
 
     async def get_all_projects(self, username: str = None) -> List[Dict[str, Any]]:
-        """Get all projects, optionally filtered by owner."""
+        """Lấy tất cả dự án, có thể lọc theo người sở hữu."""
         return await project_dao.query_all_projects(username)
 
     async def get_project_by_id(self, project_id: int) -> Optional[Dict[str, Any]]:
-        """Get a specific project by ID."""
+        """Lấy dự án cụ thể theo ID."""
         return await project_dao.get_project_by_id(project_id)
 
     async def create_project(
@@ -37,32 +37,32 @@ class ProjectService:
         status: str = "ACTIVE",
     ) -> int:
         """
-        Create a new project.
+        Tạo dự án mới.
         
         Args:
-            project_name: Project name
-            department: Department name
-            budget: Budget amount
-            owner_username: Owner's Oracle username
-            status: Project status
+            project_name: Tên dự án
+            department: Tên phòng ban
+            budget: Ngân sách
+            owner_username: Tên đăng nhập Oracle của người sở hữu
+            status: Trạng thái dự án
             
         Returns:
-            New project ID
+            ID dự án mới
             
         Raises:
-            ValueError: If validation fails
+            ValueError: Nếu validation thất bại
         """
         if not project_name or len(project_name.strip()) == 0:
-            raise ValueError("Project name is required.")
+            raise ValueError("Tên dự án là bắt buộc.")
         
         if not department or len(department.strip()) == 0:
-            raise ValueError("Department is required.")
+            raise ValueError("Phòng ban là bắt buộc.")
         
         if budget < 0:
-            raise ValueError("Budget cannot be negative.")
+            raise ValueError("Ngân sách không được âm.")
         
         if status not in self.VALID_STATUSES:
-            raise ValueError(f"Invalid status. Must be one of: {', '.join(self.VALID_STATUSES)}")
+            raise ValueError(f"Trạng thái không hợp lệ. Phải là một trong: {', '.join(self.VALID_STATUSES)}")
         
         return await project_dao.create_project(
             project_name=project_name.strip(),
@@ -81,21 +81,21 @@ class ProjectService:
         status: Optional[str] = None,
     ) -> None:
         """
-        Update a project.
+        Cập nhật dự án.
         
         Raises:
-            ValueError: If validation fails
+            ValueError: Nếu validation thất bại
         """
-        # Check project exists
+        # Kiểm tra dự án tồn tại
         project = await project_dao.get_project_by_id(project_id)
         if not project:
-            raise ValueError(f"Project ID {project_id} not found.")
+            raise ValueError(f"Không tìm thấy dự án ID {project_id}.")
         
         if budget is not None and budget < 0:
-            raise ValueError("Budget cannot be negative.")
+            raise ValueError("Ngân sách không được âm.")
         
         if status is not None and status not in self.VALID_STATUSES:
-            raise ValueError(f"Invalid status. Must be one of: {', '.join(self.VALID_STATUSES)}")
+            raise ValueError(f"Trạng thái không hợp lệ. Phải là một trong: {', '.join(self.VALID_STATUSES)}")
         
         await project_dao.update_project(
             project_id=project_id,
@@ -107,25 +107,25 @@ class ProjectService:
 
     async def delete_project(self, project_id: int) -> None:
         """
-        Delete a project.
+        Xóa dự án.
         
         Raises:
-            ValueError: If project not found
+            ValueError: Nếu không tìm thấy dự án
         """
         project = await project_dao.get_project_by_id(project_id)
         if not project:
-            raise ValueError(f"Project ID {project_id} not found.")
+            raise ValueError(f"Không tìm thấy dự án ID {project_id}.")
         
         await project_dao.delete_project(project_id)
 
     async def get_departments(self) -> List[str]:
-        """Get list of available departments."""
+        """Lấy danh sách các phòng ban khả dụng."""
         return self.DEPARTMENTS
 
     async def get_statuses(self) -> List[str]:
-        """Get list of valid statuses."""
+        """Lấy danh sách các trạng thái hợp lệ."""
         return self.VALID_STATUSES
 
 
-# Global service instance
+# Instance dịch vụ toàn cục
 project_service = ProjectService()

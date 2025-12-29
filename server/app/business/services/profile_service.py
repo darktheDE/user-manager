@@ -1,4 +1,4 @@
-"""Profile management service."""
+"""Dịch vụ quản lý Profile."""
 
 import re
 from typing import List, Dict, Any, Optional
@@ -6,16 +6,16 @@ from app.data.oracle.profile_dao import profile_dao
 
 
 class ProfileService:
-    """Service for profile management operations."""
+    """Dịch vụ cho các thao tác quản lý profile."""
 
     def _validate_profile_name(self, profile_name: str) -> bool:
-        """Validate profile name format (alphanumeric and underscore only)."""
+        """Kiểm tra định dạng tên profile (chỉ chứa chữ, số và gạch dưới)."""
         return bool(re.match(r'^[a-zA-Z][a-zA-Z0-9_]*$', profile_name))
 
     def _validate_resource_limit(self, value: str) -> bool:
         """
-        Validate resource limit value.
-        Valid values: UNLIMITED, DEFAULT, or a positive integer.
+        Kiểm tra giá trị giới hạn tài nguyên.
+        Giá trị hợp lệ: UNLIMITED, DEFAULT, hoặc số nguyên dương.
         """
         if value.upper() in ("UNLIMITED", "DEFAULT"):
             return True
@@ -26,18 +26,18 @@ class ProfileService:
             return False
 
     def _normalize_resource_limit(self, value: str) -> str:
-        """Normalize resource limit value to uppercase or integer string."""
+        """Chuẩn hóa giá trị giới hạn tài nguyên về chữ hoa hoặc chuỗi số nguyên."""
         upper_val = value.upper().strip()
         if upper_val in ("UNLIMITED", "DEFAULT"):
             return upper_val
         return value.strip()
 
     async def get_all_profiles(self) -> List[Dict[str, Any]]:
-        """Get all profiles from DBA_PROFILES."""
+        """Lấy tất cả profiles từ DBA_PROFILES."""
         return await profile_dao.query_all_profiles()
 
     async def get_profile_detail(self, profile_name: str) -> Optional[Dict[str, Any]]:
-        """Get detailed information for a specific profile."""
+        """Lấy thông tin chi tiết cho một profile cụ thể."""
         return await profile_dao.get_profile_detail(profile_name)
 
     async def create_profile(
@@ -48,33 +48,33 @@ class ProfileService:
         idle_time: str = "DEFAULT",
     ) -> None:
         """
-        Create a new profile with validation.
+        Tạo profile mới với kiểm tra validation.
         
         Args:
-            profile_name: Profile name
-            sessions_per_user: SESSIONS_PER_USER limit
-            connect_time: CONNECT_TIME limit
-            idle_time: IDLE_TIME limit
+            profile_name: Tên profile
+            sessions_per_user: Giới hạn SESSIONS_PER_USER
+            connect_time: Giới hạn CONNECT_TIME
+            idle_time: Giới hạn IDLE_TIME
             
         Raises:
-            ValueError: If validation fails
+            ValueError: Nếu validation thất bại
         """
-        # Validate profile name
+        # Kiểm tra tên profile
         if not self._validate_profile_name(profile_name):
             raise ValueError(
-                "Invalid profile name. Must start with a letter and contain only "
-                "alphanumeric characters and underscores."
+                "Tên profile không hợp lệ. Phải bắt đầu bằng chữ cái và chỉ chứa "
+                "chữ cái, số và dấu gạch dưới."
             )
         
-        # Check reserved names
+        # Kiểm tra tên dành riêng
         if profile_name.upper() == "DEFAULT":
-            raise ValueError("Cannot create profile with name 'DEFAULT'. It is a reserved name.")
+            raise ValueError("Không được tạo profile tên 'DEFAULT'. Đây là tên dành riêng.")
         
-        # Check if profile already exists
+        # Kiểm tra nếu profile đã tồn tại
         if await profile_dao.profile_exists(profile_name):
-            raise ValueError(f"Profile '{profile_name}' already exists.")
+            raise ValueError(f"Profile '{profile_name}' đã tồn tại.")
         
-        # Validate resource limits
+        # Kiểm tra giới hạn tài nguyên
         for name, value in [
             ("SESSIONS_PER_USER", sessions_per_user),
             ("CONNECT_TIME", connect_time),
@@ -82,11 +82,11 @@ class ProfileService:
         ]:
             if not self._validate_resource_limit(value):
                 raise ValueError(
-                    f"Invalid {name} value: '{value}'. "
-                    "Must be UNLIMITED, DEFAULT, or a positive integer."
+                    f"Giá trị {name} không hợp lệ: '{value}'. "
+                    "Phải là UNLIMITED, DEFAULT, hoặc một số nguyên dương."
                 )
         
-        # Normalize and create
+        # Chuẩn hóa và tạo
         await profile_dao.create_profile_ddl(
             profile_name=profile_name,
             sessions_per_user=self._normalize_resource_limit(sessions_per_user),
@@ -102,87 +102,87 @@ class ProfileService:
         idle_time: Optional[str] = None,
     ) -> None:
         """
-        Update profile resource limits.
+        Cập nhật giới hạn tài nguyên profile.
         
         Args:
-            profile_name: Profile name
-            sessions_per_user: New SESSIONS_PER_USER limit (optional)
-            connect_time: New CONNECT_TIME limit (optional)
-            idle_time: New IDLE_TIME limit (optional)
+            profile_name: Tên profile
+            sessions_per_user: Giới hạn SESSIONS_PER_USER mới (tùy chọn)
+            connect_time: Giới hạn CONNECT_TIME mới (tùy chọn)
+            idle_time: Giới hạn IDLE_TIME mới (tùy chọn)
             
         Raises:
-            ValueError: If validation fails
+            ValueError: Nếu validation thất bại
         """
-        # Check if profile exists
+        # Kiểm tra nếu profile tồn tại
         if not await profile_dao.profile_exists(profile_name):
-            raise ValueError(f"Profile '{profile_name}' does not exist.")
+            raise ValueError(f"Profile '{profile_name}' không tồn tại.")
         
-        # Validate provided resource limits
+        # Validate các giá trị giới hạn được cung cấp
         normalized_values = {}
         
         if sessions_per_user is not None:
             if not self._validate_resource_limit(sessions_per_user):
                 raise ValueError(
-                    f"Invalid SESSIONS_PER_USER value: '{sessions_per_user}'. "
-                    "Must be UNLIMITED, DEFAULT, or a positive integer."
+                    f"Giá trị SESSIONS_PER_USER không hợp lệ: '{sessions_per_user}'. "
+                    "Phải là UNLIMITED, DEFAULT, hoặc một số nguyên dương."
                 )
             normalized_values["sessions_per_user"] = self._normalize_resource_limit(sessions_per_user)
         
         if connect_time is not None:
             if not self._validate_resource_limit(connect_time):
                 raise ValueError(
-                    f"Invalid CONNECT_TIME value: '{connect_time}'. "
-                    "Must be UNLIMITED, DEFAULT, or a positive integer."
+                    f"Giá trị CONNECT_TIME không hợp lệ: '{connect_time}'. "
+                    "Phải là UNLIMITED, DEFAULT, hoặc một số nguyên dương."
                 )
             normalized_values["connect_time"] = self._normalize_resource_limit(connect_time)
         
         if idle_time is not None:
             if not self._validate_resource_limit(idle_time):
                 raise ValueError(
-                    f"Invalid IDLE_TIME value: '{idle_time}'. "
-                    "Must be UNLIMITED, DEFAULT, or a positive integer."
+                    f"Giá trị IDLE_TIME không hợp lệ: '{idle_time}'. "
+                    "Phải là UNLIMITED, DEFAULT, hoặc một số nguyên dương."
                 )
             normalized_values["idle_time"] = self._normalize_resource_limit(idle_time)
         
         if not normalized_values:
-            return  # Nothing to update
+            return  # Không có gì để update
         
         await profile_dao.alter_profile_ddl(profile_name, **normalized_values)
 
     async def delete_profile(self, profile_name: str, cascade: bool = False) -> None:
         """
-        Delete a profile.
+        Xóa một profile.
         
         Args:
-            profile_name: Profile name
-            cascade: Whether to reassign users to DEFAULT profile
+            profile_name: Tên profile
+            cascade: Có xóa cascade không (gán lại user về profile DEFAULT)
             
         Raises:
-            ValueError: If validation fails
+            ValueError: Nếu validation thất bại
         """
-        # Check reserved profiles
+        # Kiểm tra profile dành riêng
         if profile_name.upper() == "DEFAULT":
-            raise ValueError("Cannot delete the DEFAULT profile.")
+            raise ValueError("Không được xóa profile DEFAULT.")
         
-        # Check if profile exists
+        # Kiểm tra nếu profile tồn tại
         if not await profile_dao.profile_exists(profile_name):
-            raise ValueError(f"Profile '{profile_name}' does not exist.")
+            raise ValueError(f"Profile '{profile_name}' không tồn tại.")
         
-        # Check for users if not cascading
+        # Kiểm tra user đang dùng profile nếu không cascade
         if not cascade:
             users = await profile_dao.query_profile_users(profile_name)
             if users:
                 raise ValueError(
-                    f"Profile '{profile_name}' is assigned to {len(users)} user(s). "
-                    "Use cascade option to reassign them to DEFAULT profile."
+                    f"Profile '{profile_name}' đang được gán cho {len(users)} user(s). "
+                    "Sử dụng tùy chọn cascade để gán lại họ về profile DEFAULT."
                 )
         
         await profile_dao.drop_profile_ddl(profile_name, cascade=cascade)
 
     async def get_profile_users(self, profile_name: str) -> List[Dict[str, Any]]:
-        """Get list of users assigned to a profile."""
+        """Lấy danh sách người dùng được gán vào profile."""
         return await profile_dao.query_profile_users(profile_name)
 
 
-# Global service instance
+# Instance dịch vụ toàn cục
 profile_service = ProfileService()

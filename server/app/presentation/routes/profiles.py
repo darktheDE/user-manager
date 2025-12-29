@@ -1,4 +1,4 @@
-"""Profile management routes."""
+"""Các route quản lý profile."""
 
 from fastapi import APIRouter, Request, Form, HTTPException, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -12,17 +12,17 @@ router = APIRouter()
 
 
 def require_auth(request: Request) -> str:
-    """Require authentication and return username."""
+    """Yêu cầu xác thực và trả về username."""
     session = get_session(request)
     username = session.get("username")
     if not username:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        raise HTTPException(status_code=401, detail="Chưa xác thực")
     return username
 
 
 @router.get("/profiles", response_class=HTMLResponse)
 async def list_profiles(request: Request):
-    """Display list of profiles."""
+    """Hiển thị danh sách profile."""
     username = require_auth(request)
     
     try:
@@ -52,7 +52,7 @@ async def list_profiles(request: Request):
 
 @router.get("/profiles/create", response_class=HTMLResponse)
 async def create_profile_page(request: Request):
-    """Display create profile form."""
+    """Hiển thị form tạo profile."""
     username = require_auth(request)
     
     return templates.TemplateResponse(
@@ -73,7 +73,7 @@ async def create_profile(
     connect_time: str = Form("DEFAULT"),
     idle_time: str = Form("DEFAULT"),
 ):
-    """Handle create profile form submission."""
+    """Xử lý submit form tạo profile."""
     username = require_auth(request)
     
     try:
@@ -84,7 +84,7 @@ async def create_profile(
             idle_time=idle_time,
         )
         return RedirectResponse(
-            url=f"/profiles?success=Profile '{profile_name}' created successfully",
+            url=f"/profiles?success=Profile '{profile_name}' đã được tạo thành công",
             status_code=HTTP_303_SEE_OTHER,
         )
     except ValueError as e:
@@ -107,7 +107,7 @@ async def create_profile(
             {
                 "request": request,
                 "username": username,
-                "error": f"Error creating profile: {str(e)}",
+                "error": f"Lỗi khi tạo profile: {str(e)}",
                 "profile_name": profile_name,
                 "sessions_per_user": sessions_per_user,
                 "connect_time": connect_time,
@@ -119,7 +119,7 @@ async def create_profile(
 
 @router.get("/profiles/{profile_name}/edit", response_class=HTMLResponse)
 async def edit_profile_page(request: Request, profile_name: str):
-    """Display edit profile form."""
+    """Hiển thị form sửa profile."""
     username = require_auth(request)
     
     try:
@@ -132,12 +132,12 @@ async def edit_profile_page(request: Request, profile_name: str):
                     "request": request,
                     "username": username,
                     "profiles": await profile_service.get_all_profiles(),
-                    "error": f"Profile '{profile_name}' not found",
+                    "error": f"Không tìm thấy profile '{profile_name}'",
                     "success": None,
                 }
             )
         
-        # Get users using this profile
+        # Lấy danh sách user đang dùng profile này
         users = await profile_service.get_profile_users(profile_name)
         
         return templates.TemplateResponse(
@@ -171,7 +171,7 @@ async def update_profile(
     connect_time: str = Form(...),
     idle_time: str = Form(...),
 ):
-    """Handle update profile form submission."""
+    """Xử lý submit form cập nhật profile."""
     username = require_auth(request)
     
     try:
@@ -182,7 +182,7 @@ async def update_profile(
             idle_time=idle_time,
         )
         return RedirectResponse(
-            url=f"/profiles?success=Profile '{profile_name}' updated successfully",
+            url=f"/profiles?success=Profile '{profile_name}' đã được cập nhật thành công",
             status_code=HTTP_303_SEE_OTHER,
         )
     except ValueError as e:
@@ -221,7 +221,7 @@ async def update_profile(
                     "idle_time": idle_time,
                 },
                 "users": users,
-                "error": f"Error updating profile: {str(e)}",
+                "error": f"Lỗi khi cập nhật profile: {str(e)}",
             },
             status_code=500,
         )
@@ -233,13 +233,13 @@ async def delete_profile(
     profile_name: str,
     cascade: bool = Query(False),
 ):
-    """Handle delete profile."""
+    """Xử lý xóa profile."""
     username = require_auth(request)
     
     try:
         await profile_service.delete_profile(profile_name, cascade=cascade)
         return RedirectResponse(
-            url=f"/profiles?success=Profile '{profile_name}' deleted successfully",
+            url=f"/profiles?success=Profile '{profile_name}' đã được xóa thành công",
             status_code=HTTP_303_SEE_OTHER,
         )
     except ValueError as e:
@@ -263,7 +263,7 @@ async def delete_profile(
                 "request": request,
                 "username": username,
                 "profiles": profiles,
-                "error": f"Error deleting profile: {str(e)}",
+                "error": f"Lỗi khi xóa profile: {str(e)}",
                 "success": None,
             },
             status_code=500,

@@ -1,4 +1,4 @@
-"""My Account route - user can view their own account info."""
+"""Route tài khoản của tôi - người dùng có thể xem thông tin tài khoản của mình."""
 
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse
@@ -12,21 +12,21 @@ router = APIRouter()
 
 
 def require_auth(request: Request) -> str:
-    """Require authentication and return username."""
+    """Yêu cầu xác thực và trả về username."""
     session = get_session(request)
     username = session.get("username")
     if not username:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        raise HTTPException(status_code=401, detail="Chưa xác thực")
     return username
 
 
 @router.get("/my-account", response_class=HTMLResponse)
 async def my_account_page(request: Request):
-    """Display current user's account information."""
+    """Hiển thị thông tin tài khoản của người dùng hiện tại."""
     username = require_auth(request)
     
     try:
-        # Get user info from Oracle
+        # Lấy thông tin user từ Oracle
         user_info = await user_dao.get_user_info(username)
         
         if not user_info:
@@ -39,22 +39,22 @@ async def my_account_page(request: Request):
                     "roles": [],
                     "system_privs": [],
                     "object_privs": [],
-                    "error": "User information not found",
+                    "error": "Không tìm thấy thông tin người dùng",
                 }
             )
         
-        # Get user's quota info
+        # Lấy thông tin quota của user
         quota_info = await user_dao.get_user_quota(username)
         
-        # Get user's roles
+        # Lấy roles của user
         roles = await privilege_dao.query_grantee_privileges(username)
         user_roles = [r for r in roles if r.get("privilege_type") == "ROLE"]
         system_privs = [r for r in roles if r.get("privilege_type") == "SYSTEM"]
         
-        # Get object privileges
+        # Lấy quyền đối tượng
         object_privs = await privilege_dao.query_object_privileges(username)
         
-        # Get column privileges
+        # Lấy quyền cột
         column_privs = await privilege_dao.query_column_privileges(username)
         
         return templates.TemplateResponse(

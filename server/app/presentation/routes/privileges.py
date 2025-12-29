@@ -1,4 +1,4 @@
-"""Privilege management routes."""
+"""Các route quản lý quyền hạn."""
 
 from fastapi import APIRouter, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -12,17 +12,17 @@ router = APIRouter()
 
 
 def require_auth(request: Request) -> str:
-    """Require authentication and return username."""
+    """Yêu cầu xác thực và trả về username."""
     session = get_session(request)
     username = session.get("username")
     if not username:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        raise HTTPException(status_code=401, detail="Chưa xác thực")
     return username
 
 
 @router.get("/privileges", response_class=HTMLResponse)
 async def list_privileges(request: Request, grantee: str = None):
-    """Display privileges page with optional grantee filter."""
+    """Hiển thị trang quyền hạn với bộ lọc grantee tùy chọn."""
     username = require_auth(request)
     
     try:
@@ -64,7 +64,7 @@ async def list_privileges(request: Request, grantee: str = None):
 
 @router.get("/privileges/grant", response_class=HTMLResponse)
 async def grant_privilege_page(request: Request, grantee: str = None):
-    """Display grant privilege form."""
+    """Hiển thị form cấp quyền."""
     username = require_auth(request)
     
     try:
@@ -107,16 +107,16 @@ async def grant_privilege(
     privilege_or_role: str = Form(...),
     with_admin: bool = Form(False),
 ):
-    """Handle grant privilege/role form submission."""
+    """Xử lý submit form cấp quyền/role."""
     username = require_auth(request)
     
     try:
         if privilege_type == "ROLE":
             await privilege_service.grant_role(privilege_or_role, grantee, with_admin)
-            msg = f"Role '{privilege_or_role}' granted to '{grantee}' successfully"
+            msg = f"Role '{privilege_or_role}' đã được cấp cho '{grantee}' thành công"
         else:  # SYSTEM privilege
             await privilege_service.grant_system_privilege(privilege_or_role, grantee, with_admin)
-            msg = f"Privilege '{privilege_or_role}' granted to '{grantee}' successfully"
+            msg = f"Quyền '{privilege_or_role}' đã được cấp cho '{grantee}' thành công"
         
         return RedirectResponse(
             url=f"/privileges?grantee={grantee}&success={msg}",
@@ -149,16 +149,16 @@ async def revoke_privilege(
     privilege_type: str = Form(...),
     privilege_or_role: str = Form(...),
 ):
-    """Handle revoke privilege/role."""
+    """Xử lý thu hồi quyền/role."""
     username = require_auth(request)
     
     try:
         if privilege_type == "ROLE":
             await privilege_service.revoke_role(privilege_or_role, grantee)
-            msg = f"Role '{privilege_or_role}' revoked from '{grantee}' successfully"
+            msg = f"Role '{privilege_or_role}' đã được thu hồi từ '{grantee}' thành công"
         else:  # SYSTEM privilege
             await privilege_service.revoke_system_privilege(privilege_or_role, grantee)
-            msg = f"Privilege '{privilege_or_role}' revoked from '{grantee}' successfully"
+            msg = f"Quyền '{privilege_or_role}' đã được thu hồi từ '{grantee}' thành công"
         
         return RedirectResponse(
             url=f"/privileges?grantee={grantee}&success={msg}",
@@ -186,12 +186,12 @@ async def revoke_privilege(
 
 
 # ==========================================
-# Object Privileges Routes
+# Các route Quyền trên Đối tượng
 # ==========================================
 
 @router.get("/privileges/object", response_class=HTMLResponse)
 async def object_privileges_page(request: Request, grantee: str = None):
-    """Display object privileges page."""
+    """Hiển thị trang quyền đối tượng."""
     username = require_auth(request)
     
     try:
@@ -233,7 +233,7 @@ async def object_privileges_page(request: Request, grantee: str = None):
 
 @router.get("/privileges/object/grant", response_class=HTMLResponse)
 async def grant_object_privilege_page(request: Request, grantee: str = None):
-    """Display grant object privilege form."""
+    """Hiển thị form cấp quyền đối tượng."""
     username = require_auth(request)
     
     try:
@@ -279,14 +279,14 @@ async def grant_object_privilege(
     table_name: str = Form(...),
     with_grant_option: bool = Form(False),
 ):
-    """Handle grant object privilege form submission."""
+    """Xử lý submit form cấp quyền đối tượng."""
     username = require_auth(request)
     
     try:
         await privilege_service.grant_object_privilege(
             privilege, table_owner, table_name, grantee, with_grant_option
         )
-        msg = f"{privilege} on {table_owner}.{table_name} granted to {grantee}"
+        msg = f"Đã cấp quyền {privilege} trên {table_owner}.{table_name} cho {grantee}"
         
         return RedirectResponse(
             url=f"/privileges/object?grantee={grantee}&success={msg}",
@@ -321,14 +321,14 @@ async def revoke_object_privilege(
     table_owner: str = Form(...),
     table_name: str = Form(...),
 ):
-    """Handle revoke object privilege."""
+    """Xử lý thu hồi quyền đối tượng."""
     username = require_auth(request)
     
     try:
         await privilege_service.revoke_object_privilege(
             privilege, table_owner, table_name, grantee
         )
-        msg = f"{privilege} on {table_owner}.{table_name} revoked from {grantee}"
+        msg = f"Đã thu hồi quyền {privilege} trên {table_owner}.{table_name} từ {grantee}"
         
         return RedirectResponse(
             url=f"/privileges/object?grantee={grantee}&success={msg}",
@@ -342,12 +342,12 @@ async def revoke_object_privilege(
 
 
 # ==========================================
-# Column Privileges Routes
+# Các route Quyền trên Cột
 # ==========================================
 
 @router.get("/privileges/column/grant", response_class=HTMLResponse)
 async def grant_column_privilege_page(request: Request, grantee: str = None):
-    """Display grant column privilege form."""
+    """Hiển thị form cấp quyền cột."""
     username = require_auth(request)
     
     try:
@@ -386,7 +386,7 @@ async def grant_column_privilege_page(request: Request, grantee: str = None):
 
 @router.get("/api/tables/{owner}/{table_name}/columns")
 async def get_table_columns_api(request: Request, owner: str, table_name: str):
-    """API endpoint to get columns of a table."""
+    """API endpoint để lấy danh sách cột của một bảng."""
     require_auth(request)
     
     try:
@@ -403,9 +403,9 @@ async def grant_column_privilege(
     privilege: str = Form(...),
     table_owner: str = Form(...),
     table_name: str = Form(...),
-    columns: str = Form(...),  # Comma-separated column names
+    columns: str = Form(...),  # Tên các cột phân cách bởi dấu phẩy
 ):
-    """Handle grant column privilege form submission."""
+    """Xử lý submit form cấp quyền cột."""
     username = require_auth(request)
     
     try:
@@ -414,7 +414,7 @@ async def grant_column_privilege(
         await privilege_service.grant_column_privilege(
             privilege, table_owner, table_name, column_list, grantee
         )
-        msg = f"{privilege}({columns}) on {table_owner}.{table_name} granted to {grantee}"
+        msg = f"Đã cấp quyền {privilege}({columns}) trên {table_owner}.{table_name} cho {grantee}"
         
         return RedirectResponse(
             url=f"/privileges/object?grantee={grantee}&success={msg}",
@@ -439,4 +439,3 @@ async def grant_column_privilege(
             },
             status_code=400,
         )
-

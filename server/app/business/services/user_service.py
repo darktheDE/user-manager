@@ -1,4 +1,4 @@
-"""User management service."""
+"""Dịch vụ quản lý User."""
 
 import re
 from typing import List, Dict, Any, Optional
@@ -8,22 +8,22 @@ from app.data.oracle.privilege_dao import privilege_dao
 
 
 class UserService:
-    """Service for user management operations."""
+    """Dịch vụ xử lý các thao tác quản lý user."""
 
     def _validate_username(self, username: str) -> bool:
-        """Validate username format (alphanumeric and underscore only)."""
+        """Kiểm tra định dạng username (chỉ chứa chữ, số và dấu gạch dưới)."""
         return bool(re.match(r'^[a-zA-Z0-9_]+$', username))
 
     async def check_privilege(self, username: str, privilege: str) -> bool:
-        """Check if user has required privilege."""
+        """Kiểm tra user có quyền yêu cầu hay không."""
         try:
             return await privilege_dao.has_privilege(username, privilege)
         except Exception:
-            # If privilege checking fails, assume user has privilege (for SYSTEM user)
+            # Nếu kiểm tra quyền thất bại, giả sử user có quyền (cho SYSTEM user)
             return True
 
     async def get_all_users(self) -> List[Dict[str, Any]]:
-        """Get all users from DBA_USERS."""
+        """Lấy tất cả users từ DBA_USERS."""
         return await user_dao.query_all_users()
 
     async def create_user(
@@ -37,32 +37,32 @@ class UserService:
         current_user: Optional[str] = None,
     ) -> None:
         """
-        Create a new user with validation and privilege checking.
+        Tạo user mới với kiểm tra validation và quyền.
         
         Args:
-            username: Oracle username
-            password: Oracle password
-            default_tablespace: Default tablespace
-            temporary_tablespace: Temporary tablespace (optional)
-            quota: Quota on default tablespace (optional)
-            profile: Profile name (optional)
-            current_user: Current logged-in user for privilege checking
+            username: Tên đăng nhập Oracle
+            password: Mật khẩu Oracle
+            default_tablespace: Tablespace mặc định
+            temporary_tablespace: Tablespace tạm (tùy chọn)
+            quota: Hạn mức trên tablespace mặc định (tùy chọn)
+            profile: Tên profile (tùy chọn)
+            current_user: User đang đăng nhập để kiểm tra quyền
         """
-        # Validate username
+        # Kiểm tra định dạng username
         if not self._validate_username(username):
-            raise ValueError("Username must contain only alphanumeric characters and underscores")
+            raise ValueError("Username chỉ được chứa chữ cái, số và dấu gạch dưới")
         
-        # Validate tablespaces - cannot be the same
+        # Kiểm tra tablespaces - không được trùng nhau
         if temporary_tablespace and default_tablespace == temporary_tablespace:
-            raise ValueError("Default tablespace and temporary tablespace cannot be the same")
+            raise ValueError("Tablespace mặc định và tablespace tạm không được giống nhau")
         
-        # Check CREATE USER privilege
+        # Kiểm tra quyền CREATE USER
         if current_user:
             has_privilege = await self.check_privilege(current_user, "CREATE USER")
             if not has_privilege:
-                raise PermissionError(f"User {current_user} does not have CREATE USER privilege")
+                raise PermissionError(f"User {current_user} không có quyền CREATE USER")
         
-        # Create user
+        # Tạo user
         try:
             await user_dao.create_user_ddl(
                 username=username.upper(),
@@ -73,16 +73,16 @@ class UserService:
                 profile=profile,
             )
         except Exception as e:
-            # Convert Oracle errors to user-friendly messages
+            # Chuyển đổi lỗi Oracle thành thông báo thân thiện
             error_msg = str(e)
             if "ORA-12911" in error_msg:
-                raise ValueError("Permanent tablespace cannot be used as temporary tablespace. Please select different tablespaces.")
+                raise ValueError("Tablespace vĩnh viễn không thể dùng làm tablespace tạm. Vui lòng chọn tablespace khác.")
             elif "ORA-01920" in error_msg:
-                raise ValueError(f"User {username} already exists")
+                raise ValueError(f"User {username} đã tồn tại")
             elif "ORA-00959" in error_msg:
-                raise ValueError("Tablespace does not exist")
+                raise ValueError("Tablespace không tồn tại")
             else:
-                raise ValueError(f"Database error: {error_msg}")
+                raise ValueError(f"Lỗi database: {error_msg}")
 
     async def update_user(
         self,
@@ -95,28 +95,28 @@ class UserService:
         current_user: Optional[str] = None,
     ) -> None:
         """
-        Update user with validation and privilege checking.
+        Cập nhật user với kiểm tra validation và quyền.
         
         Args:
-            username: Oracle username
-            password: New password (optional)
-            default_tablespace: New default tablespace (optional)
-            temporary_tablespace: New temporary tablespace (optional)
-            quota: New quota (optional)
-            profile: New profile (optional)
-            current_user: Current logged-in user for privilege checking
+            username: Tên đăng nhập Oracle
+            password: Mật khẩu mới (tùy chọn)
+            default_tablespace: Tablespace mặc định mới (tùy chọn)
+            temporary_tablespace: Tablespace tạm mới (tùy chọn)
+            quota: Hạn mức mới (tùy chọn)
+            profile: Profile mới (tùy chọn)
+            current_user: User đang đăng nhập để kiểm tra quyền
         """
-        # Validate tablespaces - cannot be the same
+        # Kiểm tra tablespaces - không được trùng nhau
         if temporary_tablespace and default_tablespace and default_tablespace == temporary_tablespace:
-            raise ValueError("Default tablespace and temporary tablespace cannot be the same")
+            raise ValueError("Tablespace mặc định và tablespace tạm không được giống nhau")
         
-        # Check ALTER USER privilege
+        # Kiểm tra quyền ALTER USER
         if current_user:
             has_privilege = await self.check_privilege(current_user, "ALTER USER")
             if not has_privilege:
-                raise PermissionError(f"User {current_user} does not have ALTER USER privilege")
+                raise PermissionError(f"User {current_user} không có quyền ALTER USER")
         
-        # Update user
+        # Cập nhật user
         try:
             await user_dao.alter_user_ddl(
                 username=username.upper(),
@@ -127,14 +127,14 @@ class UserService:
                 profile=profile,
             )
         except Exception as e:
-            # Convert Oracle errors to user-friendly messages
+            # Chuyển đổi lỗi Oracle thành thông báo thân thiện
             error_msg = str(e)
             if "ORA-12911" in error_msg:
-                raise ValueError("Permanent tablespace cannot be used as temporary tablespace. Please select different tablespaces.")
+                raise ValueError("Tablespace vĩnh viễn không thể dùng làm tablespace tạm. Vui lòng chọn tablespace khác.")
             elif "ORA-00959" in error_msg:
-                raise ValueError("Tablespace does not exist")
+                raise ValueError("Tablespace không tồn tại")
             else:
-                raise ValueError(f"Database error: {error_msg}")
+                raise ValueError(f"Lỗi database: {error_msg}")
 
     async def delete_user(
         self,
@@ -143,28 +143,28 @@ class UserService:
         current_user: Optional[str] = None,
     ) -> None:
         """
-        Delete user with privilege checking.
+        Xóa user với kiểm tra quyền.
         
         Args:
-            username: Oracle username
-            cascade: Whether to cascade drop (drop user's objects)
-            current_user: Current logged-in user for privilege checking
+            username: Tên đăng nhập Oracle
+            cascade: Có xóa cascade không (xóa cả objects của user)
+            current_user: User đang đăng nhập để kiểm tra quyền
         """
-        # Check DROP USER privilege
+        # Kiểm tra quyền DROP USER
         if current_user:
             has_privilege = await self.check_privilege(current_user, "DROP USER")
             if not has_privilege:
-                raise PermissionError(f"User {current_user} does not have DROP USER privilege")
+                raise PermissionError(f"User {current_user} không có quyền DROP USER")
         
-        # Delete user
+        # Xóa user
         await user_dao.drop_user_ddl(username.upper(), cascade=cascade)
 
     async def lock_user(self, username: str) -> None:
-        """Lock user account."""
+        """Khóa tài khoản user."""
         await user_dao.lock_user(username.upper())
 
     async def unlock_user(self, username: str) -> None:
-        """Unlock user account."""
+        """Mở khóa tài khoản user."""
         await user_dao.unlock_user(username.upper())
 
     async def update_quota(
@@ -173,29 +173,29 @@ class UserService:
         tablespace: str,
         quota: str,
     ) -> None:
-        """Update user quota on tablespace."""
+        """Cập nhật hạn mức quota của user trên tablespace."""
         await user_dao.alter_user_ddl(
             username=username.upper(),
             quota=quota,
         )
 
     async def get_user_privileges(self, username: str) -> List[Dict[str, Any]]:
-        """Get user privileges from DBA_SYS_PRIVS and DBA_ROLE_PRIVS."""
+        """Lấy quyền của user từ DBA_SYS_PRIVS và DBA_ROLE_PRIVS."""
         return await user_dao.query_user_privileges(username.upper())
 
     async def get_user_roles(self, username: str) -> List[Dict[str, Any]]:
-        """Get user roles from DBA_ROLE_PRIVS."""
+        """Lấy roles của user từ DBA_ROLE_PRIVS."""
         return await user_dao.query_user_roles(username.upper())
 
     async def get_user_info(self, username: str) -> Optional[Dict[str, Any]]:
-        """Get user info from application table user_info."""
+        """Lấy thông tin user từ bảng ứng dụng user_info."""
         return await user_dao.query_user_info(username.upper())
 
     async def get_user_detail(self, username: str) -> Dict[str, Any]:
-        """Get complete user detail including privileges, roles, and info."""
+        """Lấy thông tin chi tiết user bao gồm privileges, roles, và info."""
         user_info = await user_dao.get_user_info(username.upper())
         if not user_info:
-            raise ValueError(f"User {username} not found")
+            raise ValueError(f"Không tìm thấy user {username}")
         
         privileges = await self.get_user_privileges(username)
         roles = await self.get_user_roles(username)
@@ -209,6 +209,5 @@ class UserService:
         }
 
 
-# Global service instance
+# Instance dịch vụ toàn cục
 user_service = UserService()
-

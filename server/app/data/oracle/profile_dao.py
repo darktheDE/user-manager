@@ -1,4 +1,4 @@
-"""Profile data access object for Oracle database."""
+"""Đối tượng truy cập dữ liệu Profile cho Oracle database."""
 
 import oracledb
 from typing import List, Dict, Any, Optional
@@ -7,23 +7,23 @@ from app.data.oracle.connection import db
 
 
 class ProfileDAO:
-    """Data access object for profile operations."""
+    """DAO cho các thao tác profile."""
 
     async def query_all_profiles(self) -> List[Dict[str, Any]]:
         """
-        Query all profiles from DBA_PROFILES grouped by profile name.
+        Truy vấn tất cả profiles từ DBA_PROFILES nhóm theo tên profile.
         
         Returns:
-            List of profile information dicts with resource limits
+            Danh sách dict thông tin profile với các resource limits
         """
-        # Ensure pool is initialized
+        # Đảm bảo pool đã được khởi tạo
         if not db.pool:
             await db.create_pool()
         
         conn = await db.get_connection()
         try:
             cursor = conn.cursor()
-            # Query profiles with their resource limits for the 3 required resources
+            # Truy vấn profiles với resource limits cho 3 resource yêu cầu
             await cursor.execute("""
                 SELECT 
                     p.profile,
@@ -41,20 +41,20 @@ class ProfileDAO:
             rows = await cursor.fetchall()
             return [dict(zip(columns, row)) for row in rows]
         except oracledb.Error as e:
-            print(f"Error querying profiles: {e}")
+            print(f"Lỗi truy vấn profiles: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def get_profile_detail(self, profile_name: str) -> Optional[Dict[str, Any]]:
         """
-        Get detailed information for a specific profile.
+        Lấy thông tin chi tiết cho một profile cụ thể.
         
         Args:
-            profile_name: Profile name
+            profile_name: Tên profile
             
         Returns:
-            Profile detail dict or None if not found
+            Dict chi tiết profile hoặc None nếu không tìm thấy
         """
         if not db.pool:
             await db.create_pool()
@@ -88,7 +88,7 @@ class ProfileDAO:
                 "idle_time": resources.get("idle_time", {}).get("limit", "DEFAULT"),
             }
         except oracledb.Error as e:
-            print(f"Error getting profile detail: {e}")
+            print(f"Lỗi lấy chi tiết profile: {e}")
             raise
         finally:
             await db.release_connection(conn)
@@ -101,19 +101,19 @@ class ProfileDAO:
         idle_time: str = "DEFAULT",
     ) -> None:
         """
-        Execute CREATE PROFILE DDL statement.
+        Thực thi câu lệnh DDL CREATE PROFILE.
         
         Args:
-            profile_name: Profile name (must be validated before calling)
-            sessions_per_user: SESSIONS_PER_USER limit (UNLIMITED, DEFAULT, or integer)
-            connect_time: CONNECT_TIME limit (UNLIMITED, DEFAULT, or integer in minutes)
-            idle_time: IDLE_TIME limit (UNLIMITED, DEFAULT, or integer in minutes)
+            profile_name: Tên profile (phải được validate trước)
+            sessions_per_user: Giới hạn SESSIONS_PER_USER
+            connect_time: Giới hạn CONNECT_TIME
+            idle_time: Giới hạn IDLE_TIME
         """
         conn = await db.get_connection()
         try:
             cursor = conn.cursor()
             
-            # Build DDL statement
+            # Xây dựng câu lệnh DDL
             ddl = f"CREATE PROFILE {profile_name.upper()} LIMIT"
             ddl += f" SESSIONS_PER_USER {sessions_per_user}"
             ddl += f" CONNECT_TIME {connect_time}"
@@ -123,7 +123,7 @@ class ProfileDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error creating profile: {e}")
+            print(f"Lỗi tạo profile: {e}")
             raise
         finally:
             await db.release_connection(conn)
@@ -136,19 +136,19 @@ class ProfileDAO:
         idle_time: Optional[str] = None,
     ) -> None:
         """
-        Execute ALTER PROFILE DDL statement.
+        Thực thi câu lệnh DDL ALTER PROFILE.
         
         Args:
-            profile_name: Profile name
-            sessions_per_user: New SESSIONS_PER_USER limit (optional)
-            connect_time: New CONNECT_TIME limit (optional)
-            idle_time: New IDLE_TIME limit (optional)
+            profile_name: Tên profile
+            sessions_per_user: Giới hạn SESSIONS_PER_USER mới (tùy chọn)
+            connect_time: Giới hạn CONNECT_TIME mới (tùy chọn)
+            idle_time: Giới hạn IDLE_TIME mới (tùy chọn)
         """
         conn = await db.get_connection()
         try:
             cursor = conn.cursor()
             
-            # Build DDL statement with only provided values
+            # Xây dựng câu lệnh DDL chỉ với các giá trị được cung cấp
             parts = []
             if sessions_per_user is not None:
                 parts.append(f"SESSIONS_PER_USER {sessions_per_user}")
@@ -158,7 +158,7 @@ class ProfileDAO:
                 parts.append(f"IDLE_TIME {idle_time}")
             
             if not parts:
-                return  # Nothing to update
+                return  # Không có gì để update
             
             ddl = f"ALTER PROFILE {profile_name.upper()} LIMIT " + " ".join(parts)
             
@@ -166,18 +166,18 @@ class ProfileDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error altering profile: {e}")
+            print(f"Lỗi sửa profile: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def drop_profile_ddl(self, profile_name: str, cascade: bool = False) -> None:
         """
-        Execute DROP PROFILE DDL statement.
+        Thực thi câu lệnh DDL DROP PROFILE.
         
         Args:
-            profile_name: Profile name
-            cascade: Whether to cascade drop (reassign users to DEFAULT profile)
+            profile_name: Tên profile
+            cascade: Có xóa cascade không (gán lại user về profile DEFAULT)
         """
         conn = await db.get_connection()
         try:
@@ -191,20 +191,20 @@ class ProfileDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error dropping profile: {e}")
+            print(f"Lỗi xóa profile: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def query_profile_users(self, profile_name: str) -> List[Dict[str, Any]]:
         """
-        Query users assigned to a specific profile.
+        Truy vấn người dùng được gán vào một profile cụ thể.
         
         Args:
-            profile_name: Profile name
+            profile_name: Tên profile
             
         Returns:
-            List of user information dicts
+            Danh sách dict thông tin user
         """
         if not db.pool:
             await db.create_pool()
@@ -223,20 +223,20 @@ class ProfileDAO:
             rows = await cursor.fetchall()
             return [dict(zip(columns, row)) for row in rows]
         except oracledb.Error as e:
-            print(f"Error querying profile users: {e}")
+            print(f"Lỗi truy vấn user của profile: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def profile_exists(self, profile_name: str) -> bool:
         """
-        Check if a profile exists.
+        Kiểm tra xem profile có tồn tại hay không.
         
         Args:
-            profile_name: Profile name
+            profile_name: Tên profile
             
         Returns:
-            True if profile exists, False otherwise
+            True nếu profile tồn tại, False nếu không
         """
         if not db.pool:
             await db.create_pool()
@@ -253,11 +253,11 @@ class ProfileDAO:
             count = row[0] if row else 0
             return count > 0
         except oracledb.Error as e:
-            print(f"Error checking profile existence: {e}")
+            print(f"Lỗi kiểm tra profile tồn tại: {e}")
             return False
         finally:
             await db.release_connection(conn)
 
 
-# Global DAO instance
+# Instance DAO toàn cục
 profile_dao = ProfileDAO()

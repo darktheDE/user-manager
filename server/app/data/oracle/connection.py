@@ -1,26 +1,26 @@
-"""Oracle database connection management."""
+"""Quản lý kết nối Oracle Database."""
 
 import oracledb
 from app.config import settings
 
 
 class OracleConnection:
-    """Oracle database connection manager."""
+    """Lớp quản lý kết nối Oracle Database."""
 
     def __init__(self):
-        """Initialize connection pool."""
+        """Khởi tạo connection pool."""
         self.pool: oracledb.AsyncConnectionPool | None = None
 
     async def create_pool(self) -> None:
-        """Create connection pool."""
+        """Tạo connection pool."""
         dsn = oracledb.makedsn(
             host=settings.ORACLE_HOST,
             port=settings.ORACLE_PORT,
             service_name=settings.ORACLE_SERVICE_NAME,
         )
 
-        # create_pool_async() is synchronous but returns AsyncConnectionPool
-        # It's a synchronous function that creates an async pool
+        # create_pool_async() là hàm đồng bộ nhưng trả về AsyncConnectionPool
+        # Đây là hàm đồng bộ tạo pool bất đồng bộ
         self.pool = oracledb.create_pool_async(
             user=settings.ORACLE_USER,
             password=settings.ORACLE_PASSWORD,
@@ -31,23 +31,22 @@ class OracleConnection:
         )
 
     async def close_pool(self) -> None:
-        """Close connection pool."""
+        """Đóng connection pool."""
         if self.pool:
             await self.pool.close()
             self.pool = None
 
     async def get_connection(self) -> oracledb.Connection:
-        """Get connection from pool."""
+        """Lấy connection từ pool."""
         if not self.pool:
-            raise RuntimeError("Connection pool not initialized")
+            raise RuntimeError("Connection pool chưa được khởi tạo")
         return await self.pool.acquire()
 
     async def release_connection(self, conn: oracledb.Connection) -> None:
-        """Release connection back to pool."""
+        """Trả connection về pool."""
         if self.pool:
             await self.pool.release(conn)
 
 
-# Global connection instance
+# Instance kết nối toàn cục
 db = OracleConnection()
-

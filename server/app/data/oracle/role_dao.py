@@ -1,4 +1,4 @@
-"""Role data access object for Oracle database."""
+"""Đối tượng truy cập dữ liệu Role cho Oracle database."""
 
 import oracledb
 from typing import List, Dict, Any, Optional
@@ -7,14 +7,14 @@ from app.data.oracle.connection import db
 
 
 class RoleDAO:
-    """Data access object for role operations."""
+    """DAO cho các thao tác role."""
 
     async def query_all_roles(self) -> List[Dict[str, Any]]:
         """
-        Query all roles from DBA_ROLES.
+        Truy vấn tất cả roles từ DBA_ROLES.
         
         Returns:
-            List of role information dicts
+            Danh sách dict thông tin role
         """
         if not db.pool:
             await db.create_pool()
@@ -36,20 +36,20 @@ class RoleDAO:
             rows = await cursor.fetchall()
             return [dict(zip(columns, row)) for row in rows]
         except oracledb.Error as e:
-            print(f"Error querying roles: {e}")
+            print(f"Lỗi truy vấn roles: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def get_role_detail(self, role_name: str) -> Optional[Dict[str, Any]]:
         """
-        Get detailed information for a specific role.
+        Lấy thông tin chi tiết cho một role cụ thể.
         
         Args:
-            role_name: Role name
+            role_name: Tên role
             
         Returns:
-            Role detail dict or None if not found
+            Dict chi tiết role hoặc None nếu không tìm thấy
         """
         if not db.pool:
             await db.create_pool()
@@ -70,7 +70,7 @@ class RoleDAO:
             columns = [desc[0].lower() for desc in cursor.description]
             return dict(zip(columns, row))
         except oracledb.Error as e:
-            print(f"Error getting role detail: {e}")
+            print(f"Lỗi lấy chi tiết role: {e}")
             raise
         finally:
             await db.release_connection(conn)
@@ -81,11 +81,11 @@ class RoleDAO:
         password: Optional[str] = None,
     ) -> None:
         """
-        Execute CREATE ROLE DDL statement.
+        Thực thi câu lệnh DDL CREATE ROLE.
         
         Args:
-            role_name: Role name (must be validated before calling)
-            password: Role password (optional - if provided, role requires password to enable)
+            role_name: Tên role (phải được validate trước)
+            password: Mật khẩu role (tùy chọn - nếu có, role yêu cầu mật khẩu để kích hoạt)
         """
         conn = await db.get_connection()
         try:
@@ -100,7 +100,7 @@ class RoleDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error creating role: {e}")
+            print(f"Lỗi tạo role: {e}")
             raise
         finally:
             await db.release_connection(conn)
@@ -112,12 +112,12 @@ class RoleDAO:
         remove_password: bool = False,
     ) -> None:
         """
-        Execute ALTER ROLE DDL statement.
+        Thực thi câu lệnh DDL ALTER ROLE.
         
         Args:
-            role_name: Role name
-            password: New password (optional)
-            remove_password: If True, remove password requirement
+            role_name: Tên role
+            password: Mật khẩu mới (tùy chọn)
+            remove_password: Nếu True, xóa yêu cầu mật khẩu
         """
         conn = await db.get_connection()
         try:
@@ -128,23 +128,23 @@ class RoleDAO:
             elif password:
                 ddl = f'ALTER ROLE {role_name.upper()} IDENTIFIED BY "{password}"'
             else:
-                return  # Nothing to change
+                return  # Không có gì để thay đổi
             
             await cursor.execute(ddl)
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error altering role: {e}")
+            print(f"Lỗi sửa role: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def drop_role_ddl(self, role_name: str) -> None:
         """
-        Execute DROP ROLE DDL statement.
+        Thực thi câu lệnh DDL DROP ROLE.
         
         Args:
-            role_name: Role name
+            role_name: Tên role
         """
         conn = await db.get_connection()
         try:
@@ -153,20 +153,20 @@ class RoleDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error dropping role: {e}")
+            print(f"Lỗi xóa role: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def query_role_privileges(self, role_name: str) -> List[Dict[str, Any]]:
         """
-        Query privileges granted to a role.
+        Truy vấn các quyền được cấp cho một role.
         
         Args:
-            role_name: Role name
+            role_name: Tên role
             
         Returns:
-            List of privilege information dicts
+            Danh sách dict thông tin quyền
         """
         if not db.pool:
             await db.create_pool()
@@ -175,7 +175,7 @@ class RoleDAO:
         try:
             cursor = conn.cursor()
             
-            # System privileges granted to role
+            # Quyền hệ thống cấp cho role
             await cursor.execute("""
                 SELECT privilege, admin_option, 'SYSTEM' as privilege_type
                 FROM dba_sys_privs
@@ -186,7 +186,7 @@ class RoleDAO:
             rows = await cursor.fetchall()
             privileges = [dict(zip(columns, row)) for row in rows]
             
-            # Roles granted to role
+            # Role khác cấp cho role này
             await cursor.execute("""
                 SELECT granted_role as privilege, admin_option, 'ROLE' as privilege_type
                 FROM dba_role_privs
@@ -199,20 +199,20 @@ class RoleDAO:
             
             return privileges
         except oracledb.Error as e:
-            print(f"Error querying role privileges: {e}")
+            print(f"Lỗi truy vấn quyền của role: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def query_role_users(self, role_name: str) -> List[Dict[str, Any]]:
         """
-        Query users/roles that have been granted this role.
+        Truy vấn users/roles đã được cấp role này.
         
         Args:
-            role_name: Role name
+            role_name: Tên role
             
         Returns:
-            List of grantee information dicts
+            Danh sách dict thông tin người được cấp
         """
         if not db.pool:
             await db.create_pool()
@@ -231,20 +231,20 @@ class RoleDAO:
             rows = await cursor.fetchall()
             return [dict(zip(columns, row)) for row in rows]
         except oracledb.Error as e:
-            print(f"Error querying role users: {e}")
+            print(f"Lỗi truy vấn người dùng dùng role: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def role_exists(self, role_name: str) -> bool:
         """
-        Check if a role exists.
+        Kiểm tra xem role có tồn tại hay không.
         
         Args:
-            role_name: Role name
+            role_name: Tên role
             
         Returns:
-            True if role exists, False otherwise
+            True nếu role tồn tại, False nếu không
         """
         if not db.pool:
             await db.create_pool()
@@ -261,11 +261,11 @@ class RoleDAO:
             count = row[0] if row else 0
             return count > 0
         except oracledb.Error as e:
-            print(f"Error checking role existence: {e}")
+            print(f"Lỗi kiểm tra role tồn tại: {e}")
             return False
         finally:
             await db.release_connection(conn)
 
 
-# Global DAO instance
+# Instance DAO toàn cục
 role_dao = RoleDAO()

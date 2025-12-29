@@ -1,1 +1,1 @@
-"""Oracle data access package."""
+"""Gói truy cập dữ liệu Oracle."""

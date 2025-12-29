@@ -1,4 +1,4 @@
-"""Oracle Security Features routes - VPD, Audit, Database Vault."""
+"""Các route tính năng bảo mật Oracle - VPD, Audit, Database Vault."""
 
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse
@@ -11,17 +11,17 @@ router = APIRouter()
 
 
 def require_auth(request: Request) -> str:
-    """Require authentication and return username."""
+    """Yêu cầu xác thực và trả về username."""
     session = get_session(request)
     username = session.get("username")
     if not username:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        raise HTTPException(status_code=401, detail="Chưa xác thực")
     return username
 
 
 @router.get("/security", response_class=HTMLResponse)
 async def security_index(request: Request):
-    """Security features overview page."""
+    """Trang tổng quan tính năng bảo mật."""
     username = require_auth(request)
     
     return templates.TemplateResponse(
@@ -35,20 +35,20 @@ async def security_index(request: Request):
 
 @router.get("/security/vpd", response_class=HTMLResponse)
 async def vpd_page(request: Request):
-    """VPD - show filtered projects based on user department."""
+    """VPD - hiển thị các dự án được lọc theo phòng ban của user."""
     username = require_auth(request)
     
     try:
         conn = await db.get_connection()
         cursor = conn.cursor()
         
-        # Set user context for VPD
+        # Thiết lập context user cho VPD
         try:
             await cursor.execute("BEGIN set_user_dept_proc(:username); END;", username=username)
         except Exception:
             pass
         
-        # Query projects (VPD will filter automatically if policy is active)
+        # Truy vấn projects (VPD sẽ tự động lọc nếu policy đang hoạt động)
         await cursor.execute("""
             SELECT project_id, project_name, department, budget, status, owner_username
             FROM projects
@@ -59,7 +59,7 @@ async def vpd_page(request: Request):
         rows = await cursor.fetchall()
         projects = [dict(zip(columns, row)) for row in rows]
         
-        # Get VPD policy info
+        # Lấy thông tin VPD policy
         await cursor.execute("""
             SELECT policy_name, function, enable, sel, ins, upd, del
             FROM dba_policies
@@ -96,7 +96,7 @@ async def vpd_page(request: Request):
 
 @router.get("/security/audit", response_class=HTMLResponse)
 async def audit_page(request: Request):
-    """Audit - show FGA and Unified Audit logs."""
+    """Audit - hiển thị nhật ký FGA và Unified Audit."""
     username = require_auth(request)
     
     try:
@@ -150,7 +150,7 @@ async def audit_page(request: Request):
         except Exception:
             pass
         
-        # Get audit policies
+        # Lấy các audit policies
         audit_policies = []
         try:
             await cursor.execute("""
@@ -192,14 +192,14 @@ async def audit_page(request: Request):
 
 @router.get("/security/dbvault", response_class=HTMLResponse)
 async def dbvault_page(request: Request):
-    """Database Vault - show realms and command rules."""
+    """Database Vault - hiển thị realms và command rules."""
     username = require_auth(request)
     
     try:
         conn = await db.get_connection()
         cursor = conn.cursor()
         
-        # Check DV status
+        # Kiểm tra trạng thái DV
         dv_status = []
         try:
             await cursor.execute("SELECT * FROM DBA_DV_STATUS")
@@ -209,7 +209,7 @@ async def dbvault_page(request: Request):
         except Exception:
             pass
         
-        # Get Realms
+        # Lấy Realms
         realms = []
         try:
             await cursor.execute("""
@@ -222,7 +222,7 @@ async def dbvault_page(request: Request):
         except Exception:
             pass
         
-        # Get Realm Objects
+        # Lấy Realm Objects
         realm_objects = []
         try:
             await cursor.execute("""
@@ -235,7 +235,7 @@ async def dbvault_page(request: Request):
         except Exception:
             pass
         
-        # Get Command Rules
+        # Lấy Command Rules
         command_rules = []
         try:
             await cursor.execute("""

@@ -1,6 +1,6 @@
 """
-Permission Checker Utility
-==========================
+Tiện ích kiểm tra quyền
+======================
 Kiểm tra quyền của user trước khi thực hiện action theo yêu cầu đề tài.
 
 Các quyền đánh dấu (*) trong đề tài cần được kiểm tra:
@@ -15,19 +15,19 @@ from typing import Dict, List, Optional
 from app.data.oracle.privilege_dao import privilege_dao
 
 
-# Mapping action -> required privileges
+# Ánh xạ hành động -> quyền yêu cầu
 REQUIRED_PRIVILEGES: Dict[str, List[str]] = {
-    # User Management
+    # Quản lý User
     "create_user": ["CREATE USER"],
     "alter_user": ["ALTER USER"],
     "drop_user": ["DROP USER"],
     
-    # Profile Management
+    # Quản lý Profile
     "create_profile": ["CREATE PROFILE"],
     "alter_profile": ["ALTER PROFILE"],
     "drop_profile": ["DROP PROFILE"],
     
-    # Role Management
+    # Quản lý Role
     "create_role": ["CREATE ROLE"],
     "alter_role": ["ALTER ANY ROLE"],
     "drop_role": ["DROP ANY ROLE"],
@@ -36,16 +36,16 @@ REQUIRED_PRIVILEGES: Dict[str, List[str]] = {
     # Session
     "login": ["CREATE SESSION"],
     
-    # Table privileges
+    # Quyền trên Table
     "select_any_table": ["SELECT ANY TABLE"],
     
-    # Grant privileges
+    # Cấp quyền
     "grant_system_privilege": ["GRANT ANY PRIVILEGE"],
 }
 
 
 class PermissionChecker:
-    """Check user permissions before executing actions."""
+    """Lớp kiểm tra quyền user trước khi thực hiện hành động."""
     
     async def check_permission(
         self, 
@@ -54,36 +54,36 @@ class PermissionChecker:
         raise_error: bool = True,
     ) -> bool:
         """
-        Check if user has required privilege for an action.
+        Kiểm tra user có quyền thực hiện hành động hay không.
         
         Args:
-            username: Oracle username
-            action: Action to check (e.g., 'create_user')
-            raise_error: If True, raise PermissionError on failure
+            username: Tên đăng nhập Oracle
+            action: Hành động cần kiểm tra (ví dụ: 'create_user')
+            raise_error: Nếu True, raise PermissionError khi không có quyền
             
         Returns:
-            True if user has permission
+            True nếu user có quyền
             
         Raises:
-            PermissionError: If user lacks permission and raise_error=True
+            PermissionError: Nếu user không có quyền và raise_error=True
         """
         required_privs = REQUIRED_PRIVILEGES.get(action, [])
         
         if not required_privs:
-            # No specific privilege required for this action
+            # Hành động này không yêu cầu quyền cụ thể
             return True
         
-        # Admin users bypass check
+        # User admin bỏ qua kiểm tra
         if username.upper() in ("SYS", "SYSTEM"):
             return True
         
-        # Check each required privilege
+        # Kiểm tra từng quyền yêu cầu
         for priv in required_privs:
             has_priv = await privilege_dao.has_privilege(username, priv)
             if has_priv:
                 return True
         
-        # User lacks permission
+        # User không có quyền
         if raise_error:
             raise PermissionError(
                 f"Bạn không có quyền thực hiện hành động này. "
@@ -98,10 +98,10 @@ class PermissionChecker:
         actions: List[str],
     ) -> Dict[str, bool]:
         """
-        Check multiple permissions at once.
+        Kiểm tra nhiều quyền cùng lúc.
         
         Returns:
-            Dict mapping action -> has_permission
+            Dict ánh xạ hành động -> có quyền hay không
         """
         results = {}
         for action in actions:
@@ -112,10 +112,10 @@ class PermissionChecker:
 
     async def get_user_capabilities(self, username: str) -> Dict[str, bool]:
         """
-        Get all capabilities (allowed actions) for a user.
+        Lấy tất cả các khả năng (hành động được phép) của user.
         
         Returns:
-            Dict mapping action -> can_perform
+            Dict ánh xạ hành động -> có thể thực hiện hay không
         """
         return await self.check_multiple_permissions(
             username, 
@@ -123,23 +123,23 @@ class PermissionChecker:
         )
 
 
-# Global instance
+# Instance toàn cục
 permission_checker = PermissionChecker()
 
 
-# Decorator for route protection
+# Decorator để bảo vệ route
 def require_privilege(action: str):
     """
-    Decorator to require privilege for a route handler.
+    Decorator yêu cầu quyền cho route handler.
     
-    Usage:
+    Cách sử dụng:
         @require_privilege("create_user")
         async def create_user_handler(request: Request, ...):
             ...
     """
     def decorator(func):
         async def wrapper(*args, **kwargs):
-            # Get request from args
+            # Tìm request từ args
             request = None
             for arg in args:
                 if hasattr(arg, 'session'):
@@ -147,27 +147,27 @@ def require_privilege(action: str):
                     break
             
             if request is None:
-                # Try kwargs
+                # Thử tìm trong kwargs
                 request = kwargs.get('request')
             
             if request is None:
-                raise ValueError("Could not find request object")
+                raise ValueError("Không tìm thấy request object")
             
-            # Get username from session
+            # Lấy username từ session
             from app.presentation.middleware import get_session
             session = get_session(request)
             username = session.get("username")
             
             if not username:
-                raise PermissionError("Not authenticated")
+                raise PermissionError("Chưa đăng nhập")
             
-            # Check permission
+            # Kiểm tra quyền
             await permission_checker.check_permission(username, action)
             
-            # Execute original function
+            # Thực thi hàm gốc
             return await func(*args, **kwargs)
         
-        # Preserve function metadata
+        # Giữ nguyên metadata của hàm
         wrapper.__name__ = func.__name__
         wrapper.__doc__ = func.__doc__
         return wrapper

@@ -1,4 +1,4 @@
-"""User management routes."""
+"""Các route quản lý người dùng."""
 
 from fastapi import APIRouter, Request, Form, HTTPException, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -12,17 +12,17 @@ router = APIRouter()
 
 
 def require_auth(request: Request) -> str:
-    """Require authentication and return username."""
+    """Yêu cầu xác thực và trả về username."""
     session = get_session(request)
     username = session.get("username")
     if not username:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Yêu cầu xác thực")
     return username
 
 
 @router.get("/users", response_class=HTMLResponse)
 async def list_users(request: Request):
-    """Display list of users."""
+    """Hiển thị danh sách người dùng."""
     current_user = require_auth(request)
     
     try:
@@ -46,10 +46,10 @@ async def list_users(request: Request):
 
 @router.get("/users/create", response_class=HTMLResponse)
 async def create_user_page(request: Request):
-    """Display create user form."""
+    """Hiển thị form tạo người dùng."""
     current_user = require_auth(request)
     
-    # Get available tablespaces (hardcoded for now)
+    # Lấy danh sách tablespaces (tạm thời hardcode)
     tablespaces = ["USERS", "SYSTEM", "SYSAUX"]
     
     return templates.TemplateResponse(
@@ -72,7 +72,7 @@ async def create_user(
     quota: str = Form(None),
     profile: str = Form(None),
 ):
-    """Handle create user form submission."""
+    """Xử lý submit form tạo người dùng."""
     current_user = require_auth(request)
     
     try:
@@ -115,7 +115,7 @@ async def create_user(
 
 @router.get("/users/{username}/edit", response_class=HTMLResponse)
 async def edit_user_page(request: Request, username: str):
-    """Display edit user form."""
+    """Hiển thị form sửa người dùng."""
     current_user = require_auth(request)
     
     try:
@@ -154,7 +154,7 @@ async def update_user(
     quota: str = Form(None),
     profile: str = Form(None),
 ):
-    """Handle update user form submission."""
+    """Xử lý submit form cập nhật người dùng."""
     current_user = require_auth(request)
     
     try:
@@ -200,7 +200,7 @@ async def update_user(
 
 @router.post("/users/{username}/delete", response_class=HTMLResponse)
 async def delete_user(request: Request, username: str, cascade: bool = Query(False)):
-    """Handle delete user."""
+    """Xử lý xóa người dùng."""
     current_user = require_auth(request)
     
     try:
@@ -226,7 +226,7 @@ async def delete_user(request: Request, username: str, cascade: bool = Query(Fal
 
 @router.get("/users/{username}", response_class=HTMLResponse)
 async def user_detail(request: Request, username: str):
-    """Display user detail."""
+    """Hiển thị chi tiết người dùng."""
     current_user = require_auth(request)
     
     try:
@@ -255,7 +255,7 @@ async def user_detail(request: Request, username: str):
 
 @router.post("/users/{username}/lock", response_class=HTMLResponse)
 async def lock_user(request: Request, username: str):
-    """Lock user account."""
+    """Khóa tài khoản người dùng."""
     current_user = require_auth(request)
     
     try:
@@ -277,7 +277,7 @@ async def lock_user(request: Request, username: str):
 
 @router.post("/users/{username}/unlock", response_class=HTMLResponse)
 async def unlock_user(request: Request, username: str):
-    """Unlock user account."""
+    """Mở khóa tài khoản người dùng."""
     current_user = require_auth(request)
     
     try:
@@ -295,4 +295,3 @@ async def unlock_user(request: Request, username: str):
             },
             status_code=500,
         )
-

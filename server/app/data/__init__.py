@@ -1,2 +1,1 @@
-"""Data layer package."""
-
+"""Gói lớp dữ liệu."""

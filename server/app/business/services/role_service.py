@@ -1,4 +1,4 @@
-"""Role management service."""
+"""Dịch vụ quản lý vai trò (Role)."""
 
 import re
 from typing import List, Dict, Any, Optional
@@ -6,9 +6,9 @@ from app.data.oracle.role_dao import role_dao
 
 
 class RoleService:
-    """Service for role management operations."""
+    """Dịch vụ cho các thao tác quản lý role."""
 
-    # Reserved Oracle roles that should not be modified
+    # Các role Oracle dành riêng không nên sửa đổi
     RESERVED_ROLES = {
         "DBA", "CONNECT", "RESOURCE", "PUBLIC", "SELECT_CATALOG_ROLE",
         "EXECUTE_CATALOG_ROLE", "DELETE_CATALOG_ROLE", "EXP_FULL_DATABASE",
@@ -17,20 +17,20 @@ class RoleService:
     }
 
     def _validate_role_name(self, role_name: str) -> bool:
-        """Validate role name format (alphanumeric and underscore only)."""
+        """Kiểm tra định dạng tên role (chỉ chứa chữ, số và gạch dưới)."""
         return bool(re.match(r'^[a-zA-Z][a-zA-Z0-9_]*$', role_name))
 
     async def get_all_roles(self) -> List[Dict[str, Any]]:
-        """Get all roles from DBA_ROLES."""
+        """Lấy tất cả roles từ DBA_ROLES."""
         return await role_dao.query_all_roles()
 
     async def get_role_detail(self, role_name: str) -> Optional[Dict[str, Any]]:
-        """Get detailed information for a specific role including privileges and grantees."""
+        """Lấy thông tin chi tiết cho một role cụ thể bao gồm quyền và người được cấp."""
         role = await role_dao.get_role_detail(role_name)
         if not role:
             return None
         
-        # Get privileges and grantees
+        # Lấy quyền và người được cấp
         role["privileges"] = await role_dao.query_role_privileges(role_name)
         role["grantees"] = await role_dao.query_role_users(role_name)
         
@@ -42,29 +42,29 @@ class RoleService:
         password: Optional[str] = None,
     ) -> None:
         """
-        Create a new role with validation.
+        Tạo role mới với kiểm tra validation.
         
         Args:
-            role_name: Role name
-            password: Role password (optional)
+            role_name: Tên role
+            password: Mật khẩu role (tùy chọn)
             
         Raises:
-            ValueError: If validation fails
+            ValueError: Nếu validation thất bại
         """
-        # Validate role name
+        # Kiểm tra tên role
         if not self._validate_role_name(role_name):
             raise ValueError(
-                "Invalid role name. Must start with a letter and contain only "
-                "alphanumeric characters and underscores."
+                "Tên role không hợp lệ. Phải bắt đầu bằng chữ cái và chỉ chứa "
+                "chữ cái, số và dấu gạch dưới."
             )
         
-        # Check reserved names
+        # Kiểm tra tên dành riêng
         if role_name.upper() in self.RESERVED_ROLES:
-            raise ValueError(f"Cannot create role '{role_name}'. It is a reserved Oracle role.")
+            raise ValueError(f"Không thể tạo role '{role_name}'. Đây là role Oracle dành riêng.")
         
-        # Check if role already exists
+        # Kiểm tra nếu role đã tồn tại
         if await role_dao.role_exists(role_name):
-            raise ValueError(f"Role '{role_name}' already exists.")
+            raise ValueError(f"Role '{role_name}' đã tồn tại.")
         
         await role_dao.create_role_ddl(role_name, password)
 
@@ -75,54 +75,54 @@ class RoleService:
         remove_password: bool = False,
     ) -> None:
         """
-        Update role password.
+        Cập nhật mật khẩu role.
         
         Args:
-            role_name: Role name
-            password: New password (optional)
-            remove_password: If True, remove password requirement
+            role_name: Tên role
+            password: Mật khẩu mới (tùy chọn)
+            remove_password: Nếu True, xóa yêu cầu mật khẩu
             
         Raises:
-            ValueError: If validation fails
+            ValueError: Nếu validation thất bại
         """
-        # Check reserved roles
+        # Kiểm tra role dành riêng
         if role_name.upper() in self.RESERVED_ROLES:
-            raise ValueError(f"Cannot modify reserved Oracle role '{role_name}'.")
+            raise ValueError(f"Không thể sửa đổi role Oracle dành riêng '{role_name}'.")
         
-        # Check if role exists
+        # Kiểm tra nếu role tồn tại
         if not await role_dao.role_exists(role_name):
-            raise ValueError(f"Role '{role_name}' does not exist.")
+            raise ValueError(f"Role '{role_name}' không tồn tại.")
         
         await role_dao.alter_role_ddl(role_name, password, remove_password)
 
     async def delete_role(self, role_name: str) -> None:
         """
-        Delete a role.
+        Xóa một role.
         
         Args:
-            role_name: Role name
+            role_name: Tên role
             
         Raises:
-            ValueError: If validation fails
+            ValueError: Nếu validation thất bại
         """
-        # Check reserved roles
+        # Kiểm tra role dành riêng
         if role_name.upper() in self.RESERVED_ROLES:
-            raise ValueError(f"Cannot delete reserved Oracle role '{role_name}'.")
+            raise ValueError(f"Không thể xóa role Oracle dành riêng '{role_name}'.")
         
-        # Check if role exists
+        # Kiểm tra nếu role tồn tại
         if not await role_dao.role_exists(role_name):
-            raise ValueError(f"Role '{role_name}' does not exist.")
+            raise ValueError(f"Role '{role_name}' không tồn tại.")
         
         await role_dao.drop_role_ddl(role_name)
 
     async def get_role_privileges(self, role_name: str) -> List[Dict[str, Any]]:
-        """Get privileges granted to a role."""
+        """Lấy các quyền được cấp cho role."""
         return await role_dao.query_role_privileges(role_name)
 
     async def get_role_users(self, role_name: str) -> List[Dict[str, Any]]:
-        """Get users/roles that have been granted this role."""
+        """Lấy danh sách users/roles đã được cấp role này."""
         return await role_dao.query_role_users(role_name)
 
 
-# Global service instance
+# Instance dịch vụ toàn cục
 role_service = RoleService()

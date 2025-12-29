@@ -1,4 +1,4 @@
-"""Privilege data access object for Oracle database."""
+"""Đối tượng truy cập dữ liệu quyền hạn cho Oracle database."""
 
 import oracledb
 from typing import List, Dict, Any, Optional
@@ -6,18 +6,18 @@ from app.data.oracle.connection import db
 
 
 class PrivilegeDAO:
-    """Data access object for privilege operations."""
+    """DAO cho các thao tác quyền hạn."""
 
     async def has_privilege(self, username: str, privilege: str) -> bool:
         """
-        Check if user has a specific privilege.
+        Kiểm tra xem user có quyền cụ thể hay không.
         
         Args:
-            username: Oracle username
-            privilege: Privilege name to check
+            username: Tên đăng nhập Oracle
+            privilege: Tên quyền cần kiểm tra
             
         Returns:
-            True if user has privilege, False otherwise
+            True nếu user có quyền, False nếu không
         """
         if not db.pool:
             await db.create_pool()
@@ -26,7 +26,7 @@ class PrivilegeDAO:
         try:
             cursor = conn.cursor()
             
-            # Check system privileges
+            # Kiểm tra quyền hệ thống
             await cursor.execute("""
                 SELECT COUNT(*) 
                 FROM dba_sys_privs 
@@ -38,7 +38,7 @@ class PrivilegeDAO:
             if row and row[0] > 0:
                 return True
             
-            # Check role privileges (simplified)
+            # Kiểm tra quyền qua role (đơn giản hóa)
             await cursor.execute("""
                 SELECT COUNT(*) 
                 FROM dba_sys_privs 
@@ -59,7 +59,7 @@ class PrivilegeDAO:
             await db.release_connection(conn)
 
     async def query_all_system_privileges(self) -> List[Dict[str, Any]]:
-        """Query all available system privileges."""
+        """Truy vấn tất cả quyền hệ thống có sẵn."""
         if not db.pool:
             await db.create_pool()
         
@@ -75,16 +75,16 @@ class PrivilegeDAO:
             rows = await cursor.fetchall()
             return [{"privilege": row[0]} for row in rows]
         except oracledb.Error as e:
-            print(f"Error querying system privileges: {e}")
+            print(f"Lỗi truy vấn quyền hệ thống: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def query_grantee_privileges(self, grantee: str) -> List[Dict[str, Any]]:
         """
-        Query all privileges granted to a specific user/role.
+        Truy vấn tất cả quyền đã cấp cho một user/role cụ thể.
         
-        Returns combined system privileges and role grants.
+        Trả về kết hợp quyền hệ thống và role grants.
         """
         if not db.pool:
             await db.create_pool()
@@ -93,7 +93,7 @@ class PrivilegeDAO:
         try:
             cursor = conn.cursor()
             
-            # System privileges
+            # Quyền hệ thống
             await cursor.execute("""
                 SELECT privilege, admin_option, 'SYSTEM' as privilege_type
                 FROM dba_sys_privs
@@ -105,7 +105,7 @@ class PrivilegeDAO:
             rows = await cursor.fetchall()
             result = [dict(zip(columns, row)) for row in rows]
             
-            # Role privileges
+            # Quyền qua role
             await cursor.execute("""
                 SELECT granted_role as privilege, admin_option, 'ROLE' as privilege_type
                 FROM dba_role_privs
@@ -119,13 +119,13 @@ class PrivilegeDAO:
             
             return result
         except oracledb.Error as e:
-            print(f"Error querying grantee privileges: {e}")
+            print(f"Lỗi truy vấn quyền grantee: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def query_all_roles(self) -> List[Dict[str, Any]]:
-        """Query all available roles for granting."""
+        """Truy vấn tất cả roles có sẵn để cấp."""
         if not db.pool:
             await db.create_pool()
         
@@ -139,13 +139,13 @@ class PrivilegeDAO:
             rows = await cursor.fetchall()
             return [{"role": row[0]} for row in rows]
         except oracledb.Error as e:
-            print(f"Error querying roles: {e}")
+            print(f"Lỗi truy vấn roles: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def query_all_users(self) -> List[Dict[str, Any]]:
-        """Query all users for privilege granting."""
+        """Truy vấn tất cả users để cấp quyền."""
         if not db.pool:
             await db.create_pool()
         
@@ -161,7 +161,7 @@ class PrivilegeDAO:
             rows = await cursor.fetchall()
             return [{"username": row[0]} for row in rows]
         except oracledb.Error as e:
-            print(f"Error querying users: {e}")
+            print(f"Lỗi truy vấn users: {e}")
             raise
         finally:
             await db.release_connection(conn)
@@ -173,12 +173,12 @@ class PrivilegeDAO:
         with_admin: bool = False
     ) -> None:
         """
-        Grant system privilege to user/role.
+        Cấp quyền hệ thống cho user/role.
         
         Args:
-            privilege: System privilege name
-            grantee: User or role name
-            with_admin: Grant with ADMIN OPTION
+            privilege: Tên quyền hệ thống
+            grantee: Tên user hoặc role
+            with_admin: Cấp kèm ADMIN OPTION
         """
         conn = await db.get_connection()
         try:
@@ -191,18 +191,18 @@ class PrivilegeDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error granting system privilege: {e}")
+            print(f"Lỗi cấp quyền hệ thống: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def revoke_system_privilege_ddl(self, privilege: str, grantee: str) -> None:
         """
-        Revoke system privilege from user/role.
+        Thu hồi quyền hệ thống từ user/role.
         
         Args:
-            privilege: System privilege name
-            grantee: User or role name
+            privilege: Tên quyền hệ thống
+            grantee: Tên user hoặc role
         """
         conn = await db.get_connection()
         try:
@@ -211,7 +211,7 @@ class PrivilegeDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error revoking system privilege: {e}")
+            print(f"Lỗi thu hồi quyền hệ thống: {e}")
             raise
         finally:
             await db.release_connection(conn)
@@ -223,12 +223,12 @@ class PrivilegeDAO:
         with_admin: bool = False
     ) -> None:
         """
-        Grant role to user/role.
+        Cấp role cho user/role.
         
         Args:
-            role: Role name
-            grantee: User or role name
-            with_admin: Grant with ADMIN OPTION
+            role: Tên role
+            grantee: Tên user hoặc role
+            with_admin: Cấp kèm ADMIN OPTION
         """
         conn = await db.get_connection()
         try:
@@ -241,18 +241,18 @@ class PrivilegeDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error granting role: {e}")
+            print(f"Lỗi cấp role: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def revoke_role_ddl(self, role: str, grantee: str) -> None:
         """
-        Revoke role from user/role.
+        Thu hồi role từ user/role.
         
         Args:
-            role: Role name
-            grantee: User or role name
+            role: Tên role
+            grantee: Tên user hoặc role
         """
         conn = await db.get_connection()
         try:
@@ -261,21 +261,21 @@ class PrivilegeDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error revoking role: {e}")
+            print(f"Lỗi thu hồi role: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     # ==========================================
-    # Object Privileges Methods
+    # Phương thức Quyền trên Đối tượng
     # ==========================================
 
     async def query_all_tables(self, owner: str = None) -> List[Dict[str, Any]]:
         """
-        Query all tables available for granting object privileges.
+        Truy vấn tất cả bảng có sẵn để cấp quyền đối tượng.
         
         Args:
-            owner: Optional owner filter (default: all owners except SYS schemas)
+            owner: Lọc theo owner (mặc định: tất cả owner trừ các schema SYS)
         """
         if not db.pool:
             await db.create_pool()
@@ -305,17 +305,17 @@ class PrivilegeDAO:
             rows = await cursor.fetchall()
             return [dict(zip(columns, row)) for row in rows]
         except oracledb.Error as e:
-            print(f"Error querying tables: {e}")
+            print(f"Lỗi truy vấn bảng: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def query_object_privileges(self, grantee: str) -> List[Dict[str, Any]]:
         """
-        Query object privileges granted to a specific user/role.
+        Truy vấn quyền đối tượng đã cấp cho một user/role cụ thể.
         
         Returns:
-            List of object privileges with table name, owner, privilege, grantable
+            Danh sách các quyền đối tượng với tên bảng, owner, quyền, có thể cấp tiếp
         """
         if not db.pool:
             await db.create_pool()
@@ -334,7 +334,7 @@ class PrivilegeDAO:
             rows = await cursor.fetchall()
             return [dict(zip(columns, row)) for row in rows]
         except oracledb.Error as e:
-            print(f"Error querying object privileges: {e}")
+            print(f"Lỗi truy vấn quyền đối tượng: {e}")
             raise
         finally:
             await db.release_connection(conn)
@@ -348,14 +348,14 @@ class PrivilegeDAO:
         with_grant_option: bool = False,
     ) -> None:
         """
-        Grant object privilege on table to user/role.
+        Cấp quyền đối tượng trên bảng cho user/role.
         
         Args:
             privilege: SELECT, INSERT, UPDATE, DELETE
-            owner: Table owner
-            table_name: Table name
-            grantee: User or role name
-            with_grant_option: Allow grantee to grant this privilege to others
+            owner: Chủ sở hữu bảng
+            table_name: Tên bảng
+            grantee: Tên user hoặc role
+            with_grant_option: Cho phép grantee cấp quyền này cho người khác
         """
         conn = await db.get_connection()
         try:
@@ -368,7 +368,7 @@ class PrivilegeDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error granting object privilege: {e}")
+            print(f"Lỗi cấp quyền đối tượng: {e}")
             raise
         finally:
             await db.release_connection(conn)
@@ -381,7 +381,7 @@ class PrivilegeDAO:
         grantee: str,
     ) -> None:
         """
-        Revoke object privilege from user/role.
+        Thu hồi quyền đối tượng từ user/role.
         """
         conn = await db.get_connection()
         try:
@@ -392,18 +392,18 @@ class PrivilegeDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error revoking object privilege: {e}")
+            print(f"Lỗi thu hồi quyền đối tượng: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     # ==========================================
-    # Column Privileges Methods
+    # Phương thức Quyền trên Cột
     # ==========================================
 
     async def query_table_columns(self, owner: str, table_name: str) -> List[Dict[str, Any]]:
         """
-        Query columns of a specific table.
+        Truy vấn các cột của một bảng cụ thể.
         """
         if not db.pool:
             await db.create_pool()
@@ -422,14 +422,14 @@ class PrivilegeDAO:
             rows = await cursor.fetchall()
             return [dict(zip(columns, row)) for row in rows]
         except oracledb.Error as e:
-            print(f"Error querying table columns: {e}")
+            print(f"Lỗi truy vấn cột bảng: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
     async def query_column_privileges(self, grantee: str) -> List[Dict[str, Any]]:
         """
-        Query column-level privileges granted to a specific user/role.
+        Truy vấn quyền cấp cột đã cấp cho một user/role cụ thể.
         """
         if not db.pool:
             await db.create_pool()
@@ -448,7 +448,7 @@ class PrivilegeDAO:
             rows = await cursor.fetchall()
             return [dict(zip(columns, row)) for row in rows]
         except oracledb.Error as e:
-            print(f"Error querying column privileges: {e}")
+            print(f"Lỗi truy vấn quyền cột: {e}")
             raise
         finally:
             await db.release_connection(conn)
@@ -462,14 +462,14 @@ class PrivilegeDAO:
         grantee: str,
     ) -> None:
         """
-        Grant column privilege on specific columns to user/role.
+        Cấp quyền trên các cột cụ thể cho user/role.
         
         Args:
-            privilege: SELECT or INSERT
-            owner: Table owner
-            table_name: Table name
-            columns: List of column names
-            grantee: User or role name
+            privilege: SELECT hoặc INSERT
+            owner: Chủ sở hữu bảng
+            table_name: Tên bảng
+            columns: Danh sách tên cột
+            grantee: Tên user hoặc role
         """
         conn = await db.get_connection()
         try:
@@ -481,7 +481,7 @@ class PrivilegeDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error granting column privilege: {e}")
+            print(f"Lỗi cấp quyền cột: {e}")
             raise
         finally:
             await db.release_connection(conn)
@@ -495,7 +495,7 @@ class PrivilegeDAO:
         grantee: str,
     ) -> None:
         """
-        Revoke column privilege from user/role.
+        Thu hồi quyền trên cột từ user/role.
         """
         conn = await db.get_connection()
         try:
@@ -507,12 +507,11 @@ class PrivilegeDAO:
             await conn.commit()
         except oracledb.Error as e:
             await conn.rollback()
-            print(f"Error revoking column privilege: {e}")
+            print(f"Lỗi thu hồi quyền cột: {e}")
             raise
         finally:
             await db.release_connection(conn)
 
 
-# Global DAO instance
+# Instance DAO toàn cục
 privilege_dao = PrivilegeDAO()
-
