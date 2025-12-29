@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Projects - User Manager{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Project Management</h1>
+    <div class="page-actions">
+        <a href="/projects/create" class="btn btn-primary">Create New Project</a>
+    </div>
+</div>
+
+{% if success %}
+<div class="alert alert-success">{{ success }}</div>
+{% endif %}
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Projects</h3>
+    </div>
+    <div class="card-body">
+        {% if projects %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Project Name</th>
+                    <th>Department</th>
+                    <th>Budget</th>
+                    <th>Status</th>
+                    <th>Owner</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td>{{ project.project_id }}</td>
+                    <td><strong>{{ project.project_name }}</strong></td>
+                    <td>
+                        <span class="badge badge-dept">{{ project.department }}</span>
+                    </td>
+                    <td class="budget">${{ "{:,.2f}".format(project.budget or 0) }}</td>
+                    <td>
+                        <span
+                            class="badge {% if project.status == 'ACTIVE' %}badge-success{% elif project.status == 'COMPLETED' %}badge-info{% else %}badge-danger{% endif %}">
+                            {{ project.status }}
+                        </span>
+                    </td>
+                    <td>{{ project.owner_username }}</td>
+                    <td>
+                        <a href="/projects/{{ project.project_id }}/edit" class="btn btn-primary btn-sm">Edit</a>
+                        <form action="/projects/{{ project.project_id }}/delete" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Delete project {{ project.project_name }}?')">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📁</div>
+            <div class="empty-state-text">No projects found</div>
+            <div class="empty-state-subtext">Create your first project to get started</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .badge-dept {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    .badge-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .badge-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .badge-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .budget {
+        font-family: monospace;
+        text-align: right;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+{% endblock %}

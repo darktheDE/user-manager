@@ -20,7 +20,8 @@ Dự án sử dụng **Oracle Database 23ai Free Edition** chạy trong Docker c
 
 2. **Khởi động Oracle Database:**
    ```bash
-   docker-compose up -d oracle-db
+   cd server
+   docker compose up -d
    ```
 
 3. **Kiểm tra trạng thái container:**
@@ -39,7 +40,13 @@ Dự án sử dụng **Oracle Database 23ai Free Edition** chạy trong Docker c
 6. **Chạy script khởi tạo (tùy chọn):**
    Sau khi database sẵn sàng, có thể chạy script setup:
    ```bash
-   docker exec -i oracle-db-23ai sqlplus system/oracle123@FREEPDB1 < scripts/setup/01_create_users.sql
+cd server
+
+Get-Content scripts\setup\01_create_users.sql |
+docker exec -i oracle-db-23ai sqlplus system/oracle123@FREEPDB1
+
+Get-Content scripts\setup\02_create_tables.sql |
+docker exec -i oracle-db-23ai sqlplus system/oracle123@FREEPDB1
    ```
 
 ## Thông tin kết nối
