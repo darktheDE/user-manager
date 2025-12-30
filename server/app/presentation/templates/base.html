@@ -44,10 +44,62 @@
 
     <!-- Scripts -->
     <script>
-        // Toggle Sidebar
-        document.getElementById('mobileMenuToggle')?.addEventListener('click', function () {
-            document.getElementById('sidebar').classList.toggle('active');
-        });
+        (function () {
+            const sidebar = document.getElementById('sidebar');
+            const SIDEBAR_STATE_KEY = 'sidebarState';
+            const SIDEBAR_SCROLL_KEY = 'sidebarScroll';
+
+            // Restore sidebar collapsed state
+            const savedState = localStorage.getItem(SIDEBAR_STATE_KEY);
+            if (savedState === 'collapsed') {
+                sidebar.classList.add('collapsed');
+                document.querySelector('.main-content')?.classList.add('sidebar-collapsed');
+            }
+
+            // Restore scroll position
+            const savedScroll = localStorage.getItem(SIDEBAR_SCROLL_KEY);
+            if (savedScroll && sidebar) {
+                const sidebarNav = sidebar.querySelector('.sidebar-nav');
+                if (sidebarNav) {
+                    sidebarNav.scrollTop = parseInt(savedScroll, 10);
+                }
+            }
+
+            // Toggle Sidebar (mobile)
+            document.getElementById('mobileMenuToggle')?.addEventListener('click', function () {
+                sidebar.classList.toggle('active');
+            });
+
+            // Toggle Sidebar collapse (desktop)
+            document.getElementById('sidebarToggle')?.addEventListener('click', function () {
+                sidebar.classList.toggle('collapsed');
+                document.querySelector('.main-content')?.classList.toggle('sidebar-collapsed');
+
+                // Save state
+                const isCollapsed = sidebar.classList.contains('collapsed');
+                localStorage.setItem(SIDEBAR_STATE_KEY, isCollapsed ? 'collapsed' : 'expanded');
+            });
+
+            // Save scroll position before unload
+            window.addEventListener('beforeunload', function () {
+                const sidebarNav = sidebar?.querySelector('.sidebar-nav');
+                if (sidebarNav) {
+                    localStorage.setItem(SIDEBAR_SCROLL_KEY, sidebarNav.scrollTop.toString());
+                }
+            });
+
+            // Also save on scroll
+            const sidebarNav = sidebar?.querySelector('.sidebar-nav');
+            if (sidebarNav) {
+                let scrollTimeout;
+                sidebarNav.addEventListener('scroll', function () {
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(function () {
+                        localStorage.setItem(SIDEBAR_SCROLL_KEY, sidebarNav.scrollTop.toString());
+                    }, 100);
+                });
+            }
+        })();
     </script>
     {% block extra_js %}{% endblock %}
 </body>

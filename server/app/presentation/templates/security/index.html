@@ -38,123 +38,93 @@
         <a href="/security/audit" class="btn btn-primary">Xem chi tiết →</a>
     </div>
 
-    <!-- Database Vault Card -->
+
+    <!-- Data Redaction Card -->
     <div class="security-card">
-        <div class="card-icon">🏰</div>
-        <h3>Database Vault</h3>
-        <p>Bảo vệ dữ liệu nhạy cảm, ngăn chặn truy cập trái phép ngay cả từ DBA.</p>
+        <div class="card-icon">🎭</div>
+        <h3>Data Redaction</h3>
+        <p>Che giấu dữ liệu nhạy cảm (PII) như số điện thoại, email đối với user thường.</p>
         <ul>
-            <li><strong>Realms:</strong> Vùng bảo vệ tables</li>
-            <li><strong>Command Rules:</strong> Kiểm soát SQL</li>
-            <li>Thay thế Oracle Label Security</li>
+            <li><strong>Full Redaction:</strong> Che hoàn toàn</li>
+            <li><strong>Partial:</strong> Che một phần (******789)</li>
+            <li><strong>Regexp:</strong> Che theo mẫu Email</li>
         </ul>
-        <a href="/security/dbvault" class="btn btn-primary">Xem chi tiết →</a>
+        <a href="/security/redaction" class="btn btn-primary">Xem chi tiết →</a>
     </div>
 </div>
 
-<div class="summary-table">
-    <h3>📊 Tổng quan các tính năng</h3>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Tính năng</th>
-                <th>Mục đích</th>
-                <th>Script</th>
-                <th>Áp dụng trên</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><span class="badge badge-info">VPD</span></td>
-                <td>Phân quyền dòng dữ liệu</td>
-                <td><code>03_create_vpd_policy.sql</code></td>
-                <td>PROJECTS.DEPARTMENT</td>
-            </tr>
-            <tr>
-                <td><span class="badge badge-warning">Standard Audit</span></td>
-                <td>Log login/DDL</td>
-                <td><code>05_create_audit.sql</code></td>
-                <td>Toàn hệ thống</td>
-            </tr>
-            <tr>
-                <td><span class="badge badge-warning">FGA</span></td>
-                <td>Giám sát chi tiết</td>
-                <td><code>05_create_audit.sql</code></td>
-                <td>PROJECTS.BUDGET</td>
-            </tr>
-            <tr>
-                <td><span class="badge badge-success">Database Vault</span></td>
-                <td>Bảo vệ dữ liệu mật</td>
-                <td><code>07_create_dbvault.sql</code></td>
-                <td>PROJECTS, USER_INFO</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+<div class="intro-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin-top: 2rem;">
+    <h3>💡 Lưu ý bảo mật</h3>
+    <p>Hệ thống sử dụng mô hình bảo mật nhiều lớp (Defense in Depth):</p>
+    <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+        <li>User chỉ thấy dữ liệu của phòng ban (VPD).</li>
+        <li>Dữ liệu nhạy cảm được che giấu (Data Redaction).</li>
+        <li> Mọi truy cập bất thường đều được ghi lại (Audit).</li>
+    </ul>
 
-<style>
-    .intro-box {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 8px;
-        margin-bottom: 2rem;
-    }
+    <style>
+        .intro-box {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
 
-    .security-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
 
-    .security-card {
-        background: var(--bg-primary);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 1.5rem;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
+        .security-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-    .security-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    }
+        .security-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
 
-    .card-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-    }
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
 
-    .security-card h3 {
-        margin-bottom: 0.75rem;
-        color: var(--text-primary);
-    }
+        .security-card h3 {
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
 
-    .security-card p {
-        color: var(--text-secondary);
-        margin-bottom: 1rem;
-    }
+        .security-card p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
 
-    .security-card ul {
-        margin-bottom: 1.5rem;
-        padding-left: 1.25rem;
-    }
+        .security-card ul {
+            margin-bottom: 1.5rem;
+            padding-left: 1.25rem;
+        }
 
-    .security-card li {
-        margin-bottom: 0.25rem;
-        color: var(--text-secondary);
-    }
+        .security-card li {
+            margin-bottom: 0.25rem;
+            color: var(--text-secondary);
+        }
 
-    .summary-table {
-        background: var(--bg-primary);
-        border-radius: 8px;
-        padding: 1.5rem;
-        border: 1px solid var(--border);
-    }
+        .summary-table {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
 
-    .summary-table h3 {
-        margin-bottom: 1rem;
-    }
-</style>
-{% endblock %}
+        .summary-table h3 {
+            margin-bottom: 1rem;
+        }
+    </style>
+    {% endblock %}

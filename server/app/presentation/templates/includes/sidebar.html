@@ -8,12 +8,16 @@
     <!-- Main Navigation -->
     <div class="nav-title">Điều hướng</div>
 
+    {% set session_username = request.session.get('username', '') %}
+
+    {% if session_username and session_username.upper() in ['ADMIN', 'SYSTEM'] %}
     <li class="nav-item">
         <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}">
             <span class="nav-icon"><i class="fa-solid fa-house"></i></span>
             <span class="nav-text">Bảng điều khiển</span>
         </a>
     </li>
+    {% endif %}
 
     <li class="nav-item">
         <a href="/my-account" class="nav-link {% if '/my-account' in request.url.path %}active{% endif %}">
@@ -22,7 +26,8 @@
         </a>
     </li>
 
-    <!-- User Management -->
+    {% if session_username and session_username.upper() in ['ADMIN', 'SYSTEM'] %}
+    <!-- User Management (Admin only) -->
     <div class="nav-title">Quản lý User & Profile</div>
 
     <li class="nav-item">
@@ -39,7 +44,7 @@
         </a>
     </li>
 
-    <!-- Role & Privilege -->
+    <!-- Role & Privilege (Admin only) -->
     <div class="nav-title">Phân quyền</div>
 
     <li class="nav-item">
@@ -70,8 +75,9 @@
             <span class="nav-text">Quyền Đối tượng</span>
         </a>
     </li>
+    {% endif %}
 
-    <!-- Project Management -->
+    <!-- Project Management (All users) -->
     <div class="nav-title">Nghiệp vụ</div>
 
     <li class="nav-item">
@@ -81,7 +87,8 @@
         </a>
     </li>
 
-    <!-- Oracle Security -->
+    {% if session_username and session_username.upper() in ['ADMIN', 'SYSTEM'] %}
+    <!-- Oracle Security (Admin only) -->
     <div class="nav-title">Bảo mật Oracle</div>
 
     <li class="nav-item">
@@ -92,21 +99,23 @@
     </li>
 
     <li class="nav-item nav-sub-item">
-        <a href="/security/vpd" class="nav-link">
+        <a href="/security/vpd" class="nav-link {% if '/security/vpd' in request.url.path %}active{% endif %}">
             <span class="nav-icon"><i class="fa-solid fa-eye-slash"></i></span>
             <span class="nav-text">VPD (Row Level)</span>
         </a>
     </li>
     <li class="nav-item nav-sub-item">
-        <a href="/security/audit" class="nav-link">
+        <a href="/security/audit" class="nav-link {% if '/security/audit' in request.url.path %}active{% endif %}">
             <span class="nav-icon"><i class="fa-solid fa-file-contract"></i></span>
             <span class="nav-text">Audit (Giám sát)</span>
         </a>
     </li>
     <li class="nav-item nav-sub-item">
-        <a href="/security/dbvault" class="nav-link">
-            <span class="nav-icon"><i class="fa-solid fa-vault"></i></span>
-            <span class="nav-text">Database Vault</span>
+        <a href="/security/redaction"
+            class="nav-link {% if '/security/redaction' in request.url.path %}active{% endif %}">
+            <span class="nav-icon"><i class="fa-solid fa-mask"></i></span>
+            <span class="nav-text">Data Redaction</span>
         </a>
     </li>
+    {% endif %}
 </nav>

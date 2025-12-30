@@ -26,7 +26,8 @@ async def list_projects(request: Request):
     username = require_auth(request)
     
     try:
-        projects = await project_service.get_all_projects()
+        # Truyền username để VPD context được set
+        projects = await project_service.get_all_projects(app_username=username)
         return templates.TemplateResponse(
             "projects/list.html",
             {

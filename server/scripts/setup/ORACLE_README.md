@@ -146,4 +146,4 @@ Phiên bản này bao gồm:
 - Hỗ trợ JSON
 - Tính năng bảo mật nâng cao
 - Hiệu suất cải thiện
-- VPD, OLS, và Audit
+- VPD, Data Redaction và Audit (Unified Audit và FGA)

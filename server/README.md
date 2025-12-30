@@ -117,8 +117,9 @@ Xem `scripts/setup/ORACLE_README.md` để biết hướng dẫn chi tiết về
 - ✅ Quản lý Role
 - ✅ Quản lý Privilege (Grant/Revoke)
 - ✅ VPD (Virtual Private Database)
-- ✅ OLS (Oracle Label Security)
-- ✅ Audit (Standard + FGA)
+- ✅ Audit (Unified Audit + FGA)
+- ❌ Database Vault (Enterprise Edition only)
+- ❌ OLS - Oracle Label Security (Enterprise Edition only)
 
 ## Bảo mật
 

@@ -58,16 +58,20 @@ async def shutdown_event() -> None:
 
 @app.get("/", response_class=HTMLResponse, tags=["Root"])
 async def root(request: Request):
-    """Trang chủ - Dashboard."""
+    """Trang chủ - Dashboard (chỉ cho Admin)."""
     from app.presentation.middleware import get_session
+    from starlette.responses import RedirectResponse
+    from starlette.status import HTTP_303_SEE_OTHER
     
     session = get_session(request)
     username = session.get("username")
     
     if not username:
-        from starlette.responses import RedirectResponse
-        from starlette.status import HTTP_303_SEE_OTHER
         return RedirectResponse(url="/login", status_code=HTTP_303_SEE_OTHER)
+    
+    # Redirect user thường đến trang projects, chỉ ADMIN/SYSTEM mới thấy dashboard
+    if username.upper() not in ['ADMIN', 'SYSTEM']:
+        return RedirectResponse(url="/projects", status_code=HTTP_303_SEE_OTHER)
     
     
     # Lấy thống kê
@@ -89,18 +93,18 @@ async def root(request: Request):
                 await cursor.execute("SELECT count(*) FROM dba_roles")
                 role_count = (await cursor.fetchone())[0]
                 
-                # Count Realms (Security)
+                # Count Active Sessions
                 try:
-                    await cursor.execute("SELECT count(*) FROM DVSYS.DBA_DV_REALM")
-                    realm_count = (await cursor.fetchone())[0]
+                    await cursor.execute("SELECT count(*) FROM v$session WHERE type = 'USER'")
+                    session_count = (await cursor.fetchone())[0]
                 except:
-                    realm_count = 0
+                    session_count = 0
     except Exception as e:
         print(f"Error fetching stats: {e}")
         user_count = 0
         project_count = 0
         role_count = 0
-        realm_count = 0
+        session_count = 0
     
     return templates.TemplateResponse(
         "dashboard.html",
@@ -111,7 +115,7 @@ async def root(request: Request):
                 "users": user_count,
                 "projects": project_count,
                 "roles": role_count,
-                "realms": realm_count
+                "sessions": session_count
             }
         }
     )

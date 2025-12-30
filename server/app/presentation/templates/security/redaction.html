@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Data Redaction{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🎭 Data Redaction</h1>
+    <a href="/security" class="btn btn-secondary">← Quay lại</a>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="intro-box">
+    <h3>Bảo vệ dữ liệu nhạy cảm (PII)</h3>
+    <p>Oracle Data Redaction cho phép che giấu dữ liệu (masking) khi trả về cho user mà không cần thay đổi dữ liệu gốc
+        trong database.</p>
+    <ul>
+        <li><strong>Full Redaction:</strong> Che toàn bộ cột (trả về NULL hoặc giá trị tĩnh).</li>
+        <li><strong>Partial Redaction:</strong> Che một phần (VD: số thẻ tín dụng, số điện thoại).</li>
+        <li><strong>Regexp Redaction:</strong> Che theo mẫu Regex (VD: Email).</li>
+        <li><strong>Random Redaction:</strong> Trả về giá trị ngẫu nhiên.</li>
+    </ul>
+    <p><strong>Ưu điểm:</strong> Ứng dụng không cần thay đổi code query. Policy được áp dụng tự động tại Database Layer.
+    </p>
+</div>
+
+<!-- Active Policies -->
+<div class="section-container">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">🛡️ Active Policies</h5>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            {% if policies %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Policy Name</th>
+                            <th>Object</th>
+                            <th>Expression</th>
+                            <th>Enabled</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in policies %}
+                        <tr>
+                            <td><strong>{{ p.policy_name }}</strong></td>
+                            <td>{{ p.object_name }}</td>
+                            <td><code>{{ p.expression }}</code></td>
+                            <td>
+                                {% if p.enable == 'YES' %}
+                                <span class="badge badge-success">YES</span>
+                                {% else %}
+                                <span class="badge badge-secondary">NO</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-warning" style="margin: 1rem;">Chưa có Policy nào được cấu hình.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Redaction Rules -->
+<div class="section-container" style="margin-top: 1.5rem;">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">📋 Cấu hình Redaction (Column Rules)</h5>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            {% if columns %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Column</th>
+                            <th>Type</th>
+                            <th>Parameters / Pattern</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for col in columns %}
+                        <tr>
+                            <td><code>{{ col.column_name }}</code></td>
+                            <td><span class="badge badge-info">{{ col.function_type }}</span></td>
+                            <td>
+                                {% if col.function_type == 'regexp' %}
+                                <strong>Pattern:</strong> <code>{{ col.regexp_pattern }}</code><br>
+                                <strong>Replace:</strong> <code>{{ col.regexp_replace_string }}</code>
+                                {% else %}
+                                <code>{{ col.function_parameters }}</code>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info" style="margin: 1rem;">Không có cột nào bị redactor.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Live Demo -->
+<div class="section-container" style="margin-top: 1.5rem;">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">👀 Live Demo: User View (APP_ADMIN)</h5>
+            <span class="badge badge-success" style="margin-left: auto;">Kết nối thực tế</span>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            {% if demo_error %}
+            <div class="alert alert-error" style="margin: 1rem;">{{ demo_error }}</div>
+            {% endif %}
+
+            {% if demo_data %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Full Name</th>
+                            <th>Email (Redacted)</th>
+                            <th>Phone (Redacted)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in demo_data %}
+                        <tr>
+                            <td>{{ row.username }}</td>
+                            <td>{{ row.full_name }}</td>
+                            <td class="text-danger font-weight-bold">{{ row.email }}</td>
+                            <td class="text-danger font-weight-bold">{{ row.phone }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div style="padding: 1rem; border-top: 1px solid var(--border);">
+                <small class="text-muted">
+                    * Dữ liệu hiển thị ở trên là kết quả trả về trực tiếp từ Database khi kết nối bằng user thường.
+                    Backend không can thiệp xử lý chuỗi.
+                </small>
+            </div>
+            {% else %}
+            <div class="alert alert-info" style="margin: 1rem;">Không có dữ liệu demo.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .intro-box {
+        background: linear-gradient(135deg, #FF6B6B 0%, #d63031 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .intro-box ul {
+        margin-top: 0.5rem;
+        padding-left: 1.5rem;
+    }
+
+    .badge-info {
+        background-color: #0984e3;
+        color: white;
+    }
+</style>
+{% endblock %}

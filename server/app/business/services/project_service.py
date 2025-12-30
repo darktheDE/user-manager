@@ -20,9 +20,9 @@ class ProjectService:
         "R&D",
     ]
 
-    async def get_all_projects(self, username: str = None) -> List[Dict[str, Any]]:
-        """Lấy tất cả dự án, có thể lọc theo người sở hữu."""
-        return await project_dao.query_all_projects(username)
+    async def get_all_projects(self, app_username: str = None) -> List[Dict[str, Any]]:
+        """Lấy tất cả dự án, VPD sẽ tự động lọc theo user."""
+        return await project_dao.query_all_projects(app_username)
 
     async def get_project_by_id(self, project_id: int) -> Optional[Dict[str, Any]]:
         """Lấy dự án cụ thể theo ID."""

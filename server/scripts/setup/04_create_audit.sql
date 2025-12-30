@@ -27,6 +27,24 @@ CREATE AUDIT POLICY audit_projects_dml
 AUDIT POLICY audit_projects_dml;
 
 -- =============================================
+-- 1b. Unified Auditing Policy cho User Management using ACTIONS
+-- Audit CREATE/ALTER/DROP USER/ROLE/PROFILE
+-- =============================================
+BEGIN
+    EXECUTE IMMEDIATE 'DROP AUDIT POLICY audit_user_admin';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+CREATE AUDIT POLICY audit_user_admin
+    ACTIONS CREATE USER, ALTER USER, DROP USER,
+            CREATE ROLE, ALTER ROLE, DROP ROLE,
+            CREATE PROFILE, ALTER PROFILE, DROP PROFILE;
+
+AUDIT POLICY audit_user_admin;
+
+-- =============================================
 -- 2. Fine-Grained Auditing (FGA) cho cột BUDGET
 -- Audit khi có ai đọc/sửa budget
 -- =============================================

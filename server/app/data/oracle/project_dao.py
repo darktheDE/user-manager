@@ -8,12 +8,13 @@ from app.data.oracle.connection import db
 class ProjectDAO:
     """DAO cho các thao tác dự án."""
 
-    async def query_all_projects(self, username: str = None) -> List[Dict[str, Any]]:
+    async def query_all_projects(self, app_username: str = None) -> List[Dict[str, Any]]:
         """
         Truy vấn tất cả dự án.
+        VPD sẽ tự động lọc theo app_username nếu được set.
         
         Args:
-            username: Tùy chọn - lọc theo tên đăng nhập người sở hữu
+            app_username: Username từ session (dùng cho VPD context)
             
         Returns:
             Danh sách dict thông tin dự án
@@ -25,21 +26,20 @@ class ProjectDAO:
         try:
             cursor = conn.cursor()
             
-            if username:
-                await cursor.execute("""
-                    SELECT project_id, project_name, department, budget, status, 
-                           owner_username, created_at, updated_at
-                    FROM projects
-                    WHERE owner_username = :username
-                    ORDER BY created_at DESC
-                """, username=username.upper())
-            else:
-                await cursor.execute("""
-                    SELECT project_id, project_name, department, budget, status, 
-                           owner_username, created_at, updated_at
-                    FROM projects
-                    ORDER BY created_at DESC
-                """)
+            # Set app user context cho VPD
+            if app_username:
+                await cursor.execute(
+                    "BEGIN set_app_user_proc(:username); END;",
+                    username=app_username.upper()
+                )
+            
+            # Query - VPD sẽ tự động filter theo app_user_ctx
+            await cursor.execute("""
+                SELECT project_id, project_name, department, budget, status, 
+                       owner_username, created_at, updated_at
+                FROM projects
+                ORDER BY created_at DESC
+            """)
             
             columns = [desc[0].lower() for desc in cursor.description]
             rows = await cursor.fetchall()

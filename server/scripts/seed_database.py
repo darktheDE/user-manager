@@ -39,6 +39,7 @@ TEST_USERS = [
         "department": "IT",
         "default_tablespace": "USERS",
         "temp_tablespace": "TEMP",
+        "phone": "0901234567"
     },
     {
         "username": "HR_USER",
@@ -48,6 +49,7 @@ TEST_USERS = [
         "department": "HR",
         "default_tablespace": "USERS",
         "temp_tablespace": "TEMP",
+        "phone": "0912345678"
     },
     {
         "username": "IT_USER",
@@ -57,6 +59,7 @@ TEST_USERS = [
         "department": "IT",
         "default_tablespace": "USERS",
         "temp_tablespace": "TEMP",
+        "phone": "0934567890"
     },
     {
         "username": "FINANCE_USER",
@@ -66,6 +69,7 @@ TEST_USERS = [
         "department": "FINANCE",
         "default_tablespace": "USERS",
         "temp_tablespace": "TEMP",
+        "phone": "0987654321"
     },
     {
         "username": "MARKETING_USER",
@@ -75,6 +79,17 @@ TEST_USERS = [
         "department": "MARKETING",
         "default_tablespace": "USERS",
         "temp_tablespace": "TEMP",
+        "phone": "0966888999"
+    },
+    {
+        "username": "nhanvien01",
+        "password": "Password123",
+        "full_name": "Nhan Vien Demo",
+        "email": "nhanvien01@gmail.com",
+        "department": "IT",
+        "default_tablespace": "USERS",
+        "temp_tablespace": "TEMP",
+        "phone": "0999888777"
     },
 ]
 
@@ -114,14 +129,86 @@ TEST_PROJECTS = [
 ]
 
 
+import subprocess
+
+
+async def run_setup_scripts():
+    """Run SQL scripts in scripts/setup folder via SQLPlus in Docker."""
+    print("\n[0/6] Executing Setup SQL Scripts...")
+    
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    setup_dir = os.path.join(current_dir, 'setup')
+    
+    if not os.path.exists(setup_dir):
+        print("    ⚠ Setup directory not found!")
+        return
+
+    # Get .sql files, sorted by name
+    sql_files = sorted([f for f in os.listdir(setup_dir) if f.endswith('.sql')])
+    
+    if not sql_files:
+        print("    → No SQL scripts found")
+        return
+    
+    for sql_file in sql_files:
+        file_path = os.path.join(setup_dir, sql_file)
+        print(f"    Target: {sql_file}...")
+        
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                sql_content = f.read()
+
+            # Standard SYSTEM connection for all scripts
+            cmd = ["docker", "exec", "-i", "oracle-db-23ai", "sqlplus", "-S", 
+                   "system/oracle123@FREEPDB1"]
+            process = subprocess.Popen(
+                cmd, 
+                stdin=subprocess.PIPE, 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE,
+                text=True,
+                encoding='utf-8'
+            )
+            
+            stdout, stderr = process.communicate(input=sql_content, timeout=120)
+            
+            if process.returncode != 0:
+                print(f"    ✗ Failed to execute {sql_file}")
+                print(f"    ERROR: {stderr}")
+            else:
+                # Check for common SQLPlus errors in output even if return code is 0
+                # Filter out benign errors
+                benign_errors = ['ORA-01920', 'ORA-00955', 'ORA-01921', 'ORA-00942', 'ORA-46358']
+                has_real_error = "ORA-" in stdout and not any(e in stdout for e in benign_errors)
+                
+                if has_real_error:
+                    # Extract error line
+                    error_lines = [l for l in stdout.split('\n') if 'ORA-' in l][:3]
+                    print(f"    ⚠ Warnings in {sql_file}:")
+                    for line in error_lines:
+                        print(f"      {line.strip()}")
+                else:
+                    print(f"    ✓ Executed {sql_file}")
+                     
+        except subprocess.TimeoutExpired:
+            print(f"    ✗ Timeout executing {sql_file}")
+            process.kill()
+        except Exception as e:
+            print(f"    ✗ Error running script: {e}")
+
+
+
 async def main():
     """Main seed function."""
     print("=" * 60)
     print("Database Seed Script")
     print("=" * 60)
     
+    # 0. Run Setup Scripts
+    await run_setup_scripts()
+    
     # Connect to Oracle
-    print("\n[1/6] Connecting to Oracle...")
+    print("\n[1/6] Connecting to Oracle (Runtime Data)...")
     try:
         conn = await oracledb.connect_async(
             user=ORACLE_USER,
@@ -262,4 +349,157 @@ async def main():
 
 
 if __name__ == "__main__":
+    asyncio.run(main())
+async def main():
+    """Main seed function."""
+    print("=" * 60)
+    print("Database Seed Script")
+    print("=" * 60)
+    
+    # 0. Run Setup Scripts
+    await run_setup_scripts()
+    
+    # Connect to Oracle
+    print("\n[1/6] Connecting to Oracle (Runtime Data)...")
+    try:
+        conn = await oracledb.connect_async(
+            user=ORACLE_USER,
+            password=ORACLE_PASSWORD,
+            dsn=ORACLE_DSN,
+        )
+        print("    ✓ Connected to Oracle Database as SYSTEM")
+    except Exception as e:
+        print(f"    ✗ Connection failed: {e}")
+        return
+
+    try:
+        cursor = conn.cursor()
+
+        # 1. Create Users
+        print("\n[2/6] Creating Oracle Users...")
+        for user_data in TEST_USERS:
+            username = user_data['username']
+            password = user_data['password']
+            
+            try:
+                # Check if user exists
+                await cursor.execute("SELECT count(*) FROM dba_users WHERE username = :1", [username.upper()])
+                exists = (await cursor.fetchone())[0]
+                
+                if exists:
+                    print(f"    → User {username} already exists")
+                    # Reset password to ensure we know it
+                    await cursor.execute(f"ALTER USER {username} IDENTIFIED BY \"{password}\"")
+                else:
+                    print(f"    + Creating user {username}...")
+                    await cursor.execute(f"CREATE USER {username} IDENTIFIED BY \"{password}\"")
+                    await cursor.execute(f"GRANT CONNECT, RESOURCE TO {username}")
+                    await cursor.execute(f"GRANT UNLIMITED TABLESPACE TO {username}")
+            except Exception as e:
+                print(f"    ✗ Error managing user {username}: {e}")
+
+        # 2. Populate USER_INFO table (with hashed passwords)
+        print("\n[3/6] Populating USER_INFO table...")
+        # Clear existing data first? Maybe not needed if we want to preserve
+        # But for seed script, usually safe to clear valid test data or UPSERT
+        
+        for user_data in TEST_USERS:
+            username = user_data['username']
+            # Only insert if not exists in USER_INFO
+            try:
+                await cursor.execute("SELECT count(*) FROM user_info WHERE username = :1", [username])
+                exists = (await cursor.fetchone())[0]
+                
+                if not exists:
+                    print(f"    + Inserting {username} into USER_INFO...")
+                    pwd_hash = hash_password(user_data['password'])
+                    phone = user_data.get('phone', '')
+                    await cursor.execute("""
+                        INSERT INTO user_info 
+                        (username, password_hash, full_name, email, phone, department, created_at)
+                        VALUES (:1, :2, :3, :4, :5, :6, CURRENT_TIMESTAMP)
+                    """, [
+                        username, 
+                        pwd_hash, 
+                        user_data['full_name'], 
+                        user_data['email'],
+                        phone,
+                        user_data['department']
+                    ])
+                else:
+                    # Update phone/email if needed (to ensure test data is correct)
+                    print(f"    → Updating {username} info...")
+                    phone = user_data.get('phone', '')
+                    await cursor.execute("""
+                        UPDATE user_info 
+                        SET email = :1, phone = :2, updated_at = CURRENT_TIMESTAMP
+                        WHERE username = :3
+                    """, [user_data['email'], phone, username])
+                    
+            except Exception as e:
+                 print(f"    ✗ Error inserting {username} into USER_INFO: {e}")
+
+        # 3. Create Roles and Grants
+        print("\n[4/6] Creating Roles & Grants...")
+        for role in TEST_ROLES:
+            role_name = role['name']
+            try:
+                await cursor.execute("SELECT count(*) FROM dba_roles WHERE role = :1", [role_name])
+                exists = (await cursor.fetchone())[0]
+                
+                if not exists:
+                    print(f"    + Creating role {role_name}...")
+                    if role['password']:
+                        await cursor.execute(f"CREATE ROLE {role_name} IDENTIFIED BY \"{role['password']}\"")
+                    else:
+                        await cursor.execute(f"CREATE ROLE {role_name}")
+            except Exception as e:
+                print(f"    ✗ Error creating role {role_name}: {e}")
+
+        # Grants
+        for user, role in ROLE_GRANTS:
+            try:
+                await cursor.execute(f"GRANT {role} TO {user}")
+                print(f"    + Granted {role} to {user}")
+            except Exception:
+                pass # Ignore if already granted
+
+        # 4. Populate PROJECTS
+        print("\n[5/6] Populating PROJECTS table...")
+        for proj in TEST_PROJECTS:
+            try:
+                await cursor.execute("""
+                    MERGE INTO projects p
+                    USING dual ON (p.project_name = :p_name)
+                    WHEN NOT MATCHED THEN
+                        INSERT (project_name, department, budget, owner_username)
+                        VALUES (:p_name, :p_dept, :p_budget, :p_owner)
+                """, {
+                    "p_name": proj['name'], 
+                    "p_dept": proj['department'], 
+                    "p_budget": proj['budget'], 
+                    "p_owner": proj['owner']
+                })
+                print(f"    + Project: {proj['name']}")
+            except Exception as e:
+                print(f"    ✗ Error inserting project {proj['name']}: {e}")
+
+        await conn.commit()
+        print("\n[6/6] Committing changes...")
+
+    except Exception as e:
+        print(f"\n❌ Unexpected error: {e}")
+        await conn.rollback()
+    finally:
+        # Cursor.close() is synchronous in python-oracledb even for async connections
+        if cursor:
+            cursor.close()
+        await conn.close()
+        print("\nDone!")
+
+
+if __name__ == "__main__":
+    # Fix for Windows asyncio loop
+    if sys.platform == 'win32':
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())
