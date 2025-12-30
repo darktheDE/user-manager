@@ -333,7 +333,7 @@ class UserDAO:
         try:
             cursor = conn.cursor()
             await cursor.execute("""
-                SELECT username, full_name, email, phone, address, created_at
+                SELECT username, full_name, email, phone, address, department, notes, created_at
                 FROM user_info
                 WHERE username = :username
             """, username=username.upper())

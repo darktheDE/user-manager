@@ -57,12 +57,16 @@ async def my_account_page(request: Request):
         # Lấy quyền cột
         column_privs = await privilege_dao.query_column_privileges(username)
         
+        # Lấy thông tin mở rộng từ bảng user_info
+        app_user_info = await user_dao.query_user_info(username)
+        
         return templates.TemplateResponse(
             "my_account/index.html",
             {
                 "request": request,
                 "username": username,
                 "user": user_info,
+                "app_user": app_user_info,
                 "quota": quota_info,
                 "roles": user_roles,
                 "system_privs": system_privs,
@@ -78,6 +82,7 @@ async def my_account_page(request: Request):
                 "request": request,
                 "username": username,
                 "user": None,
+                "app_user": None,
                 "roles": [],
                 "system_privs": [],
                 "object_privs": [],

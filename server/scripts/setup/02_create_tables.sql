@@ -14,6 +14,7 @@ CREATE TABLE user_info (
     full_name       VARCHAR2(200),
     email           VARCHAR2(200),
     phone           VARCHAR2(20),
+    address         VARCHAR2(500),
     department      VARCHAR2(50),
     notes           VARCHAR2(1000),
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

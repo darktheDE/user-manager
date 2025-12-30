@@ -138,6 +138,6 @@ FROM dba_audit_policies
 WHERE object_name = 'PROJECTS';
 
 -- Kiểm tra Unified Audit Policies
-SELECT policy_name, enabled_opt, audit_option
+SELECT policy_name, enabled_option, audit_option
 FROM audit_unified_policies
 WHERE policy_name = 'AUDIT_PROJECTS_DML';

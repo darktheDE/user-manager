@@ -39,7 +39,8 @@ TEST_USERS = [
         "department": "IT",
         "default_tablespace": "USERS",
         "temp_tablespace": "TEMP",
-        "phone": "0901234567"
+        "phone": "0901234567",
+        "address": "123 Main St, IT District"
     },
     {
         "username": "HR_USER",
@@ -49,7 +50,8 @@ TEST_USERS = [
         "department": "HR",
         "default_tablespace": "USERS",
         "temp_tablespace": "TEMP",
-        "phone": "0912345678"
+        "phone": "0912345678",
+        "address": "456 Office Rd, HR Park"
     },
     {
         "username": "IT_USER",
@@ -59,7 +61,8 @@ TEST_USERS = [
         "department": "IT",
         "default_tablespace": "USERS",
         "temp_tablespace": "TEMP",
-        "phone": "0934567890"
+        "phone": "0934567890",
+        "address": "789 Dev Ave, Tech Zone"
     },
     {
         "username": "FINANCE_USER",
@@ -69,7 +72,8 @@ TEST_USERS = [
         "department": "FINANCE",
         "default_tablespace": "USERS",
         "temp_tablespace": "TEMP",
-        "phone": "0987654321"
+        "phone": "0987654321",
+        "address": "321 Money Way, Finance Square"
     },
     {
         "username": "MARKETING_USER",
@@ -79,7 +83,8 @@ TEST_USERS = [
         "department": "MARKETING",
         "default_tablespace": "USERS",
         "temp_tablespace": "TEMP",
-        "phone": "0966888999"
+        "phone": "0966888999",
+        "address": "654 Market St, Promo Area"
     },
     {
         "username": "nhanvien01",
@@ -89,7 +94,8 @@ TEST_USERS = [
         "department": "IT",
         "default_tablespace": "USERS",
         "temp_tablespace": "TEMP",
-        "phone": "0999888777"
+        "phone": "0999888777",
+        "address": "987 Demo Ln, Testing Ground"
     },
 ]
 
@@ -220,278 +226,130 @@ async def main():
         print(f"    ✗ Connection failed: {e}")
         return
     
-    cursor = conn.cursor()
-    
-    # Create Roles
-    print("\n[2/6] Creating Roles...")
-    for role in TEST_ROLES:
-        try:
-            if role["password"]:
-                await cursor.execute(f"CREATE ROLE {role['name']} IDENTIFIED BY \"{role['password']}\"")
-            else:
-                await cursor.execute(f"CREATE ROLE {role['name']}")
-            print(f"    ✓ Created role: {role['name']}")
-        except oracledb.Error as e:
-            if "ORA-01921" in str(e):  # Role already exists
-                print(f"    - Role exists: {role['name']}")
-            else:
-                print(f"    ✗ Error creating {role['name']}: {e}")
-    
-    # Grant privileges to roles
-    print("\n[3/6] Granting privileges to roles...")
-    role_privs = {
-        "ADMIN_ROLE": ["CREATE SESSION", "CREATE USER", "ALTER USER", "DROP USER", "CREATE ROLE"],
-        "HR_ROLE": ["CREATE SESSION"],
-        "IT_ROLE": ["CREATE SESSION", "CREATE TABLE"],
-        "FINANCE_ROLE": ["CREATE SESSION"],
-        "MARKETING_ROLE": ["CREATE SESSION"],
-        "READONLY_ROLE": ["CREATE SESSION"],
-    }
-    for role, privs in role_privs.items():
-        for priv in privs:
-            try:
-                await cursor.execute(f"GRANT {priv} TO {role}")
-            except oracledb.Error:
-                pass
-    print("    ✓ Privileges granted to roles")
-    
-    # Create Oracle Users
-    print("\n[4/6] Creating Oracle Users...")
-    for user in TEST_USERS:
-        try:
-            sql = f"""
-                CREATE USER {user['username']} IDENTIFIED BY "{user['password']}"
-                DEFAULT TABLESPACE {user['default_tablespace']}
-                TEMPORARY TABLESPACE {user['temp_tablespace']}
-                QUOTA UNLIMITED ON {user['default_tablespace']}
-            """
-            await cursor.execute(sql)
-            await cursor.execute(f"GRANT CREATE SESSION TO {user['username']}")
-            print(f"    ✓ Created user: {user['username']}")
-        except oracledb.Error as e:
-            if "ORA-01920" in str(e):  # User already exists
-                print(f"    - User exists: {user['username']}")
-            else:
-                print(f"    ✗ Error creating {user['username']}: {e}")
-    
-    # Grant roles to users
-    print("\n[5/6] Granting roles to users...")
-    for username, role in ROLE_GRANTS:
-        try:
-            await cursor.execute(f"GRANT {role} TO {username}")
-            print(f"    ✓ Granted {role} to {username}")
-        except oracledb.Error as e:
-            print(f"    - {username} <- {role}: {e}")
-    
-    # Insert user_info with bcrypt hashes
-    print("\n[6/6] Creating user_info records with bcrypt passwords...")
-    for user in TEST_USERS:
-        password_hash = hash_password(user["password"])
-        try:
-            # Check if exists
-            await cursor.execute(
-                "SELECT COUNT(*) FROM user_info WHERE username = :username",
-                username=user["username"]
-            )
-            row = await cursor.fetchone()
-            
-            if row[0] == 0:
-                await cursor.execute("""
-                    INSERT INTO user_info (username, password_hash, full_name, email, department)
-                    VALUES (:username, :password_hash, :full_name, :email, :department)
-                """,
-                    username=user["username"],
-                    password_hash=password_hash,
-                    full_name=user["full_name"],
-                    email=user["email"],
-                    department=user["department"],
-                )
-                print(f"    ✓ Created user_info: {user['username']} (hash: {password_hash[:20]}...)")
-            else:
-                print(f"    - User_info exists: {user['username']}")
-        except oracledb.Error as e:
-            print(f"    ✗ Error: {e}")
-    
-    # Insert projects
-    print("\n[+] Creating sample projects...")
-    for proj in TEST_PROJECTS:
-        try:
-            await cursor.execute(
-                "SELECT COUNT(*) FROM projects WHERE project_name = :name",
-                name=proj["name"]
-            )
-            row = await cursor.fetchone()
-            if row[0] == 0:
-                await cursor.execute("""
-                    INSERT INTO projects (project_name, department, budget, status, owner_username)
-                    VALUES (:name, :dept, :budget, 'ACTIVE', :owner)
-                """,
-                    name=proj["name"],
-                    dept=proj["department"],
-                    budget=proj["budget"],
-                    owner=proj["owner"],
-                )
-                print(f"    ✓ Created project: {proj['name']}")
-        except oracledb.Error as e:
-            print(f"    - {proj['name']}: {e}")
-    
-    await conn.commit()
-    await conn.close()
-    
-    print("\n" + "=" * 60)
-    print("✅ Database seeding completed!")
-    print("=" * 60)
-    print("\nTest Credentials:")
-    print("-" * 40)
-    for user in TEST_USERS:
-        print(f"  {user['username']:15} / {user['password']}")
-    print("-" * 40)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
-async def main():
-    """Main seed function."""
-    print("=" * 60)
-    print("Database Seed Script")
-    print("=" * 60)
-    
-    # 0. Run Setup Scripts
-    await run_setup_scripts()
-    
-    # Connect to Oracle
-    print("\n[1/6] Connecting to Oracle (Runtime Data)...")
-    try:
-        conn = await oracledb.connect_async(
-            user=ORACLE_USER,
-            password=ORACLE_PASSWORD,
-            dsn=ORACLE_DSN,
-        )
-        print("    ✓ Connected to Oracle Database as SYSTEM")
-    except Exception as e:
-        print(f"    ✗ Connection failed: {e}")
-        return
-
     try:
         cursor = conn.cursor()
 
-        # 1. Create Users
-        print("\n[2/6] Creating Oracle Users...")
+        # 1. Create Roles
+        print("\n[2/6] Creating Roles...")
+        for role in TEST_ROLES:
+            try:
+                if role["password"]:
+                    await cursor.execute(f"CREATE ROLE {role['name']} IDENTIFIED BY \"{role['password']}\"")
+                else:
+                    await cursor.execute(f"CREATE ROLE {role['name']}")
+                print(f"    ✓ Created role: {role['name']}")
+            except oracledb.Error as e:
+                if "ORA-01921" in str(e):
+                    print(f"    - Role exists: {role['name']}")
+                else:
+                    print(f"    ✗ Error creating {role['name']}: {e}")
+
+        # Grant privileges to roles
+        print("\n[3/6] Granting privileges to roles...")
+        role_privs = {
+            "ADMIN_ROLE": ["CREATE SESSION", "CREATE USER", "ALTER USER", "DROP USER", "CREATE ROLE"],
+            "HR_ROLE": ["CREATE SESSION"],
+            "IT_ROLE": ["CREATE SESSION", "CREATE TABLE"],
+            "FINANCE_ROLE": ["CREATE SESSION"],
+            "MARKETING_ROLE": ["CREATE SESSION"],
+            "READONLY_ROLE": ["CREATE SESSION"],
+        }
+        for role, privs in role_privs.items():
+            for priv in privs:
+                try:
+                    await cursor.execute(f"GRANT {priv} TO {role}")
+                except oracledb.Error:
+                    pass
+        print("    ✓ Privileges granted to roles")
+
+        # 2. Create Oracle Users
+        print("\n[4/6] Creating Oracle Users...")
         for user_data in TEST_USERS:
             username = user_data['username']
             password = user_data['password']
-            
             try:
-                # Check if user exists
-                await cursor.execute("SELECT count(*) FROM dba_users WHERE username = :1", [username.upper()])
-                exists = (await cursor.fetchone())[0]
-                
-                if exists:
-                    print(f"    → User {username} already exists")
-                    # Reset password to ensure we know it
-                    await cursor.execute(f"ALTER USER {username} IDENTIFIED BY \"{password}\"")
+                sql = f"""
+                    CREATE USER {username} IDENTIFIED BY "{password}"
+                    DEFAULT TABLESPACE {user_data['default_tablespace']}
+                    TEMPORARY TABLESPACE {user_data['temp_tablespace']}
+                    QUOTA UNLIMITED ON {user_data['default_tablespace']}
+                """
+                await cursor.execute(sql)
+                await cursor.execute(f"GRANT CREATE SESSION, RESOURCE TO {username}")
+                print(f"    ✓ Created user: {username}")
+            except oracledb.Error as e:
+                if "ORA-01920" in str(e):
+                    print(f"    - User exists: {username}")
                 else:
-                    print(f"    + Creating user {username}...")
-                    await cursor.execute(f"CREATE USER {username} IDENTIFIED BY \"{password}\"")
-                    await cursor.execute(f"GRANT CONNECT, RESOURCE TO {username}")
-                    await cursor.execute(f"GRANT UNLIMITED TABLESPACE TO {username}")
-            except Exception as e:
-                print(f"    ✗ Error managing user {username}: {e}")
+                    print(f"    ✗ Error creating {username}: {e}")
 
-        # 2. Populate USER_INFO table (with hashed passwords)
+        # Grants
+        print("\n[5/6] Granting roles to users...")
+        for user, role in ROLE_GRANTS:
+            try:
+                await cursor.execute(f"GRANT {role} TO {user}")
+                print(f"    ✓ Granted {role} to {user}")
+            except oracledb.Error:
+                pass
+
+        # 3. Populate USER_INFO table
         print("\n[3/6] Populating USER_INFO table...")
-        # Clear existing data first? Maybe not needed if we want to preserve
-        # But for seed script, usually safe to clear valid test data or UPSERT
-        
         for user_data in TEST_USERS:
             username = user_data['username']
-            # Only insert if not exists in USER_INFO
             try:
                 await cursor.execute("SELECT count(*) FROM user_info WHERE username = :1", [username])
                 exists = (await cursor.fetchone())[0]
                 
+                pwd_hash = hash_password(user_data['password'])
+                phone = user_data.get('phone', '')
+                address = user_data.get('address', '')
+                
                 if not exists:
-                    print(f"    + Inserting {username} into USER_INFO...")
-                    pwd_hash = hash_password(user_data['password'])
-                    phone = user_data.get('phone', '')
                     await cursor.execute("""
                         INSERT INTO user_info 
-                        (username, password_hash, full_name, email, phone, department, created_at)
-                        VALUES (:1, :2, :3, :4, :5, :6, CURRENT_TIMESTAMP)
-                    """, [
-                        username, 
-                        pwd_hash, 
-                        user_data['full_name'], 
-                        user_data['email'],
-                        phone,
-                        user_data['department']
-                    ])
+                        (username, password_hash, full_name, email, phone, address, department, created_at)
+                        VALUES (:1, :2, :3, :4, :5, :6, :7, CURRENT_TIMESTAMP)
+                    """, [username, pwd_hash, user_data['full_name'], user_data['email'], phone, address, user_data['department']])
+                    print(f"    ✓ Created user_info: {username}")
                 else:
-                    # Update phone/email if needed (to ensure test data is correct)
-                    print(f"    → Updating {username} info...")
-                    phone = user_data.get('phone', '')
                     await cursor.execute("""
                         UPDATE user_info 
-                        SET email = :1, phone = :2, updated_at = CURRENT_TIMESTAMP
-                        WHERE username = :3
-                    """, [user_data['email'], phone, username])
-                    
+                        SET email = :1, phone = :2, address = :3, updated_at = CURRENT_TIMESTAMP
+                        WHERE username = :4
+                    """, [user_data['email'], phone, address, username])
+                    print(f"    → Updated user_info: {username}")
             except Exception as e:
-                 print(f"    ✗ Error inserting {username} into USER_INFO: {e}")
+                 print(f"    ✗ Error managing user_info for {username}: {e}")
 
-        # 3. Create Roles and Grants
-        print("\n[4/6] Creating Roles & Grants...")
-        for role in TEST_ROLES:
-            role_name = role['name']
+        # 4. Populate PROJECTS
+        print("\n[+] Populating PROJECTS table...")
+        for proj in TEST_PROJECTS:
             try:
-                await cursor.execute("SELECT count(*) FROM dba_roles WHERE role = :1", [role_name])
+                # Check if exists first (to avoid ORA-28138 during MERGE)
+                await cursor.execute("SELECT count(*) FROM projects WHERE project_name = :p_name", {"p_name": proj['name']})
                 exists = (await cursor.fetchone())[0]
                 
                 if not exists:
-                    print(f"    + Creating role {role_name}...")
-                    if role['password']:
-                        await cursor.execute(f"CREATE ROLE {role_name} IDENTIFIED BY \"{role['password']}\"")
-                    else:
-                        await cursor.execute(f"CREATE ROLE {role_name}")
-            except Exception as e:
-                print(f"    ✗ Error creating role {role_name}: {e}")
-
-        # Grants
-        for user, role in ROLE_GRANTS:
-            try:
-                await cursor.execute(f"GRANT {role} TO {user}")
-                print(f"    + Granted {role} to {user}")
-            except Exception:
-                pass # Ignore if already granted
-
-        # 4. Populate PROJECTS
-        print("\n[5/6] Populating PROJECTS table...")
-        for proj in TEST_PROJECTS:
-            try:
-                await cursor.execute("""
-                    MERGE INTO projects p
-                    USING dual ON (p.project_name = :p_name)
-                    WHEN NOT MATCHED THEN
-                        INSERT (project_name, department, budget, owner_username)
+                    await cursor.execute("""
+                        INSERT INTO projects (project_name, department, budget, owner_username)
                         VALUES (:p_name, :p_dept, :p_budget, :p_owner)
-                """, {
-                    "p_name": proj['name'], 
-                    "p_dept": proj['department'], 
-                    "p_budget": proj['budget'], 
-                    "p_owner": proj['owner']
-                })
-                print(f"    + Project: {proj['name']}")
+                    """, {
+                        "p_name": proj['name'], 
+                        "p_dept": proj['department'], 
+                        "p_budget": proj['budget'], 
+                        "p_owner": proj['owner']
+                    })
+                    print(f"    ✓ Created project: {proj['name']}")
+                else:
+                    print(f"    - Project exists: {proj['name']}")
             except Exception as e:
-                print(f"    ✗ Error inserting project {proj['name']}: {e}")
+                print(f"    ✗ Error managing project {proj['name']}: {e}")
 
         await conn.commit()
-        print("\n[6/6] Committing changes...")
-
     except Exception as e:
         print(f"\n❌ Unexpected error: {e}")
         await conn.rollback()
     finally:
-        # Cursor.close() is synchronous in python-oracledb even for async connections
         if cursor:
             cursor.close()
         await conn.close()
@@ -499,7 +357,6 @@ async def main():
 
 
 if __name__ == "__main__":
-    # Fix for Windows asyncio loop
     if sys.platform == 'win32':
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())

@@ -25,6 +25,30 @@
                     <td><strong>{{ user.username }}</strong></td>
                 </tr>
                 <tr>
+                    <th>Họ và tên:</th>
+                    <td>{{ app_user.full_name or 'Chưa cập nhật' }}</td>
+                </tr>
+                <tr>
+                    <th>Email:</th>
+                    <td>{{ app_user.email or 'Chưa cập nhật' }}</td>
+                </tr>
+                <tr>
+                    <th>Số điện thoại:</th>
+                    <td>{{ app_user.phone or 'Chưa cập nhật' }}</td>
+                </tr>
+                <tr>
+                    <th>Địa chỉ:</th>
+                    <td>{{ app_user.address or 'Chưa cập nhật' }}</td>
+                </tr>
+                <tr>
+                    <th>Phòng ban:</th>
+                    <td>{{ app_user.department or 'Chưa cập nhật' }}</td>
+                </tr>
+                <tr>
+                    <th>Ghi chú:</th>
+                    <td>{{ app_user.notes or 'Không có' }}</td>
+                </tr>
+                <tr>
                     <th>Trạng thái:</th>
                     <td>
                         {% if user.account_status == 'OPEN' %}
@@ -35,17 +59,19 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>Ngày tạo:</th>
-                    <td>{{ user.created }}</td>
-                </tr>
-                <tr>
-                    <th>Ngày khóa:</th>
-                    <td>{{ user.lock_date or 'N/A' }}</td>
-                </tr>
-                <tr>
                     <th>Profile:</th>
                     <td><span class="badge badge-info">{{ user.profile or 'DEFAULT' }}</span></td>
                 </tr>
+                <tr>
+                    <th>Ngày tạo (DB):</th>
+                    <td>{{ user.created }}</td>
+                </tr>
+                {% if user.lock_date %}
+                <tr>
+                    <th>Ngày khóa:</th>
+                    <td>{{ user.lock_date }}</td>
+                </tr>
+                {% endif %}
             </table>
         </div>
     </div>
